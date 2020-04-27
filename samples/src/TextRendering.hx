@@ -1,5 +1,5 @@
 package;
-#if sampleTextRendering
+#if TextRendering
 import haxe.Timer;
 
 import lime.ui.Window;
@@ -318,7 +318,7 @@ class TextRendering
 	}
 	
 	public function onMouseMove (x:Float, y:Float):Void {}
-	public function onWindowLeave ():Void {}
+	public function onMouseUp (x:Float, y:Float, button:MouseButton):Void {}
 
 	public function onKeyDown (keyCode:KeyCode, modifier:KeyModifier):Void
 	{	
@@ -338,12 +338,12 @@ class TextRendering
 		}
 	}
 
-	public function render()
-	{
-		peoteView.render();
-	}
+	public function render() peoteView.render();
 	public function update(deltaTime:Int):Void {}
-	public function onMouseUp (x:Float, y:Float, button:MouseButton):Void {}
+
+	public function onTextInput(text:String):Void {}
+	public function onWindowActivate():Void {}
+	public function onWindowLeave ():Void {}
 
 	public function resize(width:Int, height:Int)
 	{

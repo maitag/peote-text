@@ -1,5 +1,5 @@
 package;
-#if sampleTextlineMasking
+#if TextlineMasking
 import haxe.Timer;
 
 import lime.ui.Window;
