@@ -7,11 +7,13 @@
 	<!-- <meta build-number="714" /> --> <!-- let set the buildnumber manual (android) -->
 	
 	<app main="Main" path="bin" file="Main" />
-	<haxedef name="TextlineMasking" />
+	<haxedef name="Pages" />
 	<!--
 		Gl3FontRendering,
-		TextRendering,
-		TextlineMasking
+		Glyphes,
+		Lines,
+		Pages,
+		InputLine
 		...
 	-->
 	<define name="stats" if="html5" />

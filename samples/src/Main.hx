@@ -10,10 +10,14 @@ import lime.ui.KeyModifier;
 
 #if Gl3FontRendering
 typedef Sample = Gl3FontRendering;
-#elseif TextRendering
-typedef Sample = TextRendering;
-#elseif TextlineMasking
-typedef Sample = TextlineMasking;
+#elseif Glyphes
+typedef Sample = Glyphes;
+#elseif Lines
+typedef Sample = Lines;
+#elseif Pages
+typedef Sample = Pages;
+#elseif InputLine
+typedef Sample = InputLine;
 #end 
 
 class Main extends Application
@@ -175,26 +179,28 @@ class Main extends Application
 			#if html5
 			case KeyCode.TAB: untyped __js__('event.preventDefault();');
 			case KeyCode.F:
-				var e:Dynamic = untyped __js__("document.getElementById('content').getElementsByTagName('canvas')[0]");
-				var noFullscreen:Dynamic = untyped __js__("(!document.fullscreenElement && !document.mozFullScreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement)");
-				
-				if ( noFullscreen)
-				{	// enter fullscreen
-					if (e.requestFullScreen) e.requestFullScreen();
-					else if (e.msRequestFullScreen) e.msRequestFullScreen();
-					else if (e.mozRequestFullScreen) e.mozRequestFullScreen();
-					else if (e.webkitRequestFullScreen) e.webkitRequestFullScreen();
-				}
-				else
-				{	// leave fullscreen
-					var d:Dynamic = untyped __js__("document");
-					if (d.exitFullscreen) d.exitFullscreen();
-					else if (d.msExitFullscreen) d.msExitFullscreen();
-					else if (d.mozCancelFullScreen) d.mozCancelFullScreen();
-					else if (d.webkitExitFullscreen) d.webkitExitFullscreen();					
+				if (modifier.ctrlKey) {
+					var e:Dynamic = untyped __js__("document.getElementById('content').getElementsByTagName('canvas')[0]");
+					var noFullscreen:Dynamic = untyped __js__("(!document.fullscreenElement && !document.mozFullScreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement)");
+					
+					if ( noFullscreen)
+					{	// enter fullscreen
+						if (e.requestFullScreen) e.requestFullScreen();
+						else if (e.msRequestFullScreen) e.msRequestFullScreen();
+						else if (e.mozRequestFullScreen) e.mozRequestFullScreen();
+						else if (e.webkitRequestFullScreen) e.webkitRequestFullScreen();
+					}
+					else
+					{	// leave fullscreen
+						var d:Dynamic = untyped __js__("document");
+						if (d.exitFullscreen) d.exitFullscreen();
+						else if (d.msExitFullscreen) d.msExitFullscreen();
+						else if (d.mozCancelFullScreen) d.mozCancelFullScreen();
+						else if (d.webkitExitFullscreen) d.webkitExitFullscreen();					
+					}
 				}
 			#else
-			case KeyCode.F: window.fullscreen = !window.fullscreen;
+			case KeyCode.F: if (modifier.ctrlKey) window.fullscreen = !window.fullscreen;
 			#end
 			default:
 		}

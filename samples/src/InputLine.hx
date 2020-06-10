@@ -1,5 +1,5 @@
 package;
-#if TextlineMasking
+#if InputLine
 import haxe.Timer;
 
 import lime.ui.Window;
@@ -83,7 +83,7 @@ class GlyphStyle {
 #if html5
 @:access(lime._internal.backend.html5.HTML5Window)
 #end
-class TextlineMasking
+class InputLine
 {
 	var peoteView:PeoteView;
 	var display:Display;
@@ -91,19 +91,14 @@ class TextlineMasking
 	
 	var helperLinesBuffer:Buffer<ElementSimple>;
 	var helperLinesProgram:Program;
-	var helperElems = new Map<Line<GlyphStyle>, {bg:ElementSimple,top:ElementSimple,asc:ElementSimple,base:ElementSimple,desc:ElementSimple}>();
+	var helperElems:{bg:ElementSimple,top:ElementSimple,asc:ElementSimple,base:ElementSimple,desc:ElementSimple};
 	
 	var fontProgram:FontProgram<GlyphStyle>;
 	
 	var line:Line<GlyphStyle>;
-	var line_x:Float = 0;
+	var line_x:Float = 10;
 	var line_xOffset:Float = 0;
 	var line_y:Float = 100;
-	
-	var lineMasked:Line<GlyphStyle>;
-	var lineMasked_x:Float = 61;
-	var lineMasked_xOffset:Float = -61;
-	var lineMasked_y:Float = 150;
 	
 	var actual_style:Int = 0;
 	var glyphStyle = new Array<GlyphStyle>();
@@ -182,20 +177,17 @@ class TextlineMasking
 				
 				// ------------------- line  -------------------				
 				line = new Line<GlyphStyle>();
+				line.maxX =  window.width - 20 - line_x;
+				line.maxY = line_y + 50;
 				line.xOffset = line_xOffset;
-
-				lineMasked = new Line<GlyphStyle>();
-				lineMasked.maxX = lineMasked_x + 300;
-				lineMasked.maxY = lineMasked_y + 50;
-				lineMasked.xOffset = lineMasked_xOffset;
 
 				setLine("Testing input textline and masking. (page up/down is toggling glyphstyle)");
 				
 				// -------- background and helperlines ---------				
-				addHelperLines(line, line.fullWidth, 20);
-				addHelperLines(lineMasked, lineMasked.maxX-lineMasked.x, lineMasked.maxY-lineMasked.y);
+				addHelperLines(line.maxX-line.x, line.maxY-line.y);
 				
-				// ----------------- Cursor  -------------------				
+				// ----------------- Cursor  -------------------	
+				cursor_x = line_x;
 				cursorElem = new ElementSimple(cursor_x, line_y, 1, 30, Color.RED);
 				helperLinesBuffer.addElement(cursorElem);
 				
@@ -217,13 +209,13 @@ class TextlineMasking
 	public function setLine(s:String)
 	{
 		fontProgram.setLine(line, s, line_x, line_y, glyphStyle[actual_style]);
-		fontProgram.setLine(lineMasked, s, lineMasked_x, lineMasked_y, glyphStyle[actual_style]);
 	}
 	
 	public function lineInsertChar(charcode:Int)
 	{
-		if (fontProgram.lineInsertChar(line, charcode, cursor, glyphStyle[actual_style]) != 0) {
-			moveCursor(fontProgram.lineInsertChar(lineMasked, charcode, cursor, glyphStyle[actual_style]));
+		var offset = fontProgram.lineInsertChar(line, charcode, cursor, glyphStyle[actual_style]);
+		if ( offset != 0) {
+			moveCursor(offset);
 			lineUpdate();
 			cursor ++;
 		}
@@ -231,11 +223,12 @@ class TextlineMasking
 	
 	public function lineInsertChars(text:String)
 	{
-		if (fontProgram.lineInsertChars(line, text, cursor, glyphStyle[actual_style]) != 0) {
-			var old_length = lineMasked.length;
-			moveCursor(fontProgram.lineInsertChars(lineMasked, text, cursor, glyphStyle[actual_style]));
+		var old_length = line.length;
+		var offset = fontProgram.lineInsertChars(line, text, cursor, glyphStyle[actual_style]);
+		if ( offset != 0) {
+			moveCursor(offset);
 			lineUpdate();
-			cursor += lineMasked.length - old_length;
+			cursor += line.length - old_length;
 		}
 	}
 	
@@ -253,7 +246,6 @@ class TextlineMasking
 			}
 			else {
 				fontProgram.lineDeleteChar(line, cursor);
-				fontProgram.lineDeleteChar(lineMasked, cursor);
 				lineUpdate();
 			}
 		}
@@ -274,7 +266,6 @@ class TextlineMasking
 			else {
 				cursor--;
 				moveCursor(fontProgram.lineDeleteChar(line, cursor));
-				fontProgram.lineDeleteChar(lineMasked, cursor);
 				lineUpdate();
 			}
 		}
@@ -284,7 +275,6 @@ class TextlineMasking
 	{
 		if (to < from) {var tmp = to; to = from; from = tmp; }
 		fontProgram.lineDeleteChars(line, from, to);
-		fontProgram.lineDeleteChars(lineMasked, from, to);
 		lineUpdate();
 		selectionSetFrom(from);
 		selectionSetTo(from);
@@ -299,7 +289,6 @@ class TextlineMasking
 			var to = select_to;
 			if (to < from) {to = select_from; from = select_to; }
 			cut = fontProgram.lineCutChars(line, from, to);
-			fontProgram.lineDeleteChars(lineMasked, from, to);
 			lineUpdate();
 			selectionSetTo(select_from);
 			cursorSet(from);
@@ -328,7 +317,6 @@ class TextlineMasking
 			var to = select_to;
 			if (to < from) {to = select_from; from = select_to; }
 			fontProgram.lineSetStyle(line, glyphStyle[actual_style], from, to);
-			fontProgram.lineSetStyle(lineMasked, glyphStyle[actual_style], from, to);
 			lineUpdate();
 			selectionSetFrom(select_from);
 			selectionSetTo(select_to);
@@ -339,7 +327,6 @@ class TextlineMasking
 	public function lineSetXOffset(xOffset:Float)
 	{
 		fontProgram.lineSetXOffset(line, line_xOffset + xOffset);
-		fontProgram.lineSetXOffset(lineMasked, lineMasked_xOffset + xOffset);
 		lineUpdate();
 		cursorElem.x = cursor_x + xOffset;
 		helperLinesBuffer.updateElement(cursorElem);
@@ -350,8 +337,7 @@ class TextlineMasking
 	public function lineUpdate()
 	{
 		fontProgram.updateLine(line);
-		fontProgram.updateLine(lineMasked);
-		updateHelperLines(line, line_x + line.xOffset, line.fullWidth, 20);
+		updateHelperLines(line_x, line.maxX-line.x, line.maxY-line.y);
 	}
 	
 	public function moveCursor(offset:Float)
@@ -434,7 +420,7 @@ class TextlineMasking
 	
 	// ---------------------------------------------------------------
 	
-	public function addHelperLines(line:Line<GlyphStyle>, width:Float, height:Float) {
+	public function addHelperLines( width:Float, height:Float) {
 		// bg
 		var bg = new ElementSimple(Std.int(line.x), Std.int(line.y), Std.int(width), Std.int(height), Color.GREY2);
 		helperLinesBuffer.addElement(bg);
@@ -451,19 +437,18 @@ class TextlineMasking
 		var desc = new ElementSimple(Std.int(line.x), Std.int(line.y + height), Std.int(width), 1, Color.GREY4);
 		helperLinesBuffer.addElement(desc);
 		
-		helperElems.set(line, {bg:bg, top:top, asc:asc, base:base, desc:desc});
+		helperElems = {bg:bg, top:top, asc:asc, base:base, desc:desc};
 	}
 	
-	public function updateHelperLines(line:Line<GlyphStyle>, x:Float, width:Float, height:Float) {
-		var elem = helperElems.get(line);
-		elem.bg.x = elem.top.x = elem.asc.x = elem.base.x = elem.desc.x = x;
-		elem.bg.w = elem.top.w = elem.asc.w = elem.base.w = elem.desc.w = width;
-		elem.bg.h = height;
-		helperLinesBuffer.updateElement(elem.bg);
-		helperLinesBuffer.updateElement(elem.top);
-		helperLinesBuffer.updateElement(elem.asc);
-		helperLinesBuffer.updateElement(elem.base);
-		helperLinesBuffer.updateElement(elem.desc);
+	public function updateHelperLines(x:Float, width:Float, height:Float) {
+		helperElems.bg.x = helperElems.top.x = helperElems.asc.x = helperElems.base.x = helperElems.desc.x = x;
+		helperElems.bg.w = helperElems.top.w = helperElems.asc.w = helperElems.base.w = helperElems.desc.w = width;
+		helperElems.bg.h = height;
+		helperLinesBuffer.updateElement(helperElems.bg);
+		helperLinesBuffer.updateElement(helperElems.top);
+		helperLinesBuffer.updateElement(helperElems.asc);
+		helperLinesBuffer.updateElement(helperElems.base);
+		helperLinesBuffer.updateElement(helperElems.desc);
 	}
 
 	// ---------------------------------------------------------------
@@ -490,7 +475,6 @@ class TextlineMasking
 		selecting = false;
 		dragging = false;
 		line_xOffset = line.xOffset;
-		lineMasked_xOffset = lineMasked.xOffset;
 		cursor_x = cursorElem.x;
 		select_x = selectElem.x;
 	}
@@ -596,6 +580,10 @@ class TextlineMasking
 		peoteView.resize(width, height);
 		display.width  = width - 20;
 		display.height = height - 20;
+		line.maxX =  window.width - 20 - line_x;
+		cursor_x = cursorElem.x;
+		select_x = selectElem.x;
+		lineSetXOffset(0);
 	}
 
 }

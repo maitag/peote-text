@@ -1,5 +1,5 @@
 package;
-#if TextRendering
+#if Lines
 import haxe.Timer;
 
 import lime.ui.Window;
@@ -26,47 +26,7 @@ import peote.text.Glyph;
 import peote.text.Line;
 import peote.text.Page;
 
-//@multiSlot    // multiple slots per texture to store multiple unicode-ranges
-//@multiTexture // multiple textures to store multiple unicode-ranges
-//@useInt // TODO
-#if packed
-@packed        // glyphes are packed into textureatlas with ttfcompile (gl3font)
-#end
-class GlyphStyle {
-	//@global public var color:Color = Color.BLUE;
-	public var color:Color = Color.GREEN;
-	
-	//@global public var width:Float = 10.0;
-	public var width:Float = 16;
-	//@global public var height:Float = 16.0;
-	public var height:Float = 16;
-	
-	//@global public var zIndex:Int = 0;
-	//public var zIndex:Int = 0;
-	
-	//@global public var rotation:Float = -45;
-	//public var rotation:Float = 0;
-	
-	//@global public var tilt:Float = 0.5;
-	public var tilt:Float = 0.0;
-	
-	//@global public var weight = 0.48;
-	public var weight:Float = 0.5;
-	
-	// TODO: additional spacing after each letter
-	//@global public var letterSpacing:Float = 0.0;
-	//public var letterSpacing:Float = 2.0;
-	
-	// TODO: for adjusting Glyphes inside Line
-	// letterSpace
-	
-	// TODO: bgColor:Color = Color.ORANGE
-	// TODO: outline/glow for distance field fonts
-	
-	public function new() {}
-}
-
-class TextRendering
+class Lines
 {
 	var peoteView:PeoteView;
 	var display:Display;
@@ -84,87 +44,57 @@ class TextRendering
 			helperLinesProgram = new Program(helperLinesBuffer);
 			display.addProgram(helperLinesProgram);
 			
-			#if packed
-			var font = new Font<GlyphStyle>("assets/fonts/packed/hack/config.json");
-			//var font = new Font<GlyphStyle>("assets/fonts/packed/unifont/config.json", [new peote.text.Range(0x0000,0x0fff)]);
-			//var font = new Font<GlyphStyle>("assets/fonts/packed/unifont/config.json");
-			//var font = new Font<GlyphStyle>("assets/fonts/packed/unifont/config.json", [peote.text.Range.C0ControlsBasicLatin(), peote.text.Range.C1ControlsLatin1Supplement()]);
-			#else
-			var font = new Font<GlyphStyle>("assets/fonts/tiled/hack_ascii.json");
-			//var font = new Font<GlyphStyle>("assets/fonts/tiled/liberation_ascii.json");
-			//var font = new Font<GlyphStyle>("assets/fonts/tiled/peote.json");
-			#end
+			var fontPacked = new Font<GlyphStylePacked>("assets/fonts/packed/hack/config.json");
+			//var fontPacked = new Font<GlyphStylePacked>("assets/fonts/packed/unifont/config.json", [new peote.text.Range(0x0000,0x0fff)]);
+			//var fontPacked = new Font<GlyphStylePacked>("assets/fonts/packed/unifont/config.json");
+			//var fontPacked = new Font<GlyphStylePacked>("assets/fonts/packed/unifont/config.json", [peote.text.Range.C0ControlsBasicLatin(), peote.text.Range.C1ControlsLatin1Supplement()]);
+
+			var fontTiled = new Font<GlyphStyleTiled>("assets/fonts/tiled/hack_ascii.json");
+			//var fontTiled = new Font<GlyphStyleTiled>("assets/fonts/tiled/liberation_ascii.json");
+			//var fontTiled = new Font<GlyphStyleTiled>("assets/fonts/tiled/peote.json");
 			
-			font.load( function() {
+			fontPacked.load( function() {
 			
-				var fontStyle = new GlyphStyle();
+				var fontStyle = new GlyphStylePacked();
 				
-				var fontProgram = new FontProgram<GlyphStyle>(font, fontStyle); // manage the Programs to render glyphes in different size/colors/fonts
+				var fontProgram = new FontProgram<GlyphStylePacked>(fontPacked, fontStyle); // manage the Programs to render glyphes in different size/colors/fonts
 				display.addProgram(fontProgram);
 				
-				var glyphStyle = new GlyphStyle();
-				glyphStyle.width = font.config.width;
-				glyphStyle.height = font.config.height;
+				var glyphStyle = new GlyphStylePacked();
+				glyphStyle.width = fontPacked.config.width;
+				glyphStyle.height = fontPacked.config.height;
 				
-				var glyphStyle1 = new GlyphStyle();
+				var glyphStyle1 = new GlyphStylePacked();
 				glyphStyle1.color = Color.YELLOW;
-				glyphStyle1.width = font.config.width * 1.0;
-				glyphStyle1.height = font.config.height * 1.0;
+				glyphStyle1.width = fontPacked.config.width * 1.0;
+				glyphStyle1.height = fontPacked.config.height * 1.0;
 				//glyphStyle1.zIndex = 1;
 				//glyphStyle1.rotation = 22.5;
 								
 				
 				// -----------
-
-//				var glyph1 = fontProgram.createGlyph("A".charCodeAt(0), 0, 50, glyphStyle1);
 				
-				//fontProgram.glyphSetChar(glyph1, "x".charCodeAt(0));
-				//glyph1.color = Color.BLUE;
-				//glyph1.width = font.config.width * 2;
-				//glyph1.height = font.config.height * 2;
-				//fontProgram.updateGlyph(glyph1);
-				//fontProgram.removeGlyph( glyph1 );
-				
-				// -----------
-				
-				var glyphStyle2 = new GlyphStyle();
+				var glyphStyle2 = new GlyphStylePacked();
 				glyphStyle2.color = Color.RED;
-				glyphStyle2.width = font.config.width * 2.0;
-				glyphStyle2.height = font.config.height * 2.0;
+				glyphStyle2.width = fontPacked.config.width * 2.0;
+				glyphStyle2.height = fontPacked.config.height * 2.0;
 				
-				//fontProgram.setFontStyle(glyphStyle2);
-				
-/*				var glyph2 = new Glyph<GlyphStyle>();
-				if (fontProgram.setGlyph( glyph2, "B".charCodeAt(0), 30, 50, glyphStyle1)) {
-					Timer.delay(function() {
-						fontProgram.glyphSetStyle(glyph2, glyphStyle2);
-						fontProgram.updateGlyph(glyph2);
-						Timer.delay(function() {
-							fontProgram.removeGlyph(glyph2);
-							Timer.delay(function() {
-								fontProgram.addGlyph(glyph2);
-							}, 1000);
-						}, 1000);
-					}, 1000);
-				}
-				else trace(" ----> Charcode not inside Font");
-*/				
 				
 				// ------------------- Lines  -------------------
 				
-				var gl3font = font.getRange(65);
-				var tilted = new GlyphStyle();
+				var gl3font = fontPacked.getRange(65);
+				var tilted = new GlyphStylePacked();
 				tilted.tilt = 0.4;
 				tilted.color = 0xaabb22ff;
-				tilted.width = font.config.width;
-				tilted.height = font.config.height;
-				fontProgram.setLine(new Line<GlyphStyle>(), "tilted", 120, 50, tilted);
+				tilted.width = fontPacked.config.width;
+				tilted.height = fontPacked.config.height;
+				fontProgram.setLine(new Line<GlyphStylePacked>(), "tilted", 120, 50, tilted);
 				
-				var thick = new GlyphStyle();
+				var thick = new GlyphStylePacked();
 				thick.weight = 0.48;
-				thick.width = font.config.width;
-				thick.height = font.config.height;
-				fontProgram.setLine(new Line<GlyphStyle>(), "bold", 220, 50, thick);
+				thick.width = fontPacked.config.width;
+				thick.height = fontPacked.config.height;
+				fontProgram.setLine(new Line<GlyphStylePacked>(), "bold", 220, 50, thick);
 				
 				var line = fontProgram.createLine("hello World :)", 0, 100, glyphStyle);
 				
@@ -219,50 +149,6 @@ class TextRendering
 				// line.clear();
 				
 				
-				// -------- Pages --------
-				
-				var page = fontProgram.createPage("hello\nworld\n\ntest", 0, 200, glyphStyle);
-				
-				Timer.delay(function() {
-					var text = "Um einen Feuerball rast eine Kotkugel,\nauf der Damenseidenstrümpfe verkauft und Gauguins geschätzt werden.\n\n"
-						     + "Ein fürwahr überaus betrüblicher Aspekt,\r\nder aber immerhin ein wenig unterschiedlich ist:\rSeidenstrümpfe können begriffen werden, Gauguins nicht.";
-					fontProgram.setPage(page, text, 0, 200, glyphStyle);
-				}, 1000);
-				
-				/*
-				Timer.delay(function() {
-					fontProgram.pageInsertLine(page, "(Bernheim als prestigieuser Biologe zu imaginieren.)", 2 , glyphStyle2);
-				}, 2000);
-
-				Timer.delay(function() {
-					fontProgram.pageDeleteLine(page, 1);
-				}, 3000);
-
-				Timer.delay(function() {
-					fontProgram.pageSetLine(page, 2, "TEST");
-				}, 4000);
-				
-				Timer.delay(function() {
-					fontProgram.removePage(page);
-				}, 5000);
-				
-				Timer.delay(function() {
-					fontProgram.addPage(page);
-				}, 6000);
-				
-				
-				// -- lines inside --
-
-				Timer.delay(function() {
-					var line = page.getLine(0);
-					fontProgram.lineInsertChars(line, "Walther " 0, 2, glyphStyle2);
-					fontProgram.lineInsertChar(line, ":" , glyphStyle2);
-					fontProgram.updateLine(line);
-				}, 7000);
-				
-				
-				
-				*/
 			});
 
 			
@@ -274,7 +160,7 @@ class TextRendering
 		// ---------------------------------------------------------------
 	}
 
-	public function addHelperLines(line:Line<GlyphStyle>) {
+	public function addHelperLines(line:Line<GlyphStylePacked>) {
 		helperLinesBuffer.addElement(new ElementSimple(Std.int(line.x), Std.int(line.y), Std.int(line.maxX-line.x), Std.int(line.maxY-line.y), Color.GREY3));
 		// top line
 		helperLinesBuffer.addElement(new ElementSimple(Std.int(line.x), Std.int(line.y), Std.int(line.maxX-line.x), 1, Color.BLUE));				
