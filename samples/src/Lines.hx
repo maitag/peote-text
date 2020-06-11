@@ -18,13 +18,21 @@ import peote.text.Font;
 
 import peote.text.FontProgram;
 import peote.text.Glyph;
-//import peote.text.Range;
-
-//import peote.text.GlyphStyle;
-//import peote.text.Gl3GlyphStyle;
 
 import peote.text.Line;
 import peote.text.Page;
+
+#if packed
+typedef GlyphStyleType = GlyphStylePacked;
+typedef FontType = Font<GlyphStylePacked>;
+typedef FontProgramType = FontProgram<GlyphStylePacked>;
+typedef LineType = Line<GlyphStylePacked>;
+#else
+typedef GlyphStyleType = GlyphStyleTiled;
+typedef FontType = Font<GlyphStyleTiled>;
+typedef FontProgramType = FontProgram<GlyphStyleTiled>;
+typedef LineType = Line<GlyphStyleTiled>;
+#end
 
 class Lines
 {
@@ -44,57 +52,52 @@ class Lines
 			helperLinesProgram = new Program(helperLinesBuffer);
 			display.addProgram(helperLinesProgram);
 			
-			var fontPacked = new Font<GlyphStylePacked>("assets/fonts/packed/hack/config.json");
-			//var fontPacked = new Font<GlyphStylePacked>("assets/fonts/packed/unifont/config.json", [new peote.text.Range(0x0000,0x0fff)]);
-			//var fontPacked = new Font<GlyphStylePacked>("assets/fonts/packed/unifont/config.json");
-			//var fontPacked = new Font<GlyphStylePacked>("assets/fonts/packed/unifont/config.json", [peote.text.Range.C0ControlsBasicLatin(), peote.text.Range.C1ControlsLatin1Supplement()]);
-
-			var fontTiled = new Font<GlyphStyleTiled>("assets/fonts/tiled/hack_ascii.json");
-			//var fontTiled = new Font<GlyphStyleTiled>("assets/fonts/tiled/liberation_ascii.json");
-			//var fontTiled = new Font<GlyphStyleTiled>("assets/fonts/tiled/peote.json");
+			#if packed
+			var font = new FontType("assets/fonts/packed/hack/config.json");
+			//var font = new FontType("assets/fonts/packed/unifont/config.json", [new peote.text.Range(0x0000,0x0fff)]);
+			#else
+			var font = new FontType("assets/fonts/tiled/hack_ascii.json");
+			//var fontTiled = new FontType("assets/fonts/tiled/liberation_ascii.json");
+			//var fontTiled = new FontType("assets/fonts/tiled/peote.json");
+			#end
+			font.load( function() {
 			
-			fontPacked.load( function() {
-			
-				var fontStyle = new GlyphStylePacked();
+				var fontStyle = new GlyphStyleType();
 				
-				var fontProgram = new FontProgram<GlyphStylePacked>(fontPacked, fontStyle); // manage the Programs to render glyphes in different size/colors/fonts
+				var fontProgram = new FontProgramType(font, fontStyle); // manage the Programs to render glyphes in different size/colors/fonts
 				display.addProgram(fontProgram);
 				
-				var glyphStyle = new GlyphStylePacked();
-				glyphStyle.width = fontPacked.config.width;
-				glyphStyle.height = fontPacked.config.height;
+				var glyphStyle = new GlyphStyleType();
+				glyphStyle.width = font.config.width;
+				glyphStyle.height = font.config.height;
 				
-				var glyphStyle1 = new GlyphStylePacked();
+				var glyphStyle1 = new GlyphStyleType();
 				glyphStyle1.color = Color.YELLOW;
-				glyphStyle1.width = fontPacked.config.width * 1.0;
-				glyphStyle1.height = fontPacked.config.height * 1.0;
-				//glyphStyle1.zIndex = 1;
-				//glyphStyle1.rotation = 22.5;
-								
+				glyphStyle1.width = font.config.width * 1.0;
+				glyphStyle1.height = font.config.height * 1.0;								
 				
 				// -----------
 				
-				var glyphStyle2 = new GlyphStylePacked();
+				var glyphStyle2 = new GlyphStyleType();
 				glyphStyle2.color = Color.RED;
-				glyphStyle2.width = fontPacked.config.width * 2.0;
-				glyphStyle2.height = fontPacked.config.height * 2.0;
+				glyphStyle2.width = font.config.width * 2.0;
+				glyphStyle2.height = font.config.height * 2.0;
 				
 				
 				// ------------------- Lines  -------------------
 				
-				var gl3font = fontPacked.getRange(65);
-				var tilted = new GlyphStylePacked();
+				var tilted = new GlyphStyleType();
 				tilted.tilt = 0.4;
 				tilted.color = 0xaabb22ff;
-				tilted.width = fontPacked.config.width;
-				tilted.height = fontPacked.config.height;
-				fontProgram.setLine(new Line<GlyphStylePacked>(), "tilted", 120, 50, tilted);
+				tilted.width = font.config.width;
+				tilted.height = font.config.height;
+				fontProgram.setLine(new LineType(), "tilted", 0, 50, tilted);
 				
-				var thick = new GlyphStylePacked();
+				var thick = new GlyphStyleType();
 				thick.weight = 0.48;
-				thick.width = fontPacked.config.width;
-				thick.height = fontPacked.config.height;
-				fontProgram.setLine(new Line<GlyphStylePacked>(), "bold", 220, 50, thick);
+				thick.width = font.config.width;
+				thick.height = font.config.height;
+				fontProgram.setLine(new LineType(), "bold", 150, 50, thick);
 				
 				var line = fontProgram.createLine("hello World :)", 0, 100, glyphStyle);
 				
@@ -159,18 +162,6 @@ class Lines
 		} catch (e:Dynamic) trace("ERROR:", e);
 		// ---------------------------------------------------------------
 	}
-
-	public function addHelperLines(line:Line<GlyphStylePacked>) {
-		helperLinesBuffer.addElement(new ElementSimple(Std.int(line.x), Std.int(line.y), Std.int(line.maxX-line.x), Std.int(line.maxY-line.y), Color.GREY3));
-		// top line
-		helperLinesBuffer.addElement(new ElementSimple(Std.int(line.x), Std.int(line.y), Std.int(line.maxX-line.x), 1, Color.BLUE));				
-		// ascender line
-		helperLinesBuffer.addElement(new ElementSimple(Std.int(line.x), Std.int(line.y + line.asc), Std.int(line.maxX-line.x), 1, Color.YELLOW));
-		// baseline
-		helperLinesBuffer.addElement(new ElementSimple(Std.int(line.x), Std.int(line.y + line.base), Std.int(line.maxX-line.x), 1, Color.RED));
-		// descender line
-		helperLinesBuffer.addElement(new ElementSimple(Std.int(line.x), Std.int(line.maxY), Std.int(line.maxX-line.x), 1, Color.GREEN));
-	}
 	
 	var isZooming:Bool = false;
 	public function zoomIn() {
@@ -192,12 +183,7 @@ class Lines
 			}
 		}
 	}
-	
-	public function onPreloadComplete ():Void {
-		// sync loading did not work with html5!
-		// texture.setImage(Assets.getImage("assets/images/wabbit_alpha.png"));
-	}
-	
+		
 	public function onMouseDown (x:Float, y:Float, button:MouseButton):Void
 	{
 		isZooming = ! isZooming;

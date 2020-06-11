@@ -10,6 +10,8 @@ import lime.ui.KeyModifier;
 
 #if Gl3FontRendering
 typedef Sample = Gl3FontRendering;
+#elseif Fonts
+typedef Sample = Fonts;
 #elseif Glyphes
 typedef Sample = Glyphes;
 #elseif Lines
@@ -66,10 +68,6 @@ class Main extends Application
 
 	// ------------------------------------------------------------
 	// ----------- EVENT HANDLER ----------------------------------
-	public override function onPreloadComplete ():Void {
-		if (renderTest) test.onPreloadComplete();
-	}
-	
 	public override function onWindowResize (width:Int, height:Int):Void
 	{
 		if (renderTest) test.resize(width, height);

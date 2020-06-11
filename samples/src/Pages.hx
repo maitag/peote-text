@@ -73,12 +73,12 @@ class Pages
 								
 				// -------- Pages --------
 				
-				var page = fontProgram.createPage("hello\nworld\n\ntest", 0, 200, glyphStyle);
+				var page = fontProgram.createPage("hello\nworld\n\ntest", 10, 10, glyphStyle);
 				
 				Timer.delay(function() {
 					var text = "Um einen Feuerball rast eine Kotkugel,\nauf der Damenseidenstrümpfe verkauft und Gauguins geschätzt werden.\n\n"
 						     + "Ein fürwahr überaus betrüblicher Aspekt,\r\nder aber immerhin ein wenig unterschiedlich ist:\rSeidenstrümpfe können begriffen werden, Gauguins nicht.";
-					fontProgram.setPage(page, text, 0, 200, glyphStyle);
+					fontProgram.setPage(page, text, 10, 10, glyphStyle);
 				}, 1000);
 				
 				/*
@@ -157,11 +157,6 @@ class Pages
 				display.zoom = fz;
 			}
 		}
-	}
-	
-	public function onPreloadComplete ():Void {
-		// sync loading did not work with html5!
-		// texture.setImage(Assets.getImage("assets/images/wabbit_alpha.png"));
 	}
 	
 	public function onMouseDown (x:Float, y:Float, button:MouseButton):Void

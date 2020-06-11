@@ -96,7 +96,7 @@ class LineMacro
 				
 				//public var xDirection:Int = 1;  // <- TODO: better later with LineStyle !!!
 				//public var yDirection:Int = 0;
-				public var length(get, never):Int; // number of lines
+				public var length(get, never):Int; // number of glyphes
 				public inline function get_length():Int return glyphes.length;
 				
 				

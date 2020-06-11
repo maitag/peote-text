@@ -97,6 +97,8 @@ class Glyphes
 			
 			font.load( function() {
 			
+				//var gl3font = fontPacked.getRange(65);
+				
 				var fontStyle = new GlyphStyle();
 				
 				var fontProgram = new FontProgram<GlyphStyle>(font, fontStyle); // manage the Programs to render glyphes in different size/colors/fonts
@@ -181,11 +183,6 @@ class Glyphes
 				display.zoom = fz;
 			}
 		}
-	}
-	
-	public function onPreloadComplete ():Void {
-		// sync loading did not work with html5!
-		// texture.setImage(Assets.getImage("assets/images/wabbit_alpha.png"));
 	}
 	
 	public function onMouseDown (x:Float, y:Float, button:MouseButton):Void
