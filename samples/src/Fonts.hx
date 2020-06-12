@@ -57,22 +57,22 @@ class Fonts
 				font.load( function()
 				{
 					var glyphStyle = new GlyphStylePacked();
-					glyphStyle.width = font.config.width * 2.0;
-					glyphStyle.height = font.config.height * 2.0;								
+					glyphStyle.width = font.config.width;
+					glyphStyle.height = font.config.height;								
 					
 					var fontProgram = new FontProgram<GlyphStylePacked>(font, glyphStyle);
 					display.addProgram(fontProgram);
 					
-					var line = fontProgram.createLine("Hello World!", 0, f.y);
+					var line = fontProgram.createLine('ABC defg (${f.name})', 0, f.y);
 					
 					glyphStyle.color = Color.YELLOW;
 					glyphStyle.width = font.config.width * 2.0;
 					glyphStyle.height = font.config.height * 2.0;								
 													
-					fontProgram.lineSetStyle(line, glyphStyle, 6, 11);
+					fontProgram.lineSetStyle(line, glyphStyle, 2, 3);
 					fontProgram.updateLine(line);				
 
-					addHelperLines(Std.int(line.x), Std.int(line.y), Std.int(line.fullWidth), Std.int(line.fullHeight), Std.int(line.asc), Std.int(line.base));
+					addHelperLines(Std.int(line.x), Std.int(line.y), Std.int(line.fullWidth), Std.int(font.config.height), Std.int(line.asc), Std.int(line.desc), Std.int(line.base));
 				});
 				
 			}
@@ -91,21 +91,22 @@ class Fonts
 				font.load( function()
 				{
 					var glyphStyle = new GlyphStyleTiled();
+					glyphStyle.width = font.config.width;
+					glyphStyle.height = font.config.height;								
 					
 					var fontProgram = new FontProgram<GlyphStyleTiled>(font, glyphStyle);
 					display.addProgram(fontProgram);
 					
-					var line = fontProgram.createLine("Hello World!", 300, f.y);
-					
+					var line = fontProgram.createLine('ABC defg (${f.name})', 250, f.y);					
 					
 					glyphStyle.color = Color.YELLOW;
 					glyphStyle.width = font.config.width * 2.0;
 					glyphStyle.height = font.config.height * 2.0;								
 													
-					fontProgram.lineSetStyle(line, glyphStyle, 6, 11);
+					fontProgram.lineSetStyle(line, glyphStyle, 2, 3);
 					fontProgram.updateLine(line);
 					
-					addHelperLines(Std.int(line.x), Std.int(line.y), Std.int(line.fullWidth), Std.int(line.fullHeight), Std.int(line.asc), Std.int(line.base));
+					addHelperLines(Std.int(line.x), Std.int(line.y), Std.int(line.fullWidth), Std.int(font.config.height), Std.int(line.asc), Std.int(line.desc), Std.int(line.base));
 				});
 				
 			}
@@ -118,16 +119,16 @@ class Fonts
 		// ---------------------------------------------------------------
 	}
 
-	public function addHelperLines(x:Int, y:Int, w:Int, h:Int, asc:Int, base:Int) {
-		helperLinesBuffer.addElement(new ElementSimple(x, y, x+w, h, Color.GREY3));
+	public function addHelperLines(x:Int, y:Int, w:Int, h:Int, asc:Int, desc:Int, base:Int) {
+		helperLinesBuffer.addElement(new ElementSimple(x,     y, w, h, Color.GREY3));
 		// top line
-		helperLinesBuffer.addElement(new ElementSimple(x, y, x+w, 1, Color.BLUE));				
+		helperLinesBuffer.addElement(new ElementSimple(x,     y, w, 1, Color.YELLOW));				
 		// ascender line
-		helperLinesBuffer.addElement(new ElementSimple(x, y+asc, x+w, 1, Color.YELLOW));
+		helperLinesBuffer.addElement(new ElementSimple(x, y+asc, w, 1, Color.RED));
 		// baseline
-		helperLinesBuffer.addElement(new ElementSimple(x, y+base, x+w, 1, Color.RED));
+		helperLinesBuffer.addElement(new ElementSimple(x, y+base, w, 1, Color.GREEN));
 		// descender line
-		helperLinesBuffer.addElement(new ElementSimple(x, y+h, w, 1, Color.GREEN));
+		helperLinesBuffer.addElement(new ElementSimple(x, y+desc, w, 1, Color.BLUE));
 	}
 	
 	var isZooming:Bool = false;
