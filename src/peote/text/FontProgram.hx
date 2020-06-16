@@ -252,9 +252,18 @@ class FontProgramMacro
 									default: macro font.config.height;
 							}}}
 							return {
-								asc: height *(fontData.height + fontData.descender - (1 + fontData.ascender - fontData.height)),
+								//asc: height *(fontData.height + fontData.descender - (1 + fontData.ascender - fontData.height)),
+/*								asc: height *(fontData.height + fontData.descender - fontData.ascender),
 								base:height *(fontData.height + fontData.descender),
 								desc:height * fontData.height
+								asc: height *(fontData.height + fontData.descender - fontData.ascender)/ fontData.height,
+								base:height *(fontData.height + fontData.descender)/ fontData.height,
+								desc:height 
+*/								asc: 0, // TODO: remove
+// TODO: fontData.ascender / fontData.height inside font or gl3Font
+								base:height * fontData.ascender / fontData.height,
+// TODO: lineHeight by this calculation inside font or gl3Font
+								desc:height * (fontData.ascender / fontData.height - fontData.descender / fontData.height)
 							};
 							
 						}
@@ -423,7 +432,11 @@ class FontProgramMacro
 									default: macro glyph.x = x + charData.metric.left * font.config.width;
 							}}}
 							${switch (glyphStyleHasField.local_height) {
-								case true: macro glyph.y = y + (charData.fontData.height + charData.fontData.descender - charData.metric.top) * glyph.height;
+								//case true: macro glyph.y = y + (charData.fontData.height + charData.fontData.descender - charData.metric.top) * glyph.height;
+								//case true: macro glyph.y = y + (charData.fontData.height + charData.fontData.descender - charData.metric.top) * glyph.height / charData.fontData.height;
+// TODO: charData.metric.top by this calculation inside font or gl3Font
+								case true: macro glyph.y = y + (charData.fontData.ascender - charData.metric.top) / charData.fontData.height * glyph.height;
+									
 								default: switch (glyphStyleHasField.height) {
 									case true: macro glyph.y = y + (charData.fontData.height + charData.fontData.descender - charData.metric.top) * fontStyle.height;
 									default: macro glyph.y = y + (charData.fontData.height + charData.fontData.descender - charData.metric.top) * font.config.height;
@@ -444,13 +457,19 @@ class FontProgramMacro
 						case true: macro // ------- Gl3Font -------
 						{
 							${switch (glyphStyleHasField.local_width) {
-								case true: macro glyph.w = charData.metric.width * glyph.width;
+								//case true: macro glyph.w = charData.metric.width * glyph.width;
+// TODO: replace charData.metric.width by this calculation inside font or gl3Font
+								case true: macro glyph.w = charData.metric.width * glyph.width / charData.fontData.height;
+								
 								default: switch (glyphStyleHasField.width) {
 									case true: macro glyph.w = charData.metric.width * fontStyle.width;
 									default: macro glyph.w = charData.metric.width * font.config.width;
 							}}}
 							${switch (glyphStyleHasField.local_height) {
-								case true: macro glyph.h = charData.metric.height * glyph.height;
+								//case true: macro glyph.h = charData.metric.height * glyph.height;
+// TODO: replace charData.metric.width by this calculation inside font or gl3Font
+								case true: macro glyph.h = charData.metric.height * glyph.height / charData.fontData.height ;
+								
 								default: switch (glyphStyleHasField.height) {
 									case true: macro glyph.h = charData.metric.height * fontStyle.height;
 									default: macro glyph.h = charData.metric.height * font.config.height;

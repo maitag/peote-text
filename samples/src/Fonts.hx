@@ -47,7 +47,7 @@ class Fonts
 			// --------------------------------------------------------
 			
 			var packedFonts = [
-				{ name: "hack",    y:  50, range: null },
+				{ name: "hack",    y:  0, range: null },
 				{ name: "unifont", y: 150, range: [new peote.text.Range(0x0000,0x0fff)] }
 			];
 
@@ -57,13 +57,18 @@ class Fonts
 				font.load( function()
 				{
 					var glyphStyle = new GlyphStylePacked();
-					glyphStyle.width = font.config.width;
-					glyphStyle.height = font.config.height;								
+					glyphStyle.width = font.config.width*4;
+					glyphStyle.height = font.config.height*4;								
 					
 					var fontProgram = new FontProgram<GlyphStylePacked>(font, glyphStyle);
 					display.addProgram(fontProgram);
 					
-					var line = fontProgram.createLine('ABC defg (${f.name})', 0, f.y);
+					var line = fontProgram.createLine('ÄABC defg (${f.name})', 0, f.y);
+
+					var range = font.getRange("a".charCodeAt(0));
+					trace(range);
+					addHelperLines(Std.int(line.x), Std.int(line.y), Std.int(line.fullWidth), Std.int(line.desc), Std.int(line.asc), Std.int(line.desc), Std.int(line.base));
+					//addHelperLines(Std.int(line.x), Std.int(line.y), Std.int(line.fullWidth), Std.int(font.config.height), Std.int(line.asc), Std.int(line.desc), Std.int(line.base));
 					
 					glyphStyle.color = Color.YELLOW;
 					glyphStyle.width = font.config.width * 2.0;
@@ -71,8 +76,6 @@ class Fonts
 													
 					fontProgram.lineSetStyle(line, glyphStyle, 2, 3);
 					fontProgram.updateLine(line);				
-
-					addHelperLines(Std.int(line.x), Std.int(line.y), Std.int(line.fullWidth), Std.int(font.config.height), Std.int(line.asc), Std.int(line.desc), Std.int(line.base));
 				});
 				
 			}
@@ -80,9 +83,9 @@ class Fonts
 			// --------------------------------------------------------
 			
 			var tiledFonts = [
-				{ name: "hack_ascii",       y:  50, range: null },
-				{ name: "liberation_ascii", y: 150, range: null },
-				{ name: "peote",            y: 250, range: null }
+				//{ name: "hack_ascii",       y:  50, range: null },
+				//{ name: "liberation_ascii", y: 150, range: null },
+				//{ name: "peote",            y: 250, range: null }
 			];
 			
 			for (f in tiledFonts) 
