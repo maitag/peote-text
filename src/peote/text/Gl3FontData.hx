@@ -23,9 +23,9 @@ class Gl3FontData
 	
 	public var kerning:Array<Array<Float>>;
 
-    public var height:Float;
-    public var ascender:Float;
-    public var descender:Float;
+    public var lineHeight:Float; // size between the baselines in text
+    public var height:Float; // size of highest glyph
+    public var base:Float; // baseline height
 
     public function new(bytes:Bytes, rangeMin:Int, rangeMax:Int, isKerning:Bool = true)
 	{
@@ -42,19 +42,20 @@ class Gl3FontData
 		
 		var pos:Int = 0;
 		var N:Int = bytes.getInt32(pos); pos += 4; trace('number of glyphes: $N');
-		height    = bytes.getFloat(pos); pos += 4; trace('height: $height');
-		ascender  = bytes.getFloat(pos); pos += 4; trace('ascender: $ascender');
-		descender = bytes.getFloat(pos); pos += 4; trace('descender: $descender');
+		
+		lineHeight = bytes.getFloat(pos); pos += 4; trace('lineHeight: $lineHeight');
+		base = bytes.getFloat(pos) / lineHeight; pos += 4; trace('base: $base');
+		height = base - bytes.getFloat(pos) / lineHeight; pos += 4; trace('height: $height');
 		
 		for (i in 0...N) {
 			var charcode = bytes.getInt32(pos); pos += 4;
 			var m:Metric = {
 				kerning : i,
-				advance : bytes.getFloat(pos),
-				left    : bytes.getFloat(pos+4),
-				top     : bytes.getFloat(pos+8),
-				width   : bytes.getFloat(pos+12),
-				height  : bytes.getFloat(pos+16),
+				advance : bytes.getFloat(pos   ) / lineHeight,
+				left    : bytes.getFloat(pos+ 4) / lineHeight,
+				top     : bytes.getFloat(pos+ 8) / lineHeight,
+				width   : bytes.getFloat(pos+12) / lineHeight,
+				height  : bytes.getFloat(pos+16) / lineHeight,
 				u       : bytes.getFloat(pos+20),
 				v       : bytes.getFloat(pos+24),
 				w       : bytes.getFloat(pos+28),
@@ -70,7 +71,7 @@ class Gl3FontData
 			var y = 0; var x = 0;
 			var kern = []; kerning = [kern];				
 			while (x < N && y < N) {
-				var k = bytes.getFloat(pos); pos += 4;
+				var k = bytes.getFloat(pos) / lineHeight; pos += 4;
 				var amount:Int = bytes.getInt32(pos); pos += 4;
 				//trace("kerning:" + k + " amount:"+amount);
 				for (i in 0...amount) {

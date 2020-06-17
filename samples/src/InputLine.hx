@@ -91,7 +91,7 @@ class InputLine
 	
 	var helperLinesBuffer:Buffer<ElementSimple>;
 	var helperLinesProgram:Program;
-	var helperElems:{bg:ElementSimple,top:ElementSimple,asc:ElementSimple,base:ElementSimple,desc:ElementSimple};
+	var helperElems:{bg:ElementSimple,top:ElementSimple,base:ElementSimple,desc:ElementSimple};
 	
 	var fontProgram:FontProgram<GlyphStyle>;
 	
@@ -427,9 +427,6 @@ class InputLine
 		// top line
 		var top = new ElementSimple(Std.int(line.x), Std.int(line.y), Std.int(width), 1, Color.GREY4);				
 		helperLinesBuffer.addElement(top);				
-		// ascender line
-		var asc = new ElementSimple(Std.int(line.x), Std.int(line.y + line.asc), Std.int(width), 1, Color.GREY3);
-		helperLinesBuffer.addElement(asc);
 		// baseline
 		var base = new ElementSimple(Std.int(line.x), Std.int(line.y + line.base), Std.int(width), 1, Color.GREY3);
 		helperLinesBuffer.addElement(base);
@@ -437,16 +434,15 @@ class InputLine
 		var desc = new ElementSimple(Std.int(line.x), Std.int(line.y + height), Std.int(width), 1, Color.GREY4);
 		helperLinesBuffer.addElement(desc);
 		
-		helperElems = {bg:bg, top:top, asc:asc, base:base, desc:desc};
+		helperElems = {bg:bg, top:top, base:base, desc:desc};
 	}
 	
 	public function updateHelperLines(x:Float, width:Float, height:Float) {
-		helperElems.bg.x = helperElems.top.x = helperElems.asc.x = helperElems.base.x = helperElems.desc.x = x;
-		helperElems.bg.w = helperElems.top.w = helperElems.asc.w = helperElems.base.w = helperElems.desc.w = width;
+		helperElems.bg.x = helperElems.top.x = helperElems.base.x = helperElems.desc.x = x;
+		helperElems.bg.w = helperElems.top.w = helperElems.base.w = helperElems.desc.w = width;
 		helperElems.bg.h = height;
 		helperLinesBuffer.updateElement(helperElems.bg);
 		helperLinesBuffer.updateElement(helperElems.top);
-		helperLinesBuffer.updateElement(helperElems.asc);
 		helperLinesBuffer.updateElement(helperElems.base);
 		helperLinesBuffer.updateElement(helperElems.desc);
 	}

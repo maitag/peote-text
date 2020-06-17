@@ -47,8 +47,8 @@ class Fonts
 			// --------------------------------------------------------
 			
 			var packedFonts = [
-				{ name: "hack",    y:  0, range: null },
-				{ name: "unifont", y: 150, range: [new peote.text.Range(0x0000,0x0fff)] }
+				{ name: "hack",    y:  30, range: null },
+				{ name: "unifont", y: 100, range: [new peote.text.Range(0x0000,0x0fff)] }
 			];
 
 			for (f in packedFonts) 
@@ -57,25 +57,23 @@ class Fonts
 				font.load( function()
 				{
 					var glyphStyle = new GlyphStylePacked();
-					glyphStyle.width = font.config.width*4;
-					glyphStyle.height = font.config.height*4;								
+					glyphStyle.width = font.config.width;
+					glyphStyle.height = font.config.height;								
 					
 					var fontProgram = new FontProgram<GlyphStylePacked>(font, glyphStyle);
 					display.addProgram(fontProgram);
 					
 					var line = fontProgram.createLine('ÄABC defg (${f.name})', 0, f.y);
 
-					var range = font.getRange("a".charCodeAt(0));
-					trace(range);
-					addHelperLines(Std.int(line.x), Std.int(line.y), Std.int(line.fullWidth), Std.int(line.desc), Std.int(line.asc), Std.int(line.desc), Std.int(line.base));
-					//addHelperLines(Std.int(line.x), Std.int(line.y), Std.int(line.fullWidth), Std.int(font.config.height), Std.int(line.asc), Std.int(line.desc), Std.int(line.base));
-					
 					glyphStyle.color = Color.YELLOW;
 					glyphStyle.width = font.config.width * 2.0;
 					glyphStyle.height = font.config.height * 2.0;								
 													
 					fontProgram.lineSetStyle(line, glyphStyle, 2, 3);
-					fontProgram.updateLine(line);				
+					fontProgram.updateLine(line);			
+					
+					//var range = font.getRange("a".charCodeAt(0));trace(range);
+					addHelperLines(Std.int(line.x), Std.int(line.y), Std.int(line.fullWidth), Std.int(line.lineHeight), Std.int(line.height), Std.int(line.base));					
 				});
 				
 			}
@@ -83,9 +81,9 @@ class Fonts
 			// --------------------------------------------------------
 			
 			var tiledFonts = [
-				//{ name: "hack_ascii",       y:  50, range: null },
-				//{ name: "liberation_ascii", y: 150, range: null },
-				//{ name: "peote",            y: 250, range: null }
+				{ name: "hack_ascii",       y:  200, range: null },
+				{ name: "liberation_ascii", y:  300, range: null },
+				{ name: "peote",            y:  400, range: null }
 			];
 			
 			for (f in tiledFonts) 
@@ -100,7 +98,7 @@ class Fonts
 					var fontProgram = new FontProgram<GlyphStyleTiled>(font, glyphStyle);
 					display.addProgram(fontProgram);
 					
-					var line = fontProgram.createLine('ABC defg (${f.name})', 250, f.y);					
+					var line = fontProgram.createLine('ABC defg (${f.name})', 0, f.y);					
 					
 					glyphStyle.color = Color.YELLOW;
 					glyphStyle.width = font.config.width * 2.0;
@@ -109,7 +107,7 @@ class Fonts
 					fontProgram.lineSetStyle(line, glyphStyle, 2, 3);
 					fontProgram.updateLine(line);
 					
-					addHelperLines(Std.int(line.x), Std.int(line.y), Std.int(line.fullWidth), Std.int(font.config.height), Std.int(line.asc), Std.int(line.desc), Std.int(line.base));
+					addHelperLines(Std.int(line.x), Std.int(line.y), Std.int(line.fullWidth), Std.int(line.lineHeight), Std.int(line.height), Std.int(line.base));
 				});
 				
 			}
@@ -122,16 +120,12 @@ class Fonts
 		// ---------------------------------------------------------------
 	}
 
-	public function addHelperLines(x:Int, y:Int, w:Int, h:Int, asc:Int, desc:Int, base:Int) {
-		helperLinesBuffer.addElement(new ElementSimple(x,     y, w, h, Color.GREY3));
-		// top line
-		helperLinesBuffer.addElement(new ElementSimple(x,     y, w, 1, Color.YELLOW));				
-		// ascender line
-		helperLinesBuffer.addElement(new ElementSimple(x, y+asc, w, 1, Color.RED));
+	public function addHelperLines(x:Int, y:Int, w:Int, lineHeight:Int, height:Int, base:Int) {
+		helperLinesBuffer.addElement(new ElementSimple(x,     y, w, lineHeight, Color.GREY2));
 		// baseline
-		helperLinesBuffer.addElement(new ElementSimple(x, y+base, w, 1, Color.GREEN));
+		helperLinesBuffer.addElement(new ElementSimple(x, y+base, w, 1, Color.RED));
 		// descender line
-		helperLinesBuffer.addElement(new ElementSimple(x, y+desc, w, 1, Color.BLUE));
+		helperLinesBuffer.addElement(new ElementSimple(x, y+height, w, 1, Color.BLUE));
 	}
 	
 	var isZooming:Bool = false;

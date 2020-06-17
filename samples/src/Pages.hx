@@ -126,7 +126,7 @@ class Pages
 		// ---------------------------------------------------------------
 	}
 
-	public function addHelperLines(line:Line<GlyphStylePacked>) {
+/*	public function addHelperLines(line:Line<GlyphStylePacked>) {
 		helperLinesBuffer.addElement(new ElementSimple(Std.int(line.x), Std.int(line.y), Std.int(line.maxX-line.x), Std.int(line.maxY-line.y), Color.GREY3));
 		// top line
 		helperLinesBuffer.addElement(new ElementSimple(Std.int(line.x), Std.int(line.y), Std.int(line.maxX-line.x), 1, Color.BLUE));				
@@ -137,7 +137,7 @@ class Pages
 		// descender line
 		helperLinesBuffer.addElement(new ElementSimple(Std.int(line.x), Std.int(line.maxY), Std.int(line.maxX-line.x), 1, Color.GREEN));
 	}
-	
+*/	
 	var isZooming:Bool = false;
 	public function zoomIn() {
 		var fz:Float = 1.0;		

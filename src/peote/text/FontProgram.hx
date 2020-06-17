@@ -239,42 +239,6 @@ class FontProgramMacro
 				// -------------------------------------------------------------------------------------------------
 				// -------------------------------------------------------------------------------------------------
 				
-				inline function getLineMetric(glyph:$glyphType, fontData:peote.text.Gl3FontData): {asc:Float, base:Float, desc:Float}
-				{
-					${switch (glyphStyleHasMeta.packed)
-					{
-						case true: macro // ------- Gl3Font -------
-						{
-							var height = ${switch (glyphStyleHasField.local_height) {
-								case true: macro glyph.height;
-								default: switch (glyphStyleHasField.height) {
-									case true: macro fontStyle.height;
-									default: macro font.config.height;
-							}}}
-							return {
-								//asc: height *(fontData.height + fontData.descender - (1 + fontData.ascender - fontData.height)),
-/*								asc: height *(fontData.height + fontData.descender - fontData.ascender),
-								base:height *(fontData.height + fontData.descender),
-								desc:height * fontData.height
-								asc: height *(fontData.height + fontData.descender - fontData.ascender)/ fontData.height,
-								base:height *(fontData.height + fontData.descender)/ fontData.height,
-								desc:height 
-*/								asc: 0, // TODO: remove
-// TODO: fontData.ascender / fontData.height inside font or gl3Font
-								base:height * fontData.ascender / fontData.height,
-// TODO: lineHeight by this calculation inside font or gl3Font
-								desc:height * (fontData.ascender / fontData.height - fontData.descender / fontData.height)
-							};
-							
-						}
-						default: macro // ------- simple font -------
-						{
-							return null; // TODO: baseline from fontconfig!!!
-						}
-					}}
-					
-				}
-				
 				// returns range, fontdata and metric in dependend of font-type
 				inline function getCharData(charcode:Int):$charDataType
 				{
@@ -432,14 +396,10 @@ class FontProgramMacro
 									default: macro glyph.x = x + charData.metric.left * font.config.width;
 							}}}
 							${switch (glyphStyleHasField.local_height) {
-								//case true: macro glyph.y = y + (charData.fontData.height + charData.fontData.descender - charData.metric.top) * glyph.height;
-								//case true: macro glyph.y = y + (charData.fontData.height + charData.fontData.descender - charData.metric.top) * glyph.height / charData.fontData.height;
-// TODO: charData.metric.top by this calculation inside font or gl3Font
-								case true: macro glyph.y = y + (charData.fontData.ascender - charData.metric.top) / charData.fontData.height * glyph.height;
-									
+								case true: macro glyph.y = y + (charData.fontData.base - charData.metric.top) * glyph.height;									
 								default: switch (glyphStyleHasField.height) {
-									case true: macro glyph.y = y + (charData.fontData.height + charData.fontData.descender - charData.metric.top) * fontStyle.height;
-									default: macro glyph.y = y + (charData.fontData.height + charData.fontData.descender - charData.metric.top) * font.config.height;
+									case true: macro glyph.y = y + (charData.fontData.base - charData.metric.top) * fontStyle.height;
+									default: macro glyph.y = y + (charData.fontData.base - charData.metric.top) * font.config.height;
 							}}}							
 						}
 						default: macro // ------- simple font -------
@@ -457,19 +417,13 @@ class FontProgramMacro
 						case true: macro // ------- Gl3Font -------
 						{
 							${switch (glyphStyleHasField.local_width) {
-								//case true: macro glyph.w = charData.metric.width * glyph.width;
-// TODO: replace charData.metric.width by this calculation inside font or gl3Font
-								case true: macro glyph.w = charData.metric.width * glyph.width / charData.fontData.height;
-								
+								case true: macro glyph.w = charData.metric.width * glyph.width;
 								default: switch (glyphStyleHasField.width) {
 									case true: macro glyph.w = charData.metric.width * fontStyle.width;
 									default: macro glyph.w = charData.metric.width * font.config.width;
 							}}}
 							${switch (glyphStyleHasField.local_height) {
-								//case true: macro glyph.h = charData.metric.height * glyph.height;
-// TODO: replace charData.metric.width by this calculation inside font or gl3Font
-								case true: macro glyph.h = charData.metric.height * glyph.height / charData.fontData.height ;
-								
+								case true: macro glyph.h = charData.metric.height * glyph.height;
 								default: switch (glyphStyleHasField.height) {
 									case true: macro glyph.h = charData.metric.height * fontStyle.height;
 									default: macro glyph.h = charData.metric.height * font.config.height;
@@ -679,8 +633,7 @@ class FontProgramMacro
 							}
 							else ret = false;
 						});
-						
-						
+												
 						if (line.length > i) {
 							lineDeleteChars(line, i);
 							for (j in Std.int(Math.max(i, line.visibleFrom))...Std.int(Math.min(line.length, line.visibleTo))) {
@@ -690,28 +643,55 @@ class FontProgramMacro
 						}
 						line.updateFrom = 0;
 						line.updateTo = i;
-
-						
 						
 						line.visibleFrom = visibleFrom;
 						line.visibleTo = visibleTo;
 						
 						line.fullWidth = x - line.x - line.xOffset;
 						
-						${switch (glyphStyleHasMeta.packed) {
-							case true: macro {
-								if (prev_glyph != null) {
-									var lm = getLineMetric(prev_glyph, charData.fontData);
-									line.asc = lm.asc;
-									line.desc = lm.desc;
-									line.base = lm.base;
-									trace("line metric:", line.asc, line.desc, line.base);
-								}
-							}
-							default: macro {}
-						}}
+						_setNewLineMetric(line, prev_glyph, charData);
 						return ret;
 					}
+				}
+				
+				inline function _setNewLineMetric(line:Line<$styleType>, glyph:$glyphType, charData:$charDataType) {
+					if (glyph != null) {
+						${switch (glyphStyleHasMeta.packed) {
+							case true: macro {
+								var h = ${switch (glyphStyleHasField.local_height) {
+									case true: macro glyph.height;
+									default: switch (glyphStyleHasField.height) {
+										case true: macro fontStyle.height;
+										default: macro font.config.height;
+								}}}
+								line.lineHeight = h * charData.fontData.lineHeight;
+								line.height = h * charData.fontData.height;
+								line.base = h * charData.fontData.base;
+								trace("line metric:", line.lineHeight, line.height, line.base);
+							}
+// TODO						
+							default: macro {}
+						}}
+					}
+				}
+				
+				inline function _baseLineOffset(line:Line<$styleType>, glyph:$glyphType, charData:$charDataType):Float {
+					if (glyph != null) {
+						${switch (glyphStyleHasMeta.packed) {
+							case true: macro {
+								return line.base - charData.fontData.base * ${switch (glyphStyleHasField.local_height) {
+									case true: macro glyph.height;
+									default: switch (glyphStyleHasField.height) {
+										case true: macro fontStyle.height;
+										default: macro font.config.height;
+								}}}
+							}
+// TODO						
+							default: macro {
+								return 0;
+							}
+						}}
+					} else return 0;
 				}
 				
 				// ----------- change Line Style and Position ----------------
@@ -738,16 +718,9 @@ class FontProgramMacro
 					// first
 					line.getGlyph(from).setStyle(glyphStyle);
 					var charData = getCharData(line.getGlyph(from).char);
-					${switch (glyphStyleHasMeta.packed) {
-						//TODO: fit line.fullHeight
-						case true: macro {
-							var lm = getLineMetric(line.getGlyph(from), charData.fontData);
-							if (line.desc != lm.desc) y += (line.base - lm.base);
-						}
-						default: macro {
-							// TODO: baseline for simplefont
-						}
-					}}
+					
+					y += _baseLineOffset(line, line.getGlyph(from), charData);
+					
 					setPosition(line.getGlyph(from), charData, x, y);
 					x += nextGlyphOffset(line.getGlyph(from), charData);
 					prev_glyph = line.getGlyph(from);
@@ -862,16 +835,7 @@ class FontProgramMacro
 						
 						if (glyphStyle != null) {
 							glyphSetStyle(line.getGlyph(position), glyphStyle);
-							${switch (glyphStyleHasMeta.packed) {
-								//TODO: fit line.fullHeight
-								case true: macro {
-									var lm = getLineMetric(line.getGlyph(position), charData.fontData);
-									if (line.desc != lm.desc) y += (line.base - lm.base);
-								}
-								default: macro {
-									// TODO: baseline for simplefont
-								}
-							}}
+							y += _baseLineOffset(line, line.getGlyph(position), charData);
 						}
 						setCharcode(line.getGlyph(position), charcode, charData);
 						setSize(line.getGlyph(position), charData);
@@ -930,17 +894,8 @@ class FontProgramMacro
 								if (glyphStyle != null) {
 									glyphSetStyle(line.getGlyph(i), glyphStyle);
 									if (i == position) // first
-									{
-										${switch (glyphStyleHasMeta.packed) {
-											//TODO: fit line.fullHeight
-											case true: macro {
-												var lm = getLineMetric(line.getGlyph(i), charData.fontData);
-												if (line.desc != lm.desc) y += (line.base - lm.base);
-											}
-											default: macro {
-												// TODO: baseline for simplefont
-											}
-										}}										
+									{					
+										y += _baseLineOffset(line, line.getGlyph(i), charData);
 									}
 								}
 								setCharcode(line.getGlyph(i), charcode, charData);
@@ -1008,17 +963,9 @@ class FontProgramMacro
 						var glyph = new peote.text.Glyph<$styleType>();
 						
 						glyphSetStyle(glyph, glyphStyle);
-						${switch (glyphStyleHasMeta.packed) {
-							//TODO: fit line.fullHeight
-							case true: macro {
-								var lm = getLineMetric(glyph, charData.fontData);
-								if (line.desc != lm.desc) y += (line.base - lm.base);
-							}
-							default: macro {
-								// TODO: baseline for simplefont
-							}
-						}}
-
+						
+						y += _baseLineOffset(line, glyph, charData);
+						
 						setCharcode(glyph, charcode, charData);
 						setSize(glyph, charData);
 						${switch (glyphStyleHasMeta.packed) {
@@ -1156,16 +1103,7 @@ class FontProgramMacro
 							glyphSetStyle(glyph, glyphStyle);
 							if (first) {
 								first = false;
-								${switch (glyphStyleHasMeta.packed) {
-									//TODO: fit line.fullHeight
-									case true: macro {
-										var lm = getLineMetric(glyph, charData.fontData);
-										if (line.desc != lm.desc) y += (line.base - lm.base);
-									}
-									default: macro {
-										// TODO: baseline for simplefont
-									}
-								}}
+								y += _baseLineOffset(line, glyph, charData);
 							}
 							setCharcode(glyph, charcode, charData);
 							setSize(glyph, charData);
@@ -1195,20 +1133,8 @@ class FontProgramMacro
 					//line.fullWidth = x - line.x - line.xOffset;
 					line.fullWidth += x - x_start;
 					
-					// sets new line-metrics
-					${switch (glyphStyleHasMeta.packed) {
-						case true: macro {
-							if (setNewLineMetrics && prev_glyph != null) {
-								var lm = getLineMetric(prev_glyph, charData.fontData);
-								line.asc = lm.asc;
-								line.desc = lm.desc;
-								line.base = lm.base;
-								//trace("line metric:", line.asc, line.desc, line.base);
-							}
-						}
-						default: macro {}
-					}}
-					
+					if (setNewLineMetrics) _setNewLineMetric(line, prev_glyph, charData);
+
 					return x - x_start;
 				}
 				
@@ -1441,7 +1367,7 @@ class FontProgramMacro
 						setLine( line, regLinesplit.matched(1), x, y, glyphStyle); // TODO: autoupdate
 						updateLine(line);
 						chars = regLinesplit.matchedRight();
-						y += line.desc; // TODO
+						y += line.lineHeight; // TODO
 						i++;
 					}
 					if (i < page.length) { // delete rest of old line
@@ -1459,7 +1385,7 @@ class FontProgramMacro
 							var line = createLine(regLinesplit.matched(1), x, y, glyphStyle);
 							page.pushLine( line );
 							chars = regLinesplit.matchedRight();
-							y += line.desc; // TODO
+							y += line.lineHeight; // TODO
 						}
 					}
 					

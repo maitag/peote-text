@@ -87,11 +87,11 @@ class LineMacro
 				public var maxY:Float = 0xffff;
 				
 				@:allow(peote.text) public var fullWidth(default, null):Float = 0.0;
-				@:allow(peote.text) public var fullHeight(default, null):Float = 0.0;
+				@:allow(peote.text) public var fullHeight(default, null):Float = 0.0; // TODO
 				
-				public var asc:Float = 0.0;
-				public var desc:Float = 0.0; // height
-				public var base:Float = 0.0;  // <- all aligns here
+				public var lineHeight:Float = 0.0;
+				public var height:Float = 0.0; // height (highest glyph)
+				public var base:Float = 0.0;   // baseline for font
 				
 				
 				//public var xDirection:Int = 1;  // <- TODO: better later with LineStyle !!!
