@@ -44,6 +44,7 @@ class Gl3FontData
 		var N:Int = bytes.getInt32(pos); pos += 4; trace('number of glyphes: $N');
 		
 		lineHeight = bytes.getFloat(pos); pos += 4; trace('lineHeight: $lineHeight');
+		//lineHeight = 1;
 		base = bytes.getFloat(pos) / lineHeight; pos += 4; trace('base: $base');
 		height = base - bytes.getFloat(pos) / lineHeight; pos += 4; trace('height: $height');
 		

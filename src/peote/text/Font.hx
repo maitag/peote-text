@@ -199,9 +199,16 @@ class FontMacro
 							trace(pos.lines[0].number);
 							if (pos != null) haxe.Log.trace(json2object.ErrorUtils.convertError(e), {fileName:pos.file, lineNumber:pos.lines[0].number,className:"",methodName:""});
 						}
-
+						
+						
+						// TODO: shift all from single range into ranges to write also without ranges-array
+						
 						var rangeSize = config.rangeSplitSize;
 						
+						if (config.line != null) {
+							// if (config.line.height == null) config.line.height = //TODO: set to same as tile-height
+						}
+
 						${switch (glyphStyleHasMeta.packed) {
 							case true: macro {
 								if (!config.packed) {
@@ -232,7 +239,7 @@ class FontMacro
 							}
 						}}
 
-						var found_ranges = new Array<{image:String,data:String,slot:{width:Int, height:Int},range:Range}>();
+						var found_ranges = new Array<{image:String,data:String,slot:{width:Int, height:Int},tiles:{x:Int, y:Int},range:Range}>();
 						
 						for( item in config.ranges )
 						{
@@ -298,15 +305,6 @@ class FontMacro
 								1,1, // min/mag-filter
 								maxTextureSize
 							);
-							${switch (!glyphStyleHasMeta.packed)	{
-								case true: macro {
-									for (texture in textureCache.textures) {
-										texture.tilesX = config.tilesX;
-										texture.tilesY = config.tilesY;
-									}
-								}
-								default: macro {}
-							}}
 						}
 						default: macro {
 							var w:Int = 0;
@@ -321,13 +319,6 @@ class FontMacro
 								1, 1, // min/mag-filter
 								maxTextureSize
 							);
-							${switch (!glyphStyleHasMeta.packed)	{
-								case true: macro {
-									textureCache.tilesX = config.tilesX;
-									textureCache.tilesY = config.tilesY;
-								}
-								default: macro {}
-							}}
 						}
 					}}
 				
@@ -420,12 +411,29 @@ class FontMacro
 								}
 								default: macro // ------- simple font -------
 								{
+									var tilesX:Null<Int> = null;
+									var tilesY:Null<Int> = null;
+									if ( config.ranges[index].tiles != null) {
+										tilesX = config.ranges[index].tiles.x;
+										tilesY = config.ranges[index].tiles.y;
+									}
+									else if (config.tiles != null) {
+										tilesX = config.tiles.x;
+										tilesY = config.tiles.y;
+									}
+									else {
+										var error = 'Error, can not found tiles inside font-config "'+path+jsonFilename+'"';
+										haxe.Log.trace(error, {fileName:path+jsonFilename, lineNumber:0,className:"",methodName:""});
+										throw(error);
+									}
+									
+												
 									// sort ranges into rangeMapping
 									var range = config.ranges[index].range;
 									
 									${switch (glyphStyleHasMeta.multiTexture) {
 										case true: macro {
-											var p = textureCache.addImage(image); 
+											var p = textureCache.addImage(image, tilesX, tilesY); 
 											//trace( image.width+"x"+image.height, "texture-unit:" + p.unit, "texture-slot:" + p.slot);							
 											for (i in Std.int(range.min / rangeSize)...Std.int(range.max / rangeSize) + 1) {
 												${switch (glyphStyleHasMeta.multiSlot) {
@@ -436,13 +444,13 @@ class FontMacro
 										}
 										default: switch (glyphStyleHasMeta.multiSlot) {
 											case true: macro {
-												textureCache.setImage(image, index);
+												textureCache.setImage(image, index, tilesX, tilesY);
 												for (i in Std.int(range.min / rangeSize)...Std.int(range.max / rangeSize)+1) {
 													rangeMapping.set(i, {slot:index, min:range.min, max:range.max});
 												}
 											}
 											default: macro {
-												textureCache.setImage(image);
+												textureCache.setImage(image, 0, tilesX, tilesY);
 												rangeMapping = {min:range.min, max:range.max};
 											}
 										}

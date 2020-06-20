@@ -109,13 +109,13 @@ class Gl3FontRendering
 					// for unifont + INT is this best readable (but good not scalable and not not for all letters!!!) at fixed scale 16 ( or 32.. etc)
 					//program.setColorFormula('COL * smoothstep( 0.5, 0.5, TEX.r)');
 					
-					renderTextLine(	100, 4, 16, gl3font, image.width, image.height, isKerning,
+					renderTextLine(	100, 4, 24, gl3font, image.width, image.height, isKerning,
 						"Unifont Test with peote-view and gl3font"
 					);
-					renderTextLine(	100, 30, 16, gl3font, image.width, image.height, isKerning,
+					renderTextLine(	100, 30, 24, gl3font, image.width, image.height, isKerning,
 						" -> move the display with cursorkeys (more speed with shift)"
 					);
-					renderTextLine(	100, 50, 16, gl3font, image.width, image.height, isKerning,
+					renderTextLine(	100, 50, 24, gl3font, image.width, image.height, isKerning,
 						" -> zoom the display with numpad +- (shift is zooming the view)"
 					);
 					
@@ -132,7 +132,7 @@ class Gl3FontRendering
 							i++; c++;
 							if (i > 100) {
 								//trace("charnumber:",c,"line:",l);
-								renderTextLine( 30, l, 16, gl3font, image.width, image.height, isKerning, s.toString());
+								renderTextLine( 30, l, 24, gl3font, image.width, image.height, isKerning, s.toString());
 								i = 0; s = new haxe.Utf8(); l += 26;
 							}
 						}
@@ -177,7 +177,7 @@ class Gl3FontRendering
 				{
 					#if isInt
 					if (isKerning && prev_metric != null) { // KERNING
-						penX += Math.ceil(gl3font.kerning[prev_metric.kerning] * scale);
+						penX += Math.ceil(gl3font.kerning[prev_metric.kerning][metric.kerning] * scale);
 						//trace("kerning to left letter: " + Math.round(gl3font.kerning[prev_metric.kerning][metric.kerning] * scale) );
 					}
 					prev_metric = metric;
