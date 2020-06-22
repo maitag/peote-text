@@ -85,7 +85,7 @@ class FontMacro
 						rangeType = macro: {unit:Int, slot:Int, fontData:peote.text.Gl3FontData};
 					}
 					else {
-						rangeType = macro: {unit:Int, slot:Int, min:Int, max:Int};
+						rangeType = macro: {unit:Int, slot:Int, min:Int, max:Int, height:Float, base:Float};
 					}
 				}
 				else {
@@ -93,7 +93,7 @@ class FontMacro
 						rangeType = macro: {unit:Int, fontData:peote.text.Gl3FontData};
 					}
 					else {
-						rangeType = macro: {unit:Int, min:Int, max:Int};
+						rangeType = macro: {unit:Int, min:Int, max:Int, height:Float, base:Float};
 					}
 				}
 				rangeMappingType = macro: haxe.ds.Vector<$rangeType>;
@@ -105,7 +105,7 @@ class FontMacro
 						rangeType = macro: {slot:Int, fontData:peote.text.Gl3FontData};
 					}
 					else {
-						rangeType = macro: {slot:Int, min:Int, max:Int };
+						rangeType = macro: {slot:Int, min:Int, max:Int, height:Float, base:Float};
 					}
 					rangeMappingType = macro: haxe.ds.Vector<$rangeType>;
 				}
@@ -114,7 +114,7 @@ class FontMacro
 						rangeType = rangeMappingType = macro: peote.text.Gl3FontData;
 					}
 					else {
-						rangeType = rangeMappingType = macro: {min:Int, max:Int};
+						rangeType = rangeMappingType = macro: {min:Int, max:Int, height:Float, base:Float};
 					}
 				}
 			}
@@ -239,7 +239,7 @@ class FontMacro
 							}
 						}}
 
-						var found_ranges = new Array<{image:String,data:String,slot:{width:Int, height:Int},tiles:{x:Int, y:Int},range:Range}>();
+						var found_ranges = new Array<{image:String,data:String,slot:{width:Int, height:Int},tiles:{x:Int, y:Int},line:{height:Float, base:Float},range:Range}>();
 						
 						for( item in config.ranges )
 						{
@@ -427,6 +427,19 @@ class FontMacro
 										throw(error);
 									}
 									
+									var lineHeight:Float;
+									var lineBase:Float;
+									if ( config.ranges[index].line != null) {
+										lineHeight = config.ranges[index].line.height / image.height * tilesY;
+										lineBase = config.ranges[index].line.base / image.height * tilesY;
+									}
+									else if (config.line != null) {
+										lineHeight = config.line.height / image.height * tilesY;
+										lineBase = config.line.base / image.height * tilesY;
+									}
+									else {
+										lineBase = lineHeight = 1;
+									}
 												
 									// sort ranges into rangeMapping
 									var range = config.ranges[index].range;
@@ -437,8 +450,8 @@ class FontMacro
 											//trace( image.width+"x"+image.height, "texture-unit:" + p.unit, "texture-slot:" + p.slot);							
 											for (i in Std.int(range.min / rangeSize)...Std.int(range.max / rangeSize) + 1) {
 												${switch (glyphStyleHasMeta.multiSlot) {
-													case true: macro rangeMapping.set(i, {unit:p.unit, slot:p.slot, min:range.min, max:range.max});
-													default: macro rangeMapping.set(i, {unit:p.unit, min:range.min, max:range.max});
+													case true: macro rangeMapping.set(i, {unit:p.unit, slot:p.slot, min:range.min, max:range.max, height:lineHeight, base:lineBase});
+													default: macro rangeMapping.set(i, {unit:p.unit, min:range.min, max:range.max, height:lineHeight, base:lineBase});
 												}}
 											}
 										}
@@ -446,12 +459,12 @@ class FontMacro
 											case true: macro {
 												textureCache.setImage(image, index, tilesX, tilesY);
 												for (i in Std.int(range.min / rangeSize)...Std.int(range.max / rangeSize)+1) {
-													rangeMapping.set(i, {slot:index, min:range.min, max:range.max});
+													rangeMapping.set(i, {slot:index, min:range.min, max:range.max, height:lineHeight, base:lineBase});
 												}
 											}
 											default: macro {
 												textureCache.setImage(image, 0, tilesX, tilesY);
-												rangeMapping = {min:range.min, max:range.max};
+												rangeMapping = {min:range.min, max:range.max, height:lineHeight, base:lineBase};
 											}
 										}
 									}}

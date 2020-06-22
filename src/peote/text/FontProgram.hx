@@ -82,10 +82,10 @@ class FontProgramMacro
 				else charDataType = macro: {fontData:peote.text.Gl3FontData, metric:peote.text.Gl3FontData.Metric};
 			}
 			else  {
-				if (glyphStyleHasMeta.multiTexture && glyphStyleHasMeta.multiSlot) charDataType = macro: {unit:Int, slot:Int, min:Int, max:Int};
-				else if (glyphStyleHasMeta.multiTexture) charDataType = macro: {unit:Int, min:Int, max:Int};
-				else if (glyphStyleHasMeta.multiSlot) charDataType = macro: {slot:Int, min:Int, max:Int};
-				else charDataType = macro: {min:Int, max:Int};
+				if (glyphStyleHasMeta.multiTexture && glyphStyleHasMeta.multiSlot) charDataType = macro: {unit:Int, slot:Int, min:Int, max:Int, height:Float, base:Float};
+				else if (glyphStyleHasMeta.multiTexture) charDataType = macro: {unit:Int, min:Int, max:Int, height:Float, base:Float};
+				else if (glyphStyleHasMeta.multiSlot) charDataType = macro: {slot:Int, min:Int, max:Int, height:Float, base:Float};
+				else charDataType = macro: {min:Int, max:Int, height:Float, base:Float};
 			}
 
 			// -------------------------------------------------------------------------------------------
@@ -664,13 +664,23 @@ class FontProgramMacro
 										case true: macro fontStyle.height;
 										default: macro font.config.height;
 								}}}
-								line.lineHeight = h * charData.fontData.lineHeight;
 								line.height = h * charData.fontData.height;
+								line.lineHeight = h * charData.fontData.lineHeight;
 								line.base = h * charData.fontData.base;
-								trace("line metric:", line.lineHeight, line.height, line.base);
+								//trace("line metric:", line.lineHeight, line.height, line.base);
 							}
-// TODO						
-							default: macro {}
+							default: macro {
+								var h = ${switch (glyphStyleHasField.local_height) {
+									case true: macro glyph.height;
+									default: switch (glyphStyleHasField.height) {
+										case true: macro fontStyle.height;
+										default: macro font.config.height;
+								}}}
+								line.height = h;
+								line.lineHeight = h * charData.height;
+								line.base = h * charData.base;
+								//trace("line metric:", line.lineHeight, line.height, line.base);
+							}
 						}}
 					}
 				}
@@ -686,9 +696,13 @@ class FontProgramMacro
 										default: macro font.config.height;
 								}}}
 							}
-// TODO						
 							default: macro {
-								return 0;
+								return line.base - charData.base * ${switch (glyphStyleHasField.local_height) {
+									case true: macro glyph.height;
+									default: switch (glyphStyleHasField.height) {
+										case true: macro fontStyle.height;
+										default: macro font.config.height;
+								}}}
 							}
 						}}
 					} else return 0;

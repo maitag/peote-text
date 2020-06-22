@@ -66,8 +66,8 @@ class Fonts
 					var line = fontProgram.createLine('ÄABC defg (${f.name})', 0, f.y);
 
 					glyphStyle.color = Color.YELLOW;
-					glyphStyle.width = font.config.width * 4.0;
-					glyphStyle.height = font.config.height * 4.0;								
+					glyphStyle.width = font.config.width * 2.0;
+					glyphStyle.height = font.config.height * 2.0;								
 													
 					fontProgram.lineSetStyle(line, glyphStyle, 2, 3);
 					fontProgram.updateLine(line);			

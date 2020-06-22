@@ -28,8 +28,9 @@ class FontConfig
 	var ranges:Array<{
 		image:String,                 // image filename for glyph-textureatlas
 		?data:String,                 // data filename for glyph-textureatlas
-		slot: {width:Int, height:Int}, // texture-slot size (all with same width and height can be used inside one texture)
-		?tiles:{x:Int, y:Int},
+		slot  : {width:Int, height:Int}, // texture-slot size (all with same width and height can be used inside one texture)
+		?tiles: {x:Int, y:Int},
+		?line : {height:Float, base:Float},
 		range:Range                   // unicode range of glyphes into that image
 	}>;
 	
