@@ -48,7 +48,7 @@ class Fonts
 			
 			var packedFonts = [
 				{ name: "hack",    y:  30, range: null },
-				{ name: "unifont", y: 100, range: [new peote.text.Range(0x0000,0x0fff)] }
+				{ name: "unifont", y:  80, range: [new peote.text.Range(0x0000,0x0fff)] }
 			];
 
 			for (f in packedFonts) 
@@ -57,17 +57,20 @@ class Fonts
 				font.load( function()
 				{
 					var glyphStyle = new GlyphStylePacked();
-					glyphStyle.width = font.config.width * 1.0;
-					glyphStyle.height = font.config.height * 1.0;								
+					glyphStyle.width = 28;// font.config.width * 1.0;
+					glyphStyle.height = 28;// font.config.height * 1.0;								
 					
-					var fontProgram = new FontProgram<GlyphStylePacked>(font, glyphStyle);
+					// var fontProgram = new FontProgram<GlyphStylePacked>(font, glyphStyle);
+					// alternative way to create the FontProgram<GlyphStylePacked>:
+					var fontProgram = font.createFontProgram(glyphStyle);
+					
 					display.addProgram(fontProgram);
 					
-					var line = fontProgram.createLine('ÄABC defg (${f.name})', 0, f.y);
+					var line = fontProgram.createLine('ÄABC defg (packed: ${f.name})', 0, f.y);
 
 					glyphStyle.color = Color.YELLOW;
-					glyphStyle.width = font.config.width * 2.0;
-					glyphStyle.height = font.config.height * 2.0;								
+					glyphStyle.width = 56;// font.config.width * 2.0;
+					glyphStyle.height = 56;// font.config.height * 2.0;								
 													
 					fontProgram.lineSetStyle(line, glyphStyle, 2, 3);
 					fontProgram.updateLine(line);			
@@ -81,9 +84,9 @@ class Fonts
 			// --------------------------------------------------------
 			
 			var tiledFonts = [
-				{ name: "hack_ascii",       y:  200, range: null },
-				{ name: "liberation_ascii", y:  300, range: null },
-				{ name: "peote",            y:  400, range: null }
+				{ name: "hack_ascii",       y:  160, range: null },
+				{ name: "liberation_ascii", y:  240, range: null },
+				{ name: "peote",            y:  310, range: null }
 			];
 			
 			for (f in tiledFonts) 
@@ -95,10 +98,13 @@ class Fonts
 					glyphStyle.width = font.config.width;
 					glyphStyle.height = font.config.height;								
 					
-					var fontProgram = new FontProgram<GlyphStyleTiled>(font, glyphStyle);
+					// var fontProgram = new FontProgram<GlyphStyleTiled>(font, glyphStyle);
+					// alternative way to create the FontProgram<GlyphStylePacked>:
+					var fontProgram = font.createFontProgram(glyphStyle);
+					
 					display.addProgram(fontProgram);
 					
-					var line = fontProgram.createLine('ABC defg (${f.name})', 0, f.y);					
+					var line = fontProgram.createLine('ABC defg (tiled: ${f.name})', 0, f.y);					
 					
 					glyphStyle.color = Color.YELLOW;
 					glyphStyle.width = font.config.width * 2.0;

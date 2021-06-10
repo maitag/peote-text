@@ -1371,17 +1371,17 @@ class FontProgramMacro
 					trace("setPage", chars);
 					chars += "\n";
 					// TODO: vertically masking
-					// TODO: change linecreation to have tabs
+					// TODO: change linecreation to have tabs (alternatively into creation of a tab-char into font!)
 					// TODO: wrap and wordwrap
 					var i:Int = 0;
 					
 					while (regLinesplit.match(chars) && i < page.length) { // overwrite old lines
 						trace("setLine", i, regLinesplit.matched(1));
-						var line = page.getLine(i);
+						var line = page.getLine(i); // TODO: empty lines have no height !
 						setLine( line, regLinesplit.matched(1), x, y, glyphStyle); // TODO: autoupdate
 						updateLine(line);
 						chars = regLinesplit.matchedRight();
-						y += line.lineHeight; // TODO
+						y += line.lineHeight;
 						i++;
 					}
 					if (i < page.length) { // delete rest of old line
@@ -1396,10 +1396,10 @@ class FontProgramMacro
 					else { // create new lines and push them to page
 						while (regLinesplit.match(chars)) {
 							trace("pushLine", regLinesplit.matched(1));
-							var line = createLine(regLinesplit.matched(1), x, y, glyphStyle);
+							var line = createLine(regLinesplit.matched(1), x, y, glyphStyle); // TODO: empty lines have no height !
 							page.pushLine( line );
 							chars = regLinesplit.matchedRight();
-							y += line.lineHeight; // TODO
+							y += line.lineHeight;
 						}
 					}
 					

@@ -152,7 +152,10 @@ class InputLine
 			
 				var fontStyle = new GlyphStyle();
 				
-				fontProgram = new FontProgram<GlyphStyle>(font, fontStyle); // manage the Programs to render glyphes in different size/colors/fonts
+				//fontProgram = new FontProgram<GlyphStyle>(font, fontStyle); // manage the Programs to render glyphes in different size/colors/fonts
+				// alternative way to create the FontProgram<GlyphStyle>:
+				fontProgram = font.createFontProgram(fontStyle);
+				
 				display.addProgram(fontProgram);
 				
 				// ------------------- Styles  -------------------				

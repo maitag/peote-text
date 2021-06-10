@@ -56,6 +56,7 @@ class FontMacro
 			//else styleField = styleSuperModule.split(".").concat([styleSuperName]);
 			styleField = styleModule.split(".").concat([styleName]);
 			
+			// TODO: is this need ?
 			var glyphType = peote.text.Glyph.GlyphMacro.buildClass("Glyph", stylePack, styleModule, styleName, styleSuperModule, styleSuperName, styleType);
 			
 			#if peoteview_debug_macro
@@ -157,7 +158,13 @@ class FontMacro
 					this.kerning = kerning;
 					this.maxTextureSize = maxTextureSize;
 				}
-
+				
+				#if macro
+				public function createFontProgram(fontStyle:$styleType):peote.text.FontProgram<$styleType> {
+					return new peote.text.FontProgram<$styleType>(this, fontStyle);
+				}
+				#end
+				
 				public inline function getRange(charcode:Int):$rangeType
 				{
 					${switch (glyphStyleHasMeta.packed) {
@@ -212,14 +219,14 @@ class FontMacro
 						${switch (glyphStyleHasMeta.packed) {
 							case true: macro {
 								if (!config.packed) {
-									var error = 'Error, for $styleName "@packed" in "' + path + jsonFilename +'" set "packed":true';
+									var error = 'Error, for $$styleName "@packed" in "' + path + jsonFilename +'" set "packed":true';
 									haxe.Log.trace(error, {fileName:path+jsonFilename, lineNumber:0,className:"",methodName:""});
 									throw(error);
 								}
 							}
 							default: macro {
 								if (config.packed) {
-									var error = 'Error, metadata of $styleName class has to be "@packed" for "' + path + jsonFilename + '" and "packed":true';
+									var error = 'Error, metadata of $$styleName class has to be "@packed" for "' + path + jsonFilename + '" and "packed":true';
 									haxe.Log.trace(error, {fileName:path+jsonFilename, lineNumber:0,className:"",methodName:""});
 									throw(error);
 								}
@@ -232,7 +239,7 @@ class FontMacro
 							case true: macro {}
 							default: macro {
 								if (ranges == null && config.ranges.length > 1) {
-									var error = 'Error, set $styleName to @multiSlot and/or @multiTexture or define a single range while Font creation or inside "' + path + jsonFilename +'"';
+									var error = 'Error, set $$styleName to @multiSlot and/or @multiTexture or define a single range while Font creation or inside "' + path + jsonFilename +'"';
 									haxe.Log.trace(error, {fileName:path+jsonFilename, lineNumber:0,className:"",methodName:""});
 									throw(error);
 								}
