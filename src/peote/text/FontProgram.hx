@@ -536,7 +536,7 @@ class FontProgramMacro
 				
 				public inline function createLine(chars:String, x:Float=0, y:Float=0, glyphStyle:Null<$styleType> = null):$lineType
 				{
-					var line = new Line<$styleType>();
+					var line = new peote.text.Line<$styleType>();
 					setLine(line, chars, x, y, glyphStyle);
 					return line;
 				}

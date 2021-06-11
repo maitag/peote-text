@@ -161,17 +161,12 @@ class FontMacro
 					this.maxTextureSize = maxTextureSize;
 				}
 				
-				// TODO:
 				public function createFontProgram(fontStyle:$styleType):$fontProgramType
-				{
-					return new peote.text.FontProgram<$styleType>(this, fontStyle);
-				}				
-/*				public function createFontProgram(fontStyle:$styleType):peote.text.FontProgram<$styleType>
 				{
 					return new peote.text.FontProgram<$styleType>(this, fontStyle);
 				}
 				
-*/				public inline function getRange(charcode:Int):$rangeType
+				public inline function getRange(charcode:Int):$rangeType
 				{
 					${switch (glyphStyleHasMeta.packed) {
 						case true:
