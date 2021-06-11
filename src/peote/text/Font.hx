@@ -58,6 +58,8 @@ class FontMacro
 			
 			// TODO: is this need ?
 			var glyphType = peote.text.Glyph.GlyphMacro.buildClass("Glyph", stylePack, styleModule, styleName, styleSuperModule, styleSuperName, styleType);
+			var fontProgramType = peote.text.FontProgram.FontProgramMacro.buildClass("FontProgram", stylePack, styleModule, styleName, styleSuperModule, styleSuperName, styleType);
+			//var fontType = TPath({ pack:classPackage, name:className, params:[] });
 			
 			#if peoteview_debug_macro
 			trace('generating Class: '+classPackage.concat([className]).join('.'));	
@@ -124,7 +126,7 @@ class FontMacro
 			// -------------------------------------------------------------------------------------------
 			var c = macro		
 			
-			class $className 
+			class $className
 			{
 				var path:String;
 				var jsonFilename:String;
@@ -159,13 +161,17 @@ class FontMacro
 					this.maxTextureSize = maxTextureSize;
 				}
 				
-				#if macro
-				public function createFontProgram(fontStyle:$styleType):peote.text.FontProgram<$styleType> {
+				// TODO:
+				public function createFontProgram(fontStyle:$styleType):$fontProgramType
+				{
+					return new peote.text.FontProgram<$styleType>(this, fontStyle);
+				}				
+/*				public function createFontProgram(fontStyle:$styleType):peote.text.FontProgram<$styleType>
+				{
 					return new peote.text.FontProgram<$styleType>(this, fontStyle);
 				}
-				#end
 				
-				public inline function getRange(charcode:Int):$rangeType
+*/				public inline function getRange(charcode:Int):$rangeType
 				{
 					${switch (glyphStyleHasMeta.packed) {
 						case true:
