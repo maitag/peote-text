@@ -29,7 +29,7 @@ class PageMacro
 							styleSuperModule = s.module;
 						}
 						return buildClass(
-							"Page", style.pack, style.module, style.name, styleSuperModule, styleSuperName, TypeTools.toComplexType(t)
+							"Page", Context.getLocalClass().get().pack, style.pack, style.module, style.name, styleSuperModule, styleSuperName, TypeTools.toComplexType(t)
 						);	
 					default: Context.error("Type for GlyphStyle expected", Context.currentPos());
 				}
@@ -38,14 +38,12 @@ class PageMacro
 		return null;
 	}
 		
-	static public function buildClass(className:String, stylePack:Array<String>, styleModule:String, styleName:String, styleSuperModule:String, styleSuperName:String, styleType:ComplexType):ComplexType
+	static public function buildClass(className:String, classPackage:Array<String>, stylePack:Array<String>, styleModule:String, styleName:String, styleSuperModule:String, styleSuperName:String, styleType:ComplexType):ComplexType
 	{		
 		var styleMod = styleModule.split(".").join("_");
 		
 		className += "__" + styleMod;
 		if (styleModule.split(".").pop() != styleName) className += ((styleMod != "") ? "_" : "") + styleName;
-		
-		var classPackage = Context.getLocalClass().get().pack;
 		
 		if (!cache.exists(className))
 		{
@@ -56,9 +54,9 @@ class PageMacro
 			//else styleField = styleSuperModule.split(".").concat([styleSuperName]);
 			styleField = styleModule.split(".").concat([styleName]);
 			
-			var lineType = Line.LineMacro.buildClass("Line", stylePack, styleModule, styleName, styleSuperModule, styleSuperName, styleType);
+			var lineType = Line.LineMacro.buildClass("Line", classPackage, stylePack, styleModule, styleName, styleSuperModule, styleSuperName, styleType);
 			
-			#if peoteview_debug_macro
+			#if peotetext_debug_macro
 			trace('generating Class: '+classPackage.concat([className]).join('.'));	
 			
 			trace("ClassName:"+className);           // FontProgram__peote_text_GlypStyle

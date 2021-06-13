@@ -29,7 +29,7 @@ class FontProgramMacro
 							styleSuperModule = s.module;
 						}
 						return buildClass(
-							"FontProgram", style.pack, style.module, style.name, styleSuperModule, styleSuperName, TypeTools.toComplexType(t)
+							"FontProgram", Context.getLocalClass().get().pack, style.pack, style.module, style.name, styleSuperModule, styleSuperName, TypeTools.toComplexType(t)
 						);	
 					default: Context.error("Type for GlyphStyle expected", Context.currentPos());
 				}
@@ -38,15 +38,13 @@ class FontProgramMacro
 		return null;
 	}
 	
-	static public function buildClass(className:String, stylePack:Array<String>, styleModule:String, styleName:String, styleSuperModule:String, styleSuperName:String, styleType:ComplexType):ComplexType
+	static public function buildClass(className:String, classPackage:Array<String>, stylePack:Array<String>, styleModule:String, styleName:String, styleSuperModule:String, styleSuperName:String, styleType:ComplexType):ComplexType
 	{		
 		var styleMod = styleModule.split(".").join("_");
 		
 		className += "__" + styleMod;
 		if (styleModule.split(".").pop() != styleName) className += ((styleMod != "") ? "_" : "") + styleName;
-		
-		var classPackage = Context.getLocalClass().get().pack;
-		
+				
 		if (!cache.exists(className))
 		{
 			cache[className] = true;
@@ -56,10 +54,10 @@ class FontProgramMacro
 			//else styleField = styleSuperModule.split(".").concat([styleSuperName]);
 			styleField = styleModule.split(".").concat([styleName]);
 			
-			var glyphType = Glyph.GlyphMacro.buildClass("Glyph", stylePack, styleModule, styleName, styleSuperModule, styleSuperName, styleType);
-			var lineType  = Line.LineMacro.buildClass("Line", stylePack, styleModule, styleName, styleSuperModule, styleSuperName, styleType);
+			var glyphType = Glyph.GlyphMacro.buildClass("Glyph", classPackage, stylePack, styleModule, styleName, styleSuperModule, styleSuperName, styleType);
+			var lineType  = Line.LineMacro.buildClass("Line", classPackage, stylePack, styleModule, styleName, styleSuperModule, styleSuperName, styleType);
 			
-			#if peoteview_debug_macro
+			#if peotetext_debug_macro
 			trace('generating Class: '+classPackage.concat([className]).join('.'));	
 			
 			trace("ClassName:"+className);           // FontProgram__peote_text_GlypStyle
@@ -529,6 +527,7 @@ class FontProgramMacro
 					} else return false;
 				}
 
+				public inline function numberOfGlyphes():Int return _buffer.length();
 				
 				// -----------------------------------------
 				// ---------------- Lines ------------------
@@ -567,7 +566,6 @@ class FontProgramMacro
 					}
 					else
 					{
-						//var prev_glyph:peote.text.Glyph<$styleType> = null;
 						var prev_glyph:$glyphType = null;
 						var i = 0;
 						var ret = true;
@@ -839,7 +837,6 @@ class FontProgramMacro
 						if (position < line.updateFrom) line.updateFrom = position;
 						if (position + 1 > line.updateTo) line.updateTo = position + 1;
 						
-						//var prev_glyph:peote.text.Glyph<$styleType> = null;
 						var prev_glyph:$glyphType = null;
 						
 						var x = line.x + line.xOffset;
@@ -889,7 +886,6 @@ class FontProgramMacro
 					//if (position < line.updateFrom) line.updateFrom = position;
 					//if (position + chars.length > line.updateTo) line.updateTo = Std.int(Math.min(position + chars.length, line.length));
 					
-					//var prev_glyph:peote.text.Glyph<$styleType> = null;
 					var prev_glyph:$glyphType = null;
 					var x = line.x + line.xOffset;
 					var y = line.y + line.yOffset;
@@ -968,7 +964,6 @@ class FontProgramMacro
 					var charData = getCharData(charcode);
 					if (charData != null)
 					{
-						//var prev_glyph:peote.text.Glyph<$styleType> = null;
 						var prev_glyph:$glyphType = null;
 						
 						var x = line.x + line.xOffset;
@@ -1028,7 +1023,6 @@ class FontProgramMacro
 				
 				public function lineInsertChars(line:$lineType, chars:String, position:Int = 0, glyphStyle:$styleType = null):Float 
 				{					
-					//var prev_glyph:peote.text.Glyph<$styleType> = null;
 					var prev_glyph:$glyphType = null;
 					var x = line.x + line.xOffset;
 					var y = line.y + line.yOffset;
@@ -1096,7 +1090,6 @@ class FontProgramMacro
 				
 				public function lineAppendChars(line:$lineType, chars:String, glyphStyle:$styleType = null):Float
 				{					
-					//var prev_glyph:peote.text.Glyph<$styleType> = null;
 					var prev_glyph:$glyphType = null;
 					var x = line.x + line.xOffset;
 					var y = line.y + line.yOffset;
@@ -1110,7 +1103,6 @@ class FontProgramMacro
 				public inline function _lineAppend(line:$lineType, chars:String, x:Float, y:Float, prev_glyph:peote.text.Glyph<$styleType>, glyphStyle:$styleType, setNewLineMetrics:Bool = false):Float
 				{
 					var first = ! setNewLineMetrics;
-					//var glyph:peote.text.Glyph<$styleType> = null;
 					var glyph:$glyphType = null;
 					var charData:$charDataType = null;
 					

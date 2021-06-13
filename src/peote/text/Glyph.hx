@@ -57,7 +57,7 @@ class GlyphMacro
 							styleSuperModule = s.module;
 						}
 						return buildClass(
-							"Glyph", style.pack, style.module, style.name, styleSuperModule, styleSuperName, TypeTools.toComplexType(t)
+							"Glyph", Context.getLocalClass().get().pack, style.pack, style.module, style.name, styleSuperModule, styleSuperName, TypeTools.toComplexType(t)
 						);	
 					default: Context.error("Type for GlyphStyle expected", Context.currentPos());
 				}
@@ -116,14 +116,12 @@ class GlyphMacro
 			return glyphStyleHasMeta;
 	}
 	
-	static public function buildClass(className:String, stylePack:Array<String>, styleModule:String, styleName:String, styleSuperModule:String, styleSuperName:String, styleType:ComplexType):ComplexType
+	static public function buildClass(className:String, classPackage:Array<String>, stylePack:Array<String>, styleModule:String, styleName:String, styleSuperModule:String, styleSuperName:String, styleType:ComplexType):ComplexType
 	{		
 		var styleMod = styleModule.split(".").join("_");
 			
 		className += "__" + styleMod;
 		if (styleModule.split(".").pop() != styleName) className += ((styleMod != "") ? "_" : "") + styleName;
-		
-		var classPackage = Context.getLocalClass().get().pack;
 		
 		if (!cache.exists(className))
 		{
@@ -134,7 +132,7 @@ class GlyphMacro
 			//else styleField = styleSuperModule.split(".").concat([styleSuperName]);
 			styleField = styleModule.split(".").concat([styleName]);
 			
-			#if peoteview_debug_macro
+			#if peotetext_debug_macro
 			trace('generating Class: '+classPackage.concat([className]).join('.'));	
 			
 			trace("ClassName:"+className);           // Glyph__peote_text_GlypStyle

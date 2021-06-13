@@ -29,7 +29,7 @@ class FontMacro
 							styleSuperModule = s.module;
 						}
 						return buildClass(
-							"Font", style.pack, style.module, style.name, styleSuperModule, styleSuperName, TypeTools.toComplexType(t)
+							"Font", Context.getLocalClass().get().pack, style.pack, style.module, style.name, styleSuperModule, styleSuperName, TypeTools.toComplexType(t)
 						);	
 					default: Context.error("Type for GlyphStyle expected", Context.currentPos());
 				}
@@ -38,14 +38,12 @@ class FontMacro
 		return null;
 	}
 	
-	static public function buildClass(className:String, stylePack:Array<String>, styleModule:String, styleName:String, styleSuperModule:String, styleSuperName:String, styleType:ComplexType):ComplexType
+	static public function buildClass(className:String, classPackage:Array<String>, stylePack:Array<String>, styleModule:String, styleName:String, styleSuperModule:String, styleSuperName:String, styleType:ComplexType):ComplexType
 	{		
 		var styleMod = styleModule.split(".").join("_");
 		
 		className += "__" + styleMod;
 		if (styleModule.split(".").pop() != styleName) className += ((styleMod != "") ? "_" : "") + styleName;
-		
-		var classPackage = Context.getLocalClass().get().pack;
 		
 		if (!cache.exists(className))
 		{
@@ -56,12 +54,9 @@ class FontMacro
 			//else styleField = styleSuperModule.split(".").concat([styleSuperName]);
 			styleField = styleModule.split(".").concat([styleName]);
 			
-			// TODO: is this need ?
-			var glyphType = peote.text.Glyph.GlyphMacro.buildClass("Glyph", stylePack, styleModule, styleName, styleSuperModule, styleSuperName, styleType);
-			var fontProgramType = peote.text.FontProgram.FontProgramMacro.buildClass("FontProgram", stylePack, styleModule, styleName, styleSuperModule, styleSuperName, styleType);
-			//var fontType = TPath({ pack:classPackage, name:className, params:[] });
+			var fontProgramType = peote.text.FontProgram.FontProgramMacro.buildClass("FontProgram", classPackage, stylePack, styleModule, styleName, styleSuperModule, styleSuperName, styleType);
 			
-			#if peoteview_debug_macro
+			#if peotetext_debug_macro
 			trace('generating Class: '+classPackage.concat([className]).join('.'));	
 			
 			trace("ClassName:"+className);           // FontProgram__peote_text_GlypStyle
