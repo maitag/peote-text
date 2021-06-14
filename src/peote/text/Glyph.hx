@@ -1,152 +1,29 @@
 package peote.text;
 
 #if !macro
-@:genericBuild(peote.text.Glyph.GlyphMacro.build())
+@:genericBuild(peote.text.Glyph.GlyphMacro.build("Glyph"))
 class Glyph<T> {}
 #else
 
 import haxe.macro.Expr;
 import haxe.macro.Context;
-import haxe.macro.TypeTools;
-
-@:publicFields class GlyphStyleHasField {
-	var color:Bool;
-	var bgColor:Bool;
-	var width:Bool;
-	var height:Bool;
-	var rotation:Bool;
-	var weight:Bool;
-	var tilt:Bool;
-	var zIndex:Bool;
-	
-	var local_color:Bool;
-	var local_bgColor:Bool;
-	var local_width:Bool;
-	var local_height:Bool;
-	var local_rotation:Bool;
-	var local_weight:Bool;
-	var local_tilt:Bool;
-	var local_zIndex:Bool;
-	public function new() {}
-}
-
-@:publicFields class GlyphStyleHasMeta {
-	var packed:Bool;
-	var multiSlot:Bool;
-	var multiTexture:Bool;
-	public function new() {}
-}
+import peote.text.util.Macro;
+import peote.text.util.GlyphStyleHasField;
+import peote.text.util.GlyphStyleHasMeta;
 
 class GlyphMacro
 {
-	public static var cache = new Map<String, Bool>();
-	
-	static public function build()
-	{	
-		switch (Context.getLocalType()) {
-			case TInst(_, [t]):
-				switch (t) {
-					case TInst(n, []):
-						var style = n.get();
-						var styleSuperName:String = null;
-						var styleSuperModule:String = null;
-						var s = style;
-						while (s.superClass != null) {
-							s = s.superClass.t.get(); trace("->" + s.name);
-							styleSuperName = s.name;
-							styleSuperModule = s.module;
-						}
-						return buildClass(
-							"Glyph", Context.getLocalClass().get().pack, style.pack, style.module, style.name, styleSuperModule, styleSuperName, TypeTools.toComplexType(t)
-						);	
-					default: Context.error("Type for GlyphStyle expected", Context.currentPos());
-				}
-			default: Context.error("Type for GlyphStyle expected", Context.currentPos());
-		}
-		return null;
-	}
-	
-	static public function parseGlyphStyleFields(styleModule:String):GlyphStyleHasField {
-			// parse GlyphStyle fields
-			var glyphStyleHasField = new GlyphStyleHasField();
-			
-			var style_fields = switch Context.getType(styleModule) {
-				case TInst(s,_): s.get();
-				default: throw "error: can not parse glyphstyle";
-			}
-			for (field in style_fields.fields.get()) {//trace("param",Context.getTypedExpr(field.expr()).expr);
-				var local = true;
-				var meta = field.meta.get();
-				if (meta.length > 0)
-					if (meta[0].name == "global") local = false;
-					
-				switch (field.name) {
-					case "color":   glyphStyleHasField.color   = true; if (local) glyphStyleHasField.local_color   = true;
-					case "bgColor": glyphStyleHasField.bgColor = true; if (local) glyphStyleHasField.local_bgColor = true;
-					case "width":   glyphStyleHasField.width   = true; if (local) glyphStyleHasField.local_width   = true;
-					case "height":  glyphStyleHasField.height  = true; if (local) glyphStyleHasField.local_height  = true;
-					case "rotation":glyphStyleHasField.rotation= true; if (local) glyphStyleHasField.local_rotation= true;
-					case "weight":  glyphStyleHasField.weight  = true; if (local) glyphStyleHasField.local_weight  = true;
-					case "tilt":    glyphStyleHasField.tilt    = true; if (local) glyphStyleHasField.local_tilt    = true;
-					case "zIndex":  glyphStyleHasField.zIndex  = true; if (local) glyphStyleHasField.local_zIndex  = true;
-					default: // todo
-				}
-				// TODO: store other metas for custom anim and formula stuff
-			}
-			//trace("--- glyphStyleHasField",glyphStyleHasField);
-			return glyphStyleHasField;
-	}
-	
-	static public function parseGlyphStyleMetas(styleModule:String):GlyphStyleHasMeta {
-			// parse GlyphStyle metas for font type
-			var glyphStyleHasMeta = new GlyphStyleHasMeta();
-			
-			var style_fields = switch Context.getType(styleModule) {
-				case TInst(s,_): s.get();
-				default: throw "error: can not parse glyphstyle";
-			}
-			for (meta in style_fields.meta.get()) {
-				switch (meta.name) {
-					case "packed": glyphStyleHasMeta.packed = true;
-					case "multiSlot":   glyphStyleHasMeta.multiSlot = true;
-					case "multiTexture": glyphStyleHasMeta.multiTexture = true;
-					default:
-				}
-			}
-			return glyphStyleHasMeta;
-	}
-	
-	static public function buildClass(className:String, classPackage:Array<String>, stylePack:Array<String>, styleModule:String, styleName:String, styleSuperModule:String, styleSuperName:String, styleType:ComplexType):ComplexType
-	{		
-		var styleMod = styleModule.split(".").join("_");
-			
-		className += "__" + styleMod;
-		if (styleModule.split(".").pop() != styleName) className += ((styleMod != "") ? "_" : "") + styleName;
+	static public function build(name:String):ComplexType return Macro.build(name, buildClass);
+	static public function buildClass(className:String, classPackage:Array<String>, stylePack:Array<String>, styleModule:String, styleName:String, styleSuperModule:String, styleSuperName:String, styleType:ComplexType, styleField:Array<String>):ComplexType
+	{
+		className += Macro.classNameExtension(styleName, styleModule);
 		
-		if (!cache.exists(className))
+		if ( Macro.isNotGenerated(className) )
 		{
-			cache[className] = true;
-			
-			var styleField:Array<String>;
-			//if (styleSuperName == null) styleField = styleModule.split(".").concat([styleName]);
-			//else styleField = styleSuperModule.split(".").concat([styleSuperName]);
-			styleField = styleModule.split(".").concat([styleName]);
-			
-			#if peotetext_debug_macro
-			trace('generating Class: '+classPackage.concat([className]).join('.'));	
-			
-			trace("ClassName:"+className);           // Glyph__peote_text_GlypStyle
-			trace("classPackage:" + classPackage);   // [peote,text]	
-			
-			trace("StylePackage:" + stylePack);  // [peote.text]
-			trace("StyleModule:" + styleModule); // peote.text.GlyphStyle
-			trace("StyleName:" + styleName);     // GlyphStyle			
-			trace("StyleType:" + styleType);     // TPath(...)
-			trace("StyleField:" + styleField);   // [peote,text,GlyphStyle,GlyphStyle]
-			#end
+			Macro.debug(className, classPackage, stylePack, styleModule, styleName, styleSuperModule, styleSuperName, styleType, styleField);
 						
-			var glyphStyleHasMeta = parseGlyphStyleMetas(styleModule+"."+styleName); //trace("Glyph - glyphStyleHasMeta:", glyphStyleHasMeta);
-			var glyphStyleHasField = parseGlyphStyleFields(styleModule+"."+styleName); //trace("Glyph - glyphStyleHasField:", glyphStyleHasField);
+			var glyphStyleHasMeta  = Macro.parseGlyphStyleMetas(styleModule+"."+styleName); //trace("Glyph - glyphStyleHasMeta:", glyphStyleHasMeta);
+			var glyphStyleHasField = Macro.parseGlyphStyleFields(styleModule+"."+styleName); //trace("Glyph - glyphStyleHasField:", glyphStyleHasField);
 
 			var exprBlock = new Array<Expr>();
 			if (glyphStyleHasField.local_width)  exprBlock.push( macro width = glyphStyle.width );
@@ -156,23 +33,25 @@ class GlyphMacro
 			if (glyphStyleHasField.local_rotation) exprBlock.push( macro rotation = glyphStyle.rotation );
 			if (glyphStyleHasField.local_weight) exprBlock.push( macro weight = glyphStyle.weight );
 			if (glyphStyleHasField.local_tilt) exprBlock.push( macro tilt = glyphStyle.tilt );
-			// -------------------------------------------------------------------------------------------
-			// -------------------------------------------------------------------------------------------
+			
 			var c = macro
 
-			class $className implements peote.view.Element
-			{
-				@:allow(peote.text) public var char(default, null):Int = -1;
-				public function new() {}
-				
-				@:allow(peote.text) inline function setStyle(glyphStyle: $styleType) {
-					$b{ exprBlock }
-				}
-				
-			}
+// -------------------------------------------------------------------------------------------
+// -------------------------------------------------------------------------------------------
+
+class $className implements peote.view.Element
+{
+	@:allow(peote.text) public var char(default, null):Int = -1;
+	public function new() {}
+	
+	@:allow(peote.text) inline function setStyle(glyphStyle: $styleType) {
+		$b{ exprBlock }
+	}
+	
+}
 			
-			// -------------------------------------------------------------------------------------------
-			// -------------------------------------------------------------------------------------------
+// -------------------------------------------------------------------------------------------
+// -------------------------------------------------------------------------------------------
 						
 			c.fields.push({
 				name:  "x",

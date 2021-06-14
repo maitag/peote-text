@@ -9,22 +9,15 @@ import lime.ui.MouseButton;
 
 import peote.view.PeoteView;
 import peote.view.Display;
-import peote.view.Buffer;
-import peote.view.Program;
 import peote.view.Color;
-import elements.ElementSimple;
 
 import peote.text.Font;
-
 import peote.text.FontProgram;
 import peote.text.Glyph;
 //import peote.text.Range;
 
 //import peote.text.GlyphStyle;
 //import peote.text.Gl3GlyphStyle;
-
-import peote.text.Line;
-import peote.text.Page;
 
 //@multiSlot    // multiple slots per texture to store multiple unicode-ranges
 //@multiTexture // multiple textures to store multiple unicode-ranges
@@ -73,8 +66,6 @@ class Glyphes
 	var peoteView:PeoteView;
 	var display:Display;
 	var timer:Timer;
-	var helperLinesBuffer:Buffer<ElementSimple>;
-	var helperLinesProgram:Program;
 	
 	public function new(window:Window)
 	{
@@ -82,9 +73,6 @@ class Glyphes
 			peoteView = new PeoteView(window.context, window.width, window.height);
 			display   = new Display(10,10, window.width-20, window.height-20, Color.GREY1);
 			peoteView.addDisplay(display);
-			helperLinesBuffer = new Buffer<ElementSimple>(100);
-			helperLinesProgram = new Program(helperLinesBuffer);
-			display.addProgram(helperLinesProgram);
 			
 			#if packed
 			var font = new Font<GlyphStyle>("assets/fonts/packed/hack/config.json");
@@ -162,9 +150,9 @@ class Glyphes
 			timer = new Timer(40); zoomIn();
 			
 		} catch (e:Dynamic) trace("ERROR:", e);
-		// ---------------------------------------------------------------
 	}
 
+	// ---------------------------------------------------------------
 	
 	var isZooming:Bool = false;
 	public function zoomIn() {
