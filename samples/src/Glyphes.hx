@@ -24,9 +24,6 @@ import peote.text.Glyph;
 // TODO:
 //@maskX @maskY // cutting the first and last glyph into line if it is outside of offset and max
 //@useInt       // using Integer for all glyphpositions and -sizes
-#if packed
-@packed        // glyphes are packed into textureatlas with ttfcompile (gl3font)
-#end
 class GlyphStyle {
 	//@global public var color:Color = Color.BLUE;
 	public var color:Color = Color.GREEN;
@@ -61,6 +58,16 @@ class GlyphStyle {
 	public function new() {}
 }
 
+@packed
+class GlyphStylePacked { //TODO: extends GlyphStyle {
+	public var color:Color = Color.GREEN;
+	public var width:Float = 16;
+	public var height:Float = 16;
+	public var tilt:Float = 0.0;
+	public var weight:Float = 0.5;
+	public function new() {}
+}
+
 class Glyphes
 {
 	var peoteView:PeoteView;
@@ -74,31 +81,31 @@ class Glyphes
 			display   = new Display(10,10, window.width-20, window.height-20, Color.GREY1);
 			peoteView.addDisplay(display);
 			
-			#if packed
-			var font = new Font<GlyphStyle>("assets/fonts/packed/hack/config.json");
-			//var font = new Font<GlyphStyle>("assets/fonts/packed/unifont/config.json", [new peote.text.Range(0x0000,0x0fff)]);
-			//var font = new Font<GlyphStyle>("assets/fonts/packed/unifont/config.json");
-			//var font = new Font<GlyphStyle>("assets/fonts/packed/unifont/config.json", [peote.text.Range.C0ControlsBasicLatin(), peote.text.Range.C1ControlsLatin1Supplement()]);
-			#else
-			var font = new Font<GlyphStyle>("assets/fonts/tiled/hack_ascii.json");
-			//var font = new Font<GlyphStyle>("assets/fonts/tiled/liberation_ascii.json");
-			//var font = new Font<GlyphStyle>("assets/fonts/tiled/peote.json");
-			#end
-			
-			font.load( function() {
+			new Font<GlyphStylePacked>("assets/fonts/packed/hack/config.json")
+			//new Font<GlyphStylePacked>("assets/fonts/packed/unifont/config.json", [new peote.text.Range(0x0000,0x0fff)])
+			//new Font<GlyphStylePacked>("assets/fonts/packed/unifont/config.json")
+			//new Font<GlyphStylePacked>("assets/fonts/packed/unifont/config.json", [peote.text.Range.C0ControlsBasicLatin(), peote.text.Range.C1ControlsLatin1Supplement()])
+			//new Font<GlyphStyle>("assets/fonts/tiled/hack_ascii.json")
+			//new Font<GlyphStyle>("assets/fonts/tiled/liberation_ascii.json")
+			//new Font<GlyphStyle>("assets/fonts/tiled/peote.json")
+			.load( function(font) {
 			
 				//var gl3font = fontPacked.getRange(65);
 				
-				var fontStyle = new GlyphStyle();
+				//var fontStyle = new GlyphStyle();
+				var fontStyle = font.createFontStyle();
 				
-				var fontProgram = new FontProgram<GlyphStyle>(font, fontStyle); // manage the Programs to render glyphes in different size/colors/fonts
+				//var fontProgram = new FontProgram<GlyphStyle>(font, fontStyle); // manage the Programs to render glyphes in different size/colors/fonts
+				var fontProgram = font.createFontProgram(fontStyle); 
 				display.addProgram(fontProgram);
 				
-				var glyphStyle = new GlyphStyle();
+				//var glyphStyle = new GlyphStyle();
+				var glyphStyle = font.createFontStyle();
 				glyphStyle.width = font.config.width;
 				glyphStyle.height = font.config.height;
 				
-				var glyphStyle1 = new GlyphStyle();
+				//var glyphStyle1 = new GlyphStyle();
+				var glyphStyle1 = font.createFontStyle();
 				glyphStyle1.color = Color.YELLOW;
 				glyphStyle1.width = font.config.width * 1.0;
 				glyphStyle1.height = font.config.height * 1.0;
@@ -119,14 +126,18 @@ class Glyphes
 				
 				// -----------
 				
-				var glyphStyle2 = new GlyphStyle();
+				//var glyphStyle2 = new GlyphStyle();
+				var glyphStyle2 = font.createFontStyle();
 				glyphStyle2.color = Color.RED;
 				glyphStyle2.width = font.config.width * 2.0;
 				glyphStyle2.height = font.config.height * 2.0;
 				
 				//fontProgram.setFontStyle(glyphStyle2);
 				
-				var glyph2 = new Glyph<GlyphStyle>();
+				//var glyph2 = new Glyph<GlyphStyle>();
+				var glyph2 = font.createGlyph();
+				
+				
 				if (fontProgram.setGlyph( glyph2, "B".charCodeAt(0), 30, 50, glyphStyle1)) {
 					Timer.delay(function() {
 						fontProgram.glyphSetStyle(glyph2, glyphStyle2);
@@ -142,7 +153,9 @@ class Glyphes
 				else trace(" ----> Charcode not inside Font");
 				
 				
-			});
+			},
+			true // debug
+			);
 
 			
 			

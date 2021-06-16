@@ -8,8 +8,6 @@ class Font<T> {}
 import haxe.macro.Expr;
 import haxe.macro.Context;
 import peote.text.util.Macro;
-import peote.text.util.GlyphStyleHasField;
-import peote.text.util.GlyphStyleHasMeta;
 
 class FontMacro
 {
@@ -17,13 +15,33 @@ class FontMacro
 	static public function buildClass(className:String, classPackage:Array<String>, stylePack:Array<String>, styleModule:String, styleName:String, styleSuperModule:String, styleSuperName:String, styleType:ComplexType, styleField:Array<String>):ComplexType
 	{
 		className += Macro.classNameExtension(styleName, styleModule);
+		var fontType:ComplexType = TPath({ pack:classPackage, name:className, params:[] });
 		
 		if ( Macro.isNotGenerated(className) )
 		{
 			Macro.debug(className, classPackage, stylePack, styleModule, styleName, styleSuperModule, styleSuperName, styleType, styleField);
 
-			var fontProgramType = peote.text.FontProgram.FontProgramMacro.buildClass("FontProgram", classPackage, stylePack, styleModule, styleName, styleSuperModule, styleSuperName, styleType, styleField);
-						
+			var fontProgramType = FontProgram.FontProgramMacro.buildClass("FontProgram", classPackage, stylePack, styleModule, styleName, styleSuperModule, styleSuperName, styleType, styleField);
+			var glyphType  = Glyph.GlyphMacro.buildClass("Glyph", classPackage, stylePack, styleModule, styleName, styleSuperModule, styleSuperName, styleType, styleField);
+			var lineType  = Line.LineMacro.buildClass("Line", classPackage, stylePack, styleModule, styleName, styleSuperModule, styleSuperName, styleType, styleField);
+			
+			#if peote_ui
+			var uiTextLineType = peote.ui.interactive.UITextLine.UITextLineMacro.buildClass("UITextLine", ["peote","ui","interactive"], stylePack, styleModule, styleName, styleSuperModule, styleSuperName, styleType, styleField);
+			var textLineType = peote.ui.interactive.TextLine.TextLineMacro.buildClass("TextLine", ["peote","ui","interactive"], stylePack, styleModule, styleName, styleSuperModule, styleSuperName, styleType, styleField);
+			var layoutTextLineType = peote.ui.interactive.LayoutTextLine.LayoutTextLineMacro.buildClass("LayoutTextLine", ["peote","ui","interactive"], stylePack, styleModule, styleName, styleSuperModule, styleSuperName, styleType, styleField);
+			#end
+			
+			var styleModulName = styleModule.split(".").pop();
+			var stylePath:TypePath = ( styleModulName == styleName) ? { pack:stylePack, name:styleName, params:[] } 
+				:{ pack:stylePack, name:styleModulName, params:[], sub:styleName } ;
+			
+			
+			var fontProgramPath:TypePath =  { pack:classPackage, name:"FontProgram" + Macro.classNameExtension(styleName, styleModule), params:[] };
+			var glyphPath:TypePath = { pack:classPackage, name:"Glyph" + Macro.classNameExtension(styleName, styleModule), params:[] };
+			var linePath:TypePath =  { pack:classPackage, name:"Line" + Macro.classNameExtension(styleName, styleModule), params:[] };
+			
+			// ---------------------
+			
 			var glyphStyleHasMeta = Macro.parseGlyphStyleMetas(styleModule+"."+styleName); // trace("FontProgram: glyphStyleHasMeta", glyphStyleHasMeta);
 			var glyphStyleHasField = Macro.parseGlyphStyleFields(styleModule+"."+styleName); // trace("FontProgram: glyphStyleHasField", glyphStyleHasField);
 			
@@ -114,8 +132,31 @@ class $className
 	
 	public function createFontProgram(fontStyle:$styleType):$fontProgramType
 	{
-		return new peote.text.FontProgram<$styleType>(this, fontStyle);
+		//return new peote.text.FontProgram<$styleType>(this, fontStyle);
+		return new $fontProgramPath(this, fontStyle);
 	}
+	
+	public function createFontStyle():$styleType return new $stylePath();
+	public function createGlyph():$glyphType return new $glyphPath();
+	public function createLine():$lineType return new $linePath();
+	
+	#if peote_ui
+	public function createUITextLine(xPosition:Int = 0, yPosition:Int = 0, width:Int = 100, height:Int = 100, zIndex:Int = 0,
+	                    text:String, fontStyle:$styleType):$uiTextLineType
+	{
+		return new peote.ui.interactive.UITextLine<$styleType>(xPosition, yPosition, width, height, zIndex, text, this, fontStyle);
+	}
+	public function createTextLine(xPosition:Int = 0, yPosition:Int = 0, width:Int = 100, height:Int = 100, zIndex:Int = 0,
+	                    text:String, fontStyle:$styleType):$textLineType
+	{
+		return new peote.ui.interactive.TextLine<$styleType>(xPosition, yPosition, width, height, zIndex, text, this, fontStyle);
+	}	
+	public function createLayoutTextLine(xPosition:Int = 0, yPosition:Int = 0, width:Int = 100, height:Int = 100, zIndex:Int = 0,
+	                    text:String, fontStyle:$styleType):$layoutTextLineType
+	{
+		return new peote.ui.interactive.LayoutTextLine<$styleType>(xPosition, yPosition, width, height, zIndex, text, this, fontStyle);
+	}	
+	#end
 	
 	public inline function getRange(charcode:Int):$rangeType
 	{
@@ -143,9 +184,9 @@ class $className
 	}
 
 	// --------------------------- Loading -------------------------
-	public function load(?onProgressOverall:Int->Int->Void, onLoad:Void->Void)
+	public function load(onLoad:$fontType->Void, ?onProgressOverall:Int->Int->Void, debug:Bool=false)
 	{
-		utils.Loader.text(path + jsonFilename, true, function(jsonString:String)
+		utils.Loader.text(path + jsonFilename, debug, function(jsonString:String)
 		{	
 			jsonString = rComments.replace(jsonString, "");
 			jsonString = rHexToDec.map(jsonString, function(r) return Std.string(Std.parseInt(r.matched(2))));
@@ -227,11 +268,11 @@ class $className
 			}
 			else config.ranges = found_ranges;
 
-			init(onProgressOverall, onLoad);
+			init(onLoad, onProgressOverall, debug);
 		});		
 	}
 	
-	private function init(onProgressOverall:Int->Int->Void, onLoad:Void->Void)
+	private function init(onLoad:$fontType->Void, onProgressOverall:Int->Int->Void, debug:Bool=false)
 	{
 		${switch (glyphStyleHasMeta.multiTexture || glyphStyleHasMeta.multiSlot) {
 			case true: macro
@@ -282,12 +323,12 @@ class $className
 		}}
 	
 		${switch (glyphStyleHasMeta.packed)	{
-			case true: macro loadFontData(onProgressOverall, onLoad);
-			default: macro loadImages(onProgressOverall, onLoad);
+			case true: macro loadFontData(onLoad, onProgressOverall, debug);
+			default: macro loadImages(onLoad, onProgressOverall, debug);
 		}}
 	}
 	
-	private function loadFontData(onProgressOverall:Int->Int->Void, onLoad:Void->Void):Void
+	private function loadFontData(onLoad:$fontType->Void, onProgressOverall:Int->Int->Void, debug:Bool=false):Void
 	{		
 		var gl3FontData = new Array<peote.text.Gl3FontData>();		
 		utils.Loader.bytesArray(
@@ -295,12 +336,12 @@ class $className
 				if (v.data != null) return path + v.data;
 				else return path + rParseEnding.replace(v.image, ".dat");
 			}),
-			true,
+			debug,
 			function(index:Int, bytes:lime.utils.Bytes) { // after .dat is loaded
 				gl3FontData[index] = new peote.text.Gl3FontData(bytes, config.ranges[index].range.min, config.ranges[index].range.max, kerning);
 			},
 			function(bytes:Array<lime.utils.Bytes>) { // after all .dat is loaded
-				loadImages(gl3FontData, onProgressOverall, onLoad);
+				loadImages(gl3FontData, onLoad, onProgressOverall, debug);
 			}
 		);
 	}
@@ -310,14 +351,14 @@ class $className
 		// TODO
 	}
 	
-	private function loadImages(?gl3FontData:Array<peote.text.Gl3FontData>, onProgressOverall:Int->Int->Void, onLoad:Void->Void):Void
+	private function loadImages(?gl3FontData:Array<peote.text.Gl3FontData>, onLoad:$fontType->Void, onProgressOverall:Int->Int->Void, debug:Bool=false):Void
 	{		
-		trace("load images");
+		//trace("load images");
 		utils.Loader.imageArray(
 			config.ranges.map(function (v) return path + v.image),
-			true,
+			debug,
 			function(index:Int, loaded:Int, size:Int) {
-				trace(' loading G3Font-Images progress ' + Std.int(loaded / size * 100) + "%" , " ("+loaded+" / "+size+")");
+				//trace(' loading G3Font-Images progress ' + Std.int(loaded / size * 100) + "%" , " ("+loaded+" / "+size+")");
 				if (onProgressOverall != null) onProgressOverall(loaded, size);
 			},
 			function(index:Int, image:peote.view.PeoteGL.Image) { // after every image is loaded
@@ -433,8 +474,8 @@ class $className
 					
 			},
 			function(images:Array<peote.view.PeoteGL.Image>) { // after all images is loaded
-				trace(' --- all images loaded ---');
-				onLoad();
+				//trace(' --- all images loaded ---');
+				onLoad(this);
 			}
 		);
 		
@@ -476,7 +517,8 @@ class $className
 */			
 			Context.defineModule(classPackage.concat([className]).join('.'),[c]);
 		}
-		return TPath({ pack:classPackage, name:className, params:[] });
+		//return TPath({ pack:classPackage, name:className, params:[] });
+		return fontType;
 	}
 }
 #end

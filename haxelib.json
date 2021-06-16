@@ -4,7 +4,7 @@
 	"license": "MIT",
 	"tags": ["peote", "text", "textrendering", "font", "glyph"],
 	"description": "Glyph and Textrendering for peote-view",
-	"version": "0.8.1",
+	"version": "0.8.2",
 	"classPath": "src/",
 	"releasenote": "refactoring",
 	"contributors": ["Sylvio Sell - maitag"],

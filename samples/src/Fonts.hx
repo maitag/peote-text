@@ -53,8 +53,7 @@ class Fonts
 
 			for (f in packedFonts) 
 			{
-				var font = new Font<GlyphStylePacked>('assets/fonts/packed/${f.name}/config.json', f.range);
-				font.load( function()
+				new Font<GlyphStylePacked>('assets/fonts/packed/${f.name}/config.json', f.range).load( function(font)
 				{
 					var glyphStyle = new GlyphStylePacked();
 					glyphStyle.width = 28;// font.config.width * 1.0;
@@ -77,7 +76,9 @@ class Fonts
 					
 					//var range = font.getRange("a".charCodeAt(0));trace(range);
 					addHelperLines(Std.int(line.x), Std.int(line.y), Std.int(line.fullWidth), Std.int(line.lineHeight), Std.int(line.height), Std.int(line.base));					
-				});
+				},
+				true // debug
+				);
 				
 			}
 			
@@ -91,8 +92,7 @@ class Fonts
 			
 			for (f in tiledFonts) 
 			{
-				var font = new Font<GlyphStyleTiled>('assets/fonts/tiled/${f.name}.json', f.range);
-				font.load( function()
+				new Font<GlyphStyleTiled>('assets/fonts/tiled/${f.name}.json', f.range).load(function(font)
 				{
 					var glyphStyle = new GlyphStyleTiled();
 					glyphStyle.width = font.config.width;
@@ -114,7 +114,9 @@ class Fonts
 					fontProgram.updateLine(line);
 					
 					addHelperLines(Std.int(line.x), Std.int(line.y), Std.int(line.fullWidth), Std.int(line.lineHeight), Std.int(line.height), Std.int(line.base));
-				});
+				},
+				true // debug
+				);
 				
 			}
 			

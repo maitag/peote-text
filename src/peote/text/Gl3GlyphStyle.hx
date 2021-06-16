@@ -20,6 +20,19 @@ class Gl3GlyphStyle
 	public var boldness:Float = 1.0;
 	public var sharpness:Float = 1.0;
 	
+	//@global
+	//public var zIndex:Int = 0;
+	
+	//@global
+	//public var rotation:Float = 0;
+	
+	//@global
+	//public var tilt:Float = 0.0;
+	
+	//@global
+	//public var weight:Float = 0.5;
+	
+	
 /*	public var borderColor:Color = Color.GREY7;
 
 	public var borderSize:Float = 1.0;

@@ -14,25 +14,13 @@ import peote.view.Program;
 import peote.view.Color;
 import elements.ElementSimple;
 
+
 import peote.text.Font;
+//import peote.text.FontProgram;
+//import peote.text.Glyph;
+//import peote.text.Line;
+//import peote.text.Page;
 
-import peote.text.FontProgram;
-import peote.text.Glyph;
-
-import peote.text.Line;
-import peote.text.Page;
-
-#if packed
-typedef GlyphStyleType = GlyphStylePacked;
-typedef FontType = Font<GlyphStylePacked>;
-typedef FontProgramType = FontProgram<GlyphStylePacked>;
-typedef LineType = Line<GlyphStylePacked>;
-#else
-typedef GlyphStyleType = GlyphStyleTiled;
-typedef FontType = Font<GlyphStyleTiled>;
-typedef FontProgramType = FontProgram<GlyphStyleTiled>;
-typedef LineType = Line<GlyphStyleTiled>;
-#end
 
 class Lines
 {
@@ -52,33 +40,35 @@ class Lines
 			helperLinesProgram = new Program(helperLinesBuffer);
 			display.addProgram(helperLinesProgram);
 			
-			#if packed
-			var font = new FontType("assets/fonts/packed/hack/config.json");
-			//var font = new FontType("assets/fonts/packed/unifont/config.json", [new peote.text.Range(0x0000,0x0fff)]);
-			#else
-			var font = new FontType("assets/fonts/tiled/hack_ascii.json");
-			//var fontTiled = new FontType("assets/fonts/tiled/liberation_ascii.json");
-			//var fontTiled = new FontType("assets/fonts/tiled/peote.json");
-			#end
-			font.load( function() {
+			//new Font<GlyphStylePacked>("assets/fonts/packed/hack/config.json")
+			//new Font<GlyphStylePacked>("assets/fonts/packed/unifont/config.json", [new peote.text.Range(0x0000,0x0fff)])
+			new Font<GlyphStyleTiled>("assets/fonts/tiled/hack_ascii.json")
+			//new Font<GlyphStyleTiled>("assets/fonts/tiled/liberation_ascii.json")
+			//new Font<GlyphStyleTiled>("assets/fonts/tiled/peote.json")
 			
-				var fontStyle = new GlyphStyleType();
+			.load( function(font) {
+				//var fontStyle = new GlyphStyleType();
+				var fontStyle = font.createFontStyle();
 				
-				var fontProgram = new FontProgramType(font, fontStyle); // manage the Programs to render glyphes in different size/colors/fonts
+				//var fontProgram = new FontProgramType(font, fontStyle); // manage the Programs to render glyphes in different size/colors/fonts
+				var fontProgram = font.createFontProgram(fontStyle);
 				display.addProgram(fontProgram);
 				
-				var glyphStyle = new GlyphStyleType();
+				//var glyphStyle = new GlyphStyleType();
+				var glyphStyle = font.createFontStyle();
 				glyphStyle.width = font.config.width;
 				glyphStyle.height = font.config.height;
 				
-				var glyphStyle1 = new GlyphStyleType();
+				//var glyphStyle1 = new GlyphStyleType();
+				var glyphStyle1 = font.createFontStyle();
 				glyphStyle1.color = Color.YELLOW;
 				glyphStyle1.width = font.config.width * 1.0;
 				glyphStyle1.height = font.config.height * 1.0;								
 				
 				// -----------
 				
-				var glyphStyle2 = new GlyphStyleType();
+				//var glyphStyle2 = new GlyphStyleType();
+				var glyphStyle2 = font.createFontStyle();
 				glyphStyle2.color = Color.RED;
 				glyphStyle2.width = font.config.width * 2.0;
 				glyphStyle2.height = font.config.height * 2.0;
@@ -86,18 +76,21 @@ class Lines
 				
 				// ------------------- Lines  -------------------
 				
-				var tilted = new GlyphStyleType();
+				//var tilted = new GlyphStyleType();
+				var tilted = font.createFontStyle();
 				tilted.tilt = 0.4;
 				tilted.color = 0xaabb22ff;
 				tilted.width = font.config.width;
 				tilted.height = font.config.height;
-				fontProgram.setLine(new LineType(), "tilted", 0, 50, tilted);
+				//fontProgram.setLine(new LineType(), "tilted", 0, 50, tilted);
+				fontProgram.setLine(font.createLine(), "tilted", 0, 50, tilted);
 				
-				var thick = new GlyphStyleType();
+				//var thick = new GlyphStyleType();
+				var thick = font.createFontStyle();
 				thick.weight = 0.48;
 				thick.width = font.config.width;
 				thick.height = font.config.height;
-				fontProgram.setLine(new LineType(), "bold", 150, 50, thick);
+				fontProgram.setLine(font.createLine(), "bold", 150, 50, thick);
 				
 				var line = fontProgram.createLine("hello World :)", 0, 100, glyphStyle);
 				
@@ -152,7 +145,9 @@ class Lines
 				// line.clear();
 				
 				
-			});
+			}
+			, true // debug
+			);
 
 			
 			

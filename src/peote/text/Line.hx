@@ -8,8 +8,6 @@ class Line<T> {}
 import haxe.macro.Expr;
 import haxe.macro.Context;
 import peote.text.util.Macro;
-import peote.text.util.GlyphStyleHasField;
-import peote.text.util.GlyphStyleHasMeta;
 
 class LineMacro
 {

@@ -140,17 +140,17 @@ class InputLine
 			display.addProgram(helperLinesProgram);
 			
 			#if packed
-			var font = new Font<GlyphStyle>("assets/fonts/packed/hack/config.json");
-			//var font = new Font<GlyphStyle>("assets/fonts/packed/unifont/config.json", [new peote.text.Range(0x0000,0x0fff)]);
-			//var font = new Font<GlyphStyle>("assets/fonts/packed/unifont/config.json");
-			//var font = new Font<GlyphStyle>("assets/fonts/packed/unifont/config.json", [peote.text.Range.C0ControlsBasicLatin(), peote.text.Range.C1ControlsLatin1Supplement()]);
+			new Font<GlyphStyle>("assets/fonts/packed/hack/config.json")
+			//new Font<GlyphStyle>("assets/fonts/packed/unifont/config.json", [new peote.text.Range(0x0000,0x0fff)])
+			//new Font<GlyphStyle>("assets/fonts/packed/unifont/config.json")
+			//new Font<GlyphStyle>("assets/fonts/packed/unifont/config.json", [peote.text.Range.C0ControlsBasicLatin(), peote.text.Range.C1ControlsLatin1Supplement()])
 			#else
-			var font = new Font<GlyphStyle>("assets/fonts/tiled/hack_ascii.json");
-			//var font = new Font<GlyphStyle>("assets/fonts/tiled/liberation_ascii.json");
-			//var font = new Font<GlyphStyle>("assets/fonts/tiled/peote.json");
+			new Font<GlyphStyle>("assets/fonts/tiled/hack_ascii.json")
+			//new Font<GlyphStyle>("assets/fonts/tiled/liberation_ascii.json")
+			//new Font<GlyphStyle>("assets/fonts/tiled/peote.json")
 			#end
 			
-			font.load( function() {
+			.load( function(font) {
 			
 				var fontStyle = new GlyphStyle();
 				

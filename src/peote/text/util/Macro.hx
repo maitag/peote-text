@@ -69,6 +69,27 @@ class Macro
 		}
 		return null;
 	}
+	
+	static public function debug(className:String, classPackage:Array<String>,
+		stylePack:Array<String>, styleModule:String, styleName:String,
+		styleSuperModule:String, styleSuperName:String, styleType:ComplexType, styleField:Array<String>,
+		?pos:PosInfos
+	) 
+	{
+		#if peotetext_debug_macro
+		Log.trace('generating Class: '+classPackage.concat([className]).join('.') , pos);			
+		Log.trace("ClassName:"+className , pos);           // Glyph__peote_text_GlypStyle
+		Log.trace("classPackage:" + classPackage , pos);   // [peote,text]	
+		
+		Log.trace("StylePackage:" + stylePack , pos);  // [peote.text]
+		Log.trace("StyleModule:" + styleModule , pos); // peote.text.GlyphStyle
+		Log.trace("StyleName:" + styleName , pos);     // GlyphStyle			
+		Log.trace("StyleType:" + styleType , pos);     // TPath(...)
+		Log.trace("StyleField:" + styleField , pos);   // [peote,text,GlyphStyle,GlyphStyle]
+		
+		#end
+	}
+	
 
 	static public function classNameExtension(styleName:String, styleModule:String ):String {
 		var styleModArray = styleModule.split(".");
@@ -128,26 +149,6 @@ class Macro
 				}
 			}
 			return glyphStyleHasMeta;
-	}
-	
-	static public function debug(className:String, classPackage:Array<String>,
-		stylePack:Array<String>, styleModule:String, styleName:String,
-		styleSuperModule:String, styleSuperName:String, styleType:ComplexType, styleField:Array<String>,
-		?pos:PosInfos
-	) 
-	{
-		#if peotetext_debug_macro
-		Log.trace('generating Class: '+classPackage.concat([className]).join('.') , pos);			
-/*		Log.trace("ClassName:"+className , pos);           // Glyph__peote_text_GlypStyle
-		Log.trace("classPackage:" + classPackage , pos);   // [peote,text]	
-		
-		Log.trace("StylePackage:" + stylePack , pos);  // [peote.text]
-		Log.trace("StyleModule:" + styleModule , pos); // peote.text.GlyphStyle
-		Log.trace("StyleName:" + styleName , pos);     // GlyphStyle			
-		Log.trace("StyleType:" + styleType , pos);     // TPath(...)
-		Log.trace("StyleField:" + styleField , pos);   // [peote,text,GlyphStyle,GlyphStyle]
-*/		
-		#end
 	}
 	
 }

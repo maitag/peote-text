@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project>
 	
-	<meta title="PeoteText" package="peote.text" version="0.8.0" company="Sylvio Sell - maitag" />
+	<meta title="PeoteText" package="peote.text" version="0.8.2" company="Sylvio Sell - maitag" />
 	
 	<android target-sdk-version="28" />
 	<!-- <meta build-number="714" /> --> <!-- let set the buildnumber manual (android) -->
 	
 	<app main="Main" path="bin" file="Main" />
-	<haxedef name="Fonts" />
+	<haxedef name="Glyphes" />
 	<!--
 		Gl3FontRendering,
-		Fonts,
 		Glyphes,
+		Fonts,
 		Lines,
 		Pages,
 		InputLine
 		...
 	-->
-	<define name="stats" if="html5" />
+	<!--<define name="stats" if="html5" />-->
 	
 	<!--<window fps="60" width="800" height="600" vsync="true" resizable="true" hardware="true" allow-shaders="true" require-shaders="true" depth-buffer="true" stencil-buffer="false" /> -->
 	<window width="800" height="600" fps="61" />
@@ -33,6 +33,8 @@
 	
 	<haxelib name="peote-view" />
 	<haxelib name="peote-text" />
+	
+	<haxedef name="peotetext_debug_macro" />
 	
 	<!-- force compiling for a special opengl-es version (only set one of them) -->
 	<!-- this optimizes the build and forces no-runtimecheck for the gl-features -->

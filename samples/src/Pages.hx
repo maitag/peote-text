@@ -44,30 +44,30 @@ class Pages
 			helperLinesProgram = new Program(helperLinesBuffer);
 			display.addProgram(helperLinesProgram);
 			
-			var fontPacked = new Font<GlyphStylePacked>("assets/fonts/packed/hack/config.json");
-			//var fontPacked = new Font<GlyphStylePacked>("assets/fonts/packed/unifont/config.json", [new peote.text.Range(0x0000,0x0fff)]);
-			//var fontPacked = new Font<GlyphStylePacked>("assets/fonts/packed/unifont/config.json");
-			//var fontPacked = new Font<GlyphStylePacked>("assets/fonts/packed/unifont/config.json", [peote.text.Range.C0ControlsBasicLatin(), peote.text.Range.C1ControlsLatin1Supplement()]);
-
-			var fontTiled = new Font<GlyphStyleTiled>("assets/fonts/tiled/hack_ascii.json");
-			//var fontTiled = new Font<GlyphStyleTiled>("assets/fonts/tiled/liberation_ascii.json");
-			//var fontTiled = new Font<GlyphStyleTiled>("assets/fonts/tiled/peote.json");
+			new Font<GlyphStylePacked>("assets/fonts/packed/hack/config.json")
+			//new Font<GlyphStylePacked>("assets/fonts/packed/unifont/config.json", [new peote.text.Range(0x0000,0x0fff)])
+			//new Font<GlyphStylePacked>("assets/fonts/packed/unifont/config.json")
+			//new Font<GlyphStylePacked>("assets/fonts/packed/unifont/config.json", [peote.text.Range.C0ControlsBasicLatin(), peote.text.Range.C1ControlsLatin1Supplement()])
+			//new Font<GlyphStyleTiled>("assets/fonts/tiled/hack_ascii.json")
+			//new Font<GlyphStyleTiled>("assets/fonts/tiled/liberation_ascii.json")
+			//new Font<GlyphStyleTiled>("assets/fonts/tiled/peote.json")
 			
-			fontPacked.load( function() {
+			.load( function(font) {
 			
-				var fontStyle = new GlyphStylePacked();
+				var fontStyle = font.createFontStyle();
 				
-				var fontProgram = new FontProgram<GlyphStylePacked>(fontPacked, fontStyle); // manage the Programs to render glyphes in different size/colors/fonts
+				//var fontProgram = new FontProgram<GlyphStylePacked>(font, fontStyle); // manage the Programs to render glyphes in different size/colors/fonts
+				var fontProgram = font.createFontProgram(fontStyle);
 				display.addProgram(fontProgram);
 				
-				var glyphStyle = new GlyphStylePacked();
-				glyphStyle.width = fontPacked.config.width;
-				glyphStyle.height = fontPacked.config.height;
+				var glyphStyle = font.createFontStyle();
+				glyphStyle.width = font.config.width;
+				glyphStyle.height = font.config.height;
 				
-				var glyphStyle1 = new GlyphStylePacked();
+				var glyphStyle1 = font.createFontStyle();
 				glyphStyle1.color = Color.YELLOW;
-				glyphStyle1.width = fontPacked.config.width * 1.0;
-				glyphStyle1.height = fontPacked.config.height * 1.0;
+				glyphStyle1.width = font.config.width * 1.0;
+				glyphStyle1.height = font.config.height * 1.0;
 				//glyphStyle1.zIndex = 1;
 				//glyphStyle1.rotation = 22.5;
 								
