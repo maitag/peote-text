@@ -78,7 +78,7 @@ class Macro
 	{
 		#if peotetext_debug_macro
 		Log.trace('generating Class: '+classPackage.concat([className]).join('.') , pos);			
-		Log.trace("ClassName:"+className , pos);           // Glyph__peote_text_GlypStyle
+/*		Log.trace("ClassName:"+className , pos);           // Glyph__peote_text_GlypStyle
 		Log.trace("classPackage:" + classPackage , pos);   // [peote,text]	
 		
 		Log.trace("StylePackage:" + stylePack , pos);  // [peote.text]
@@ -86,7 +86,7 @@ class Macro
 		Log.trace("StyleName:" + styleName , pos);     // GlyphStyle			
 		Log.trace("StyleType:" + styleType , pos);     // TPath(...)
 		Log.trace("StyleField:" + styleField , pos);   // [peote,text,GlyphStyle,GlyphStyle]
-		
+*/		
 		#end
 	}
 	

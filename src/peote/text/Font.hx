@@ -15,20 +15,23 @@ class FontMacro
 	static public function buildClass(className:String, classPackage:Array<String>, stylePack:Array<String>, styleModule:String, styleName:String, styleSuperModule:String, styleSuperName:String, styleType:ComplexType, styleField:Array<String>):ComplexType
 	{
 		className += Macro.classNameExtension(styleName, styleModule);
-		var fontType:ComplexType = TPath({ pack:classPackage, name:className, params:[] });
 		
 		if ( Macro.isNotGenerated(className) )
 		{
 			Macro.debug(className, classPackage, stylePack, styleModule, styleName, styleSuperModule, styleSuperName, styleType, styleField);
 
-			var fontProgramType = FontProgram.FontProgramMacro.buildClass("FontProgram", classPackage, stylePack, styleModule, styleName, styleSuperModule, styleSuperName, styleType, styleField);
+			//var fontProgramType = FontProgram.FontProgramMacro.buildClass("FontProgram", classPackage, stylePack, styleModule, styleName, styleSuperModule, styleSuperName, styleType, styleField);
 			var glyphType  = Glyph.GlyphMacro.buildClass("Glyph", classPackage, stylePack, styleModule, styleName, styleSuperModule, styleSuperName, styleType, styleField);
 			var lineType  = Line.LineMacro.buildClass("Line", classPackage, stylePack, styleModule, styleName, styleSuperModule, styleSuperName, styleType, styleField);
 			
 			#if peote_ui
-			var uiTextLineType = peote.ui.interactive.UITextLine.UITextLineMacro.buildClass("UITextLine", ["peote","ui","interactive"], stylePack, styleModule, styleName, styleSuperModule, styleSuperName, styleType, styleField);
-			var textLineType = peote.ui.interactive.TextLine.TextLineMacro.buildClass("TextLine", ["peote","ui","interactive"], stylePack, styleModule, styleName, styleSuperModule, styleSuperName, styleType, styleField);
-			var layoutTextLineType = peote.ui.interactive.LayoutTextLine.LayoutTextLineMacro.buildClass("LayoutTextLine", ["peote","ui","interactive"], stylePack, styleModule, styleName, styleSuperModule, styleSuperName, styleType, styleField);
+			//var uiTextLineType = peote.ui.interactive.UITextLine.UITextLineMacro.buildClass("UITextLine", ["peote","ui","interactive"], stylePack, styleModule, styleName, styleSuperModule, styleSuperName, styleType, styleField);
+			//var textLineType = peote.ui.interactive.TextLine.TextLineMacro.buildClass("TextLine", ["peote","ui","interactive"], stylePack, styleModule, styleName, styleSuperModule, styleSuperName, styleType, styleField);
+			//var layoutTextLineType = peote.ui.interactive.LayoutTextLine.LayoutTextLineMacro.buildClass("LayoutTextLine", ["peote","ui","interactive"], stylePack, styleModule, styleName, styleSuperModule, styleSuperName, styleType, styleField);
+
+			//var uiTextLinePath:TypePath =  { pack:["peote","ui","interactive"], name:"UITextLine" + Macro.classNameExtension(styleName, styleModule), params:[] };
+			//var textLinePath:TypePath =  { pack:["peote","ui","interactive"], name:"TextLine" + Macro.classNameExtension(styleName, styleModule), params:[] };
+			//var layoutTextLinePath:TypePath =  { pack:["peote","ui","interactive"], name:"LayoutTextLine" + Macro.classNameExtension(styleName, styleModule), params:[] };
 			#end
 			
 			var styleModulName = styleModule.split(".").pop();
@@ -130,10 +133,11 @@ class $className
 		this.maxTextureSize = maxTextureSize;
 	}
 	
-	public function createFontProgram(fontStyle:$styleType):$fontProgramType
+	//public function createFontProgram(fontStyle:$styleType):$fontProgramType
+	public function createFontProgram(fontStyle:$styleType):peote.text.FontProgram<$styleType>
 	{
-		//return new peote.text.FontProgram<$styleType>(this, fontStyle);
-		return new $fontProgramPath(this, fontStyle);
+		return new peote.text.FontProgram<$styleType>(this, fontStyle);
+		//return new $fontProgramPath(this, fontStyle);
 	}
 	
 	public function createFontStyle():$styleType return new $stylePath();
@@ -141,20 +145,26 @@ class $className
 	public function createLine():$lineType return new $linePath();
 	
 	#if peote_ui
-	public function createUITextLine(xPosition:Int = 0, yPosition:Int = 0, width:Int = 100, height:Int = 100, zIndex:Int = 0,
-	                    text:String, fontStyle:$styleType):$uiTextLineType
+	public function createUITextLine(xPosition:Int, yPosition:Int, width:Int, height:Int , zIndex:Int,
+	                    text:String, fontStyle:$styleType):peote.ui.interactive.UITextLine<$styleType>
+	                    //text:String, fontStyle:$styleType):$uiTextLineType
 	{
 		return new peote.ui.interactive.UITextLine<$styleType>(xPosition, yPosition, width, height, zIndex, text, this, fontStyle);
+		//return new $uiTextLinePath(xPosition, yPosition, width, height, zIndex, text, this, fontStyle);
 	}
-	public function createTextLine(xPosition:Int = 0, yPosition:Int = 0, width:Int = 100, height:Int = 100, zIndex:Int = 0,
-	                    text:String, fontStyle:$styleType):$textLineType
+	public function createTextLine(xPosition:Int, yPosition:Int, width:Int, height:Int, zIndex:Int,
+	                    text:String, fontStyle:$styleType):peote.ui.interactive.TextLine<$styleType>
+	                    //text:String, fontStyle:$styleType):$textLineType
 	{
 		return new peote.ui.interactive.TextLine<$styleType>(xPosition, yPosition, width, height, zIndex, text, this, fontStyle);
+		//return new $textLinePath(xPosition, yPosition, width, height, zIndex, text, this, fontStyle);
 	}	
-	public function createLayoutTextLine(xPosition:Int = 0, yPosition:Int = 0, width:Int = 100, height:Int = 100, zIndex:Int = 0,
-	                    text:String, fontStyle:$styleType):$layoutTextLineType
+	public function createLayoutTextLine(xPosition:Int, yPosition:Int, width:Int, height:Int, zIndex:Int,
+	                    text:String, fontStyle:$styleType):peote.ui.interactive.LayoutTextLine<$styleType>
+	                    //text:String, fontStyle:$styleType):$layoutTextLineType
 	{
 		return new peote.ui.interactive.LayoutTextLine<$styleType>(xPosition, yPosition, width, height, zIndex, text, this, fontStyle);
+		//return new $layoutTextLinePath(xPosition, yPosition, width, height, zIndex, text, this, fontStyle);
 	}	
 	#end
 	
@@ -184,7 +194,7 @@ class $className
 	}
 
 	// --------------------------- Loading -------------------------
-	public function load(onLoad:$fontType->Void, ?onProgressOverall:Int->Int->Void, debug:Bool=false)
+	public function load(onLoad:peote.text.Font<$styleType>->Void, ?onProgressOverall:Int->Int->Void, debug:Bool=false)
 	{
 		utils.Loader.text(path + jsonFilename, debug, function(jsonString:String)
 		{	
@@ -272,7 +282,7 @@ class $className
 		});		
 	}
 	
-	private function init(onLoad:$fontType->Void, onProgressOverall:Int->Int->Void, debug:Bool=false)
+	private function init(onLoad:peote.text.Font<$styleType>->Void, onProgressOverall:Int->Int->Void, debug:Bool)
 	{
 		${switch (glyphStyleHasMeta.multiTexture || glyphStyleHasMeta.multiSlot) {
 			case true: macro
@@ -328,7 +338,7 @@ class $className
 		}}
 	}
 	
-	private function loadFontData(onLoad:$fontType->Void, onProgressOverall:Int->Int->Void, debug:Bool=false):Void
+	private function loadFontData(onLoad:peote.text.Font<$styleType>->Void, onProgressOverall:Int->Int->Void, debug:Bool):Void
 	{		
 		var gl3FontData = new Array<peote.text.Gl3FontData>();		
 		utils.Loader.bytesArray(
@@ -351,7 +361,7 @@ class $className
 		// TODO
 	}
 	
-	private function loadImages(?gl3FontData:Array<peote.text.Gl3FontData>, onLoad:$fontType->Void, onProgressOverall:Int->Int->Void, debug:Bool=false):Void
+	private function loadImages(?gl3FontData:Array<peote.text.Gl3FontData>, onLoad:peote.text.Font<$styleType>->Void, onProgressOverall:Int->Int->Void, debug:Bool):Void
 	{		
 		//trace("load images");
 		utils.Loader.imageArray(
@@ -517,8 +527,7 @@ class $className
 */			
 			Context.defineModule(classPackage.concat([className]).join('.'),[c]);
 		}
-		//return TPath({ pack:classPackage, name:className, params:[] });
-		return fontType;
+		return TPath({ pack:classPackage, name:className, params:[] });		
 	}
 }
 #end
