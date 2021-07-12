@@ -222,14 +222,14 @@ class $className
 			${switch (glyphStyleHasMeta.packed) {
 				case true: macro {
 					if (!config.packed) {
-						var error = 'Error, for $$styleName "@packed" in "' + path + jsonFilename +'" set "packed":true';
+						var error = 'Error, for '+$v{styleName}+' "@packed" in "' + path + jsonFilename +'" set "packed":true';
 						haxe.Log.trace(error, {fileName:path+jsonFilename, lineNumber:0,className:"",methodName:""});
 						throw(error);
 					}
 				}
 				default: macro {
 					if (config.packed) {
-						var error = 'Error, metadata of $$styleName class has to be "@packed" for "' + path + jsonFilename + '" and "packed":true';
+						var error = 'Error, metadata of '+$v{styleName}+' class has to be "@packed" for "' + path + jsonFilename + '" and "packed":true';
 						haxe.Log.trace(error, {fileName:path+jsonFilename, lineNumber:0,className:"",methodName:""});
 						throw(error);
 					}
@@ -242,7 +242,7 @@ class $className
 				case true: macro {}
 				default: macro {
 					if (ranges == null && config.ranges.length > 1) {
-						var error = 'Error, set $$styleName to @multiSlot and/or @multiTexture or define a single range while Font creation or inside "' + path + jsonFilename +'"';
+						var error = 'Error, set '+$v{styleName}+' to @multiSlot and/or @multiTexture or define a single range while Font creation or inside "' + path + jsonFilename +'"';
 						haxe.Log.trace(error, {fileName:path+jsonFilename, lineNumber:0,className:"",methodName:""});
 						throw(error);
 					}
