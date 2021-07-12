@@ -145,26 +145,26 @@ class $className
 	public function createLine():$lineType return new $linePath();
 	
 	#if peote_ui
-	public function createUITextLine(xPosition:Int, yPosition:Int, width:Int, height:Int , zIndex:Int,
+	public function createUITextLine(xPosition:Int, yPosition:Int, width:Int, height:Int , zIndex:Int, masked:Bool = false,
 	                    text:String, fontStyle:$styleType):peote.ui.interactive.UITextLine<$styleType>
 	                    //text:String, fontStyle:$styleType):$uiTextLineType
 	{
-		return new peote.ui.interactive.UITextLine<$styleType>(xPosition, yPosition, width, height, zIndex, text, this, fontStyle);
-		//return new $uiTextLinePath(xPosition, yPosition, width, height, zIndex, text, this, fontStyle);
+		return new peote.ui.interactive.UITextLine<$styleType>(xPosition, yPosition, width, height, zIndex, masked, text, this, fontStyle);
+		//return new $uiTextLinePath(xPosition, yPosition, width, height, zIndex, masked, text, this, fontStyle);
 	}
-	public function createTextLine(xPosition:Int, yPosition:Int, width:Int, height:Int, zIndex:Int,
+	public function createTextLine(xPosition:Int, yPosition:Int, width:Int, height:Int, zIndex:Int, masked:Bool = false,
 	                    text:String, fontStyle:$styleType):peote.ui.interactive.TextLine<$styleType>
 	                    //text:String, fontStyle:$styleType):$textLineType
 	{
-		return new peote.ui.interactive.TextLine<$styleType>(xPosition, yPosition, width, height, zIndex, text, this, fontStyle);
-		//return new $textLinePath(xPosition, yPosition, width, height, zIndex, text, this, fontStyle);
+		return new peote.ui.interactive.TextLine<$styleType>(xPosition, yPosition, width, height, zIndex, masked, text, this, fontStyle);
+		//return new $textLinePath(xPosition, yPosition, width, height, zIndex, masked, text, this, fontStyle);
 	}	
-	public function createLayoutTextLine(xPosition:Int, yPosition:Int, width:Int, height:Int, zIndex:Int,
+	public function createLayoutTextLine(xPosition:Int, yPosition:Int, width:Int, height:Int, zIndex:Int, masked:Bool = false,
 	                    text:String, fontStyle:$styleType):peote.ui.interactive.LayoutTextLine<$styleType>
 	                    //text:String, fontStyle:$styleType):$layoutTextLineType
 	{
-		return new peote.ui.interactive.LayoutTextLine<$styleType>(xPosition, yPosition, width, height, zIndex, text, this, fontStyle);
-		//return new $layoutTextLinePath(xPosition, yPosition, width, height, zIndex, text, this, fontStyle);
+		return new peote.ui.interactive.LayoutTextLine<$styleType>(xPosition, yPosition, width, height, zIndex, masked, text, this, fontStyle);
+		//return new $layoutTextLinePath(xPosition, yPosition, width, height, zIndex, masked, text, this, fontStyle);
 	}	
 	#end
 	
