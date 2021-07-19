@@ -25,13 +25,11 @@ class FontMacro
 			var lineType  = Line.LineMacro.buildClass("Line", classPackage, stylePack, styleModule, styleName, styleSuperModule, styleSuperName, styleType, styleField);
 			
 			#if peote_ui
-			//var uiTextLineType = peote.ui.interactive.UITextLine.UITextLineMacro.buildClass("UITextLine", ["peote","ui","interactive"], stylePack, styleModule, styleName, styleSuperModule, styleSuperName, styleType, styleField);
-			//var textLineType = peote.ui.interactive.TextLine.TextLineMacro.buildClass("TextLine", ["peote","ui","interactive"], stylePack, styleModule, styleName, styleSuperModule, styleSuperName, styleType, styleField);
-			//var layoutTextLineType = peote.ui.interactive.LayoutTextLine.LayoutTextLineMacro.buildClass("LayoutTextLine", ["peote","ui","interactive"], stylePack, styleModule, styleName, styleSuperModule, styleSuperName, styleType, styleField);
+			//var interactiveTextLineType = peote.ui.interactive.InteractiveTextLine.InteractiveTextLineMacro.buildClass("InteractiveTextLine", ["peote","ui","interactive"], stylePack, styleModule, styleName, styleSuperModule, styleSuperName, styleType, styleField);
+			//var layoutedTextLineType = peote.ui.layouted.LayoutedTextLine.LayoutedTextLineMacro.buildClass("LayoutedTextLine", ["peote","ui","layouted"], stylePack, styleModule, styleName, styleSuperModule, styleSuperName, styleType, styleField);
 
-			//var uiTextLinePath:TypePath =  { pack:["peote","ui","interactive"], name:"UITextLine" + Macro.classNameExtension(styleName, styleModule), params:[] };
-			//var textLinePath:TypePath =  { pack:["peote","ui","interactive"], name:"TextLine" + Macro.classNameExtension(styleName, styleModule), params:[] };
-			//var layoutTextLinePath:TypePath =  { pack:["peote","ui","interactive"], name:"LayoutTextLine" + Macro.classNameExtension(styleName, styleModule), params:[] };
+			//var interactiveTextLinePath:TypePath =  { pack:["peote","ui","interactive"], name:"InteractiveTextLine" + Macro.classNameExtension(styleName, styleModule), params:[] };
+			//var layoutedTextLinePath:TypePath =  { pack:["peote","ui","layouted"], name:"LayoutedTextLine" + Macro.classNameExtension(styleName, styleModule), params:[] };
 			#end
 			
 			var styleModulName = styleModule.split(".").pop();
@@ -145,26 +143,19 @@ class $className
 	public function createLine():$lineType return new $linePath();
 	
 	#if peote_ui
-	public function createUITextLine(xPosition:Int, yPosition:Int, width:Int, height:Int , zIndex:Int, masked:Bool = false,
-	                    text:String, fontStyle:$styleType):peote.ui.interactive.UITextLine<$styleType>
-	                    //text:String, fontStyle:$styleType):$uiTextLineType
+	public function createInteractiveTextLine(xPosition:Int, yPosition:Int, width:Int, height:Int , zIndex:Int, masked:Bool = false,
+	                    text:String, fontStyle:$styleType):peote.ui.interactive.InteractiveTextLine<$styleType>
+	                    //text:String, fontStyle:$styleType):$interactiveTextLineType
 	{
-		return new peote.ui.interactive.UITextLine<$styleType>(xPosition, yPosition, width, height, zIndex, masked, text, this, fontStyle);
-		//return new $uiTextLinePath(xPosition, yPosition, width, height, zIndex, masked, text, this, fontStyle);
+		return new peote.ui.interactive.InteractiveTextLine<$styleType>(xPosition, yPosition, width, height, zIndex, masked, text, this, fontStyle);
+		//return new $interactiveTextLinePath(xPosition, yPosition, width, height, zIndex, masked, text, this, fontStyle);
 	}
-	public function createTextLine(xPosition:Int, yPosition:Int, width:Int, height:Int, zIndex:Int, masked:Bool = false,
-	                    text:String, fontStyle:$styleType):peote.ui.interactive.TextLine<$styleType>
-	                    //text:String, fontStyle:$styleType):$textLineType
+	public function createLayoutedTextLine(xPosition:Int, yPosition:Int, width:Int, height:Int, zIndex:Int, masked:Bool = false,
+	                    text:String, fontStyle:$styleType):peote.ui.layouted.LayoutedTextLine<$styleType>
+	                    //text:String, fontStyle:$styleType):$layoutedTextLineType
 	{
-		return new peote.ui.interactive.TextLine<$styleType>(xPosition, yPosition, width, height, zIndex, masked, text, this, fontStyle);
-		//return new $textLinePath(xPosition, yPosition, width, height, zIndex, masked, text, this, fontStyle);
-	}	
-	public function createLayoutTextLine(xPosition:Int, yPosition:Int, width:Int, height:Int, zIndex:Int, masked:Bool = false,
-	                    text:String, fontStyle:$styleType):peote.ui.interactive.LayoutTextLine<$styleType>
-	                    //text:String, fontStyle:$styleType):$layoutTextLineType
-	{
-		return new peote.ui.interactive.LayoutTextLine<$styleType>(xPosition, yPosition, width, height, zIndex, masked, text, this, fontStyle);
-		//return new $layoutTextLinePath(xPosition, yPosition, width, height, zIndex, masked, text, this, fontStyle);
+		return new peote.ui.layouted.LayoutedTextLine<$styleType>(xPosition, yPosition, width, height, zIndex, masked, text, this, fontStyle);
+		//return new $layoutedTextLinePath(xPosition, yPosition, width, height, zIndex, masked, text, this, fontStyle);
 	}	
 	#end
 	
