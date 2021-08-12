@@ -1,7 +1,9 @@
 package;
-#if Pages
-import haxe.Timer;
 
+import haxe.Timer;
+import haxe.CallStack;
+
+import lime.app.Application;
 import lime.ui.Window;
 import lime.ui.KeyCode;
 import lime.ui.KeyModifier;
@@ -26,7 +28,7 @@ import peote.text.Glyph;
 import peote.text.Line;
 import peote.text.Page;
 
-class Pages
+class Pages extends Application
 {
 	var peoteView:PeoteView;
 	var display:Display;
@@ -34,10 +36,21 @@ class Pages
 	var helperLinesBuffer:Buffer<ElementSimple>;
 	var helperLinesProgram:Program;
 	
-	public function new(window:Window)
+	override function onWindowCreate():Void
+	{
+		switch (window.context.type)
+		{
+			case WEBGL, OPENGL, OPENGLES:
+				try startSample(window)
+				catch (_) trace(CallStack.toString(CallStack.exceptionStack()), _);
+			default: throw("Sorry, only works with OpenGL.");
+		}
+	}
+
+	public function startSample(window:Window)
 	{
 		try {	
-			peoteView = new PeoteView(window.context, window.width, window.height);
+			peoteView = new PeoteView(window);
 			display   = new Display(10,10, window.width-20, window.height-20, Color.GREY1);
 			peoteView.addDisplay(display);
 			helperLinesBuffer = new Buffer<ElementSimple>(100);
@@ -159,15 +172,12 @@ class Pages
 		}
 	}
 	
-	public function onMouseDown (x:Float, y:Float, button:MouseButton):Void
+	override function onMouseDown (x:Float, y:Float, button:MouseButton):Void
 	{
 		isZooming = ! isZooming;
 	}
 	
-	public function onMouseMove (x:Float, y:Float):Void {}
-	public function onMouseUp (x:Float, y:Float, button:MouseButton):Void {}
-
-	public function onKeyDown (keyCode:KeyCode, modifier:KeyModifier):Void
+	override function onKeyDown (keyCode:KeyCode, modifier:KeyModifier):Void
 	{	
 		switch (keyCode) {
 			case KeyCode.NUMPAD_PLUS:
@@ -185,19 +195,10 @@ class Pages
 		}
 	}
 
-	public function render() peoteView.render();
-	public function update(deltaTime:Int):Void {}
-
-	public function onTextInput(text:String):Void {}
-	public function onWindowActivate():Void {}
-	public function onWindowLeave ():Void {}
-
-	public function resize(width:Int, height:Int)
+	override function onWindowResize(width:Int, height:Int)
 	{
-		peoteView.resize(width, height);
 		display.width  = width - 20;
 		display.height = height - 20;
 	}
 
 }
-#end

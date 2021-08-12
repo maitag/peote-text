@@ -1,7 +1,9 @@
 package;
-#if InputLine
-import haxe.Timer;
 
+import haxe.Timer;
+import haxe.CallStack;
+
+import lime.app.Application;
 import lime.ui.Window;
 import lime.ui.KeyCode;
 import lime.ui.KeyModifier;
@@ -85,7 +87,7 @@ class GlyphStyle {
 #if html5
 @:access(lime._internal.backend.html5.HTML5Window)
 #end
-class InputLine
+class InputLine extends Application
 {
 	var peoteView:PeoteView;
 	var display:Display;
@@ -119,17 +121,24 @@ class InputLine
 		if (!has) select_to = select_from;
 		return has;
 	}
-	
-	var window:Window;
-	
-	public function new(window:Window)
-	{
-		this.window=window;
 		
+	override function onWindowCreate():Void
+	{
+		switch (window.context.type)
+		{
+			case WEBGL, OPENGL, OPENGLES:
+				try startSample(window)
+				catch (_) trace(CallStack.toString(CallStack.exceptionStack()), _);
+			default: throw("Sorry, only works with OpenGL.");
+		}
+	}
+
+	public function startSample(window:Window)
+	{
 		window.textInputEnabled = true; // this is disabled on default for html5
 
 		try {	
-			peoteView = new PeoteView(window.context, window.width, window.height);
+			peoteView = new PeoteView(window);
 			display   = new Display(10, 10, window.width - 20, window.height - 20, Color.GREY1);
 			#if mobile
 			display.zoom = 3.0;
@@ -457,7 +466,7 @@ class InputLine
 	var selecting = false;
 	var dragging = false;
 	var dragX:Float = 0.0;
-	public function onMouseDown (x:Float, y:Float, button:MouseButton):Void
+	override function onMouseDown (x:Float, y:Float, button:MouseButton):Void
 	{	
 		if ((y-display.y)/display.zoom > line.y && (y-display.y)/display.zoom < line.y + 30) {
 			cursorSet(fontProgram.lineGetCharAtPosition(line, (x - display.x) / display.zoom));
@@ -472,7 +481,7 @@ class InputLine
 		}
 	}
 	
-	public function onMouseUp (x:Float, y:Float, button:MouseButton):Void {
+	override function onMouseUp (x:Float, y:Float, button:MouseButton):Void {
 		selecting = false;
 		dragging = false;
 		line_xOffset = line.xOffset;
@@ -480,7 +489,7 @@ class InputLine
 		select_x = selectElem.x;
 	}
 	
-	public function onMouseMove (x:Float, y:Float):Void {
+	override function onMouseMove (x:Float, y:Float):Void {
 		if (selecting) {
 			cursorSet(fontProgram.lineGetCharAtPosition(line, (x - display.x) / display.zoom));
 			selectionSetTo(cursor);
@@ -490,7 +499,7 @@ class InputLine
 		}
 	}
 
-	public function onKeyDown (keyCode:KeyCode, modifier:KeyModifier):Void
+	override function onKeyDown (keyCode:KeyCode, modifier:KeyModifier):Void
 	{	
 		switch (keyCode) {
 			case KeyCode.NUMPAD_PLUS:
@@ -546,7 +555,7 @@ class InputLine
 		}
 	}
 	
-	public function onWindowActivate():Void 
+	override function onWindowActivate():Void 
 	{
 		#if html5
 		//Timer.delay(function() {
@@ -555,7 +564,7 @@ class InputLine
 		#end
 	}
 	
-	public function onTextInput(text:String):Void 
+	override function onTextInput(text:String):Void 
 	{
 		//trace("onTextInput", text);
 		
@@ -567,18 +576,8 @@ class InputLine
 		lineInsertChars(text);
 	}
 
-	public function render()
+	override function onWindowResize(width:Int, height:Int)
 	{
-		peoteView.render();
-	}
-
-	public function onWindowLeave ():Void {}
-	public function onPreloadComplete ():Void {}
-	public function update(deltaTime:Int):Void {}
-
-	public function resize(width:Int, height:Int)
-	{
-		peoteView.resize(width, height);
 		display.width  = width - 20;
 		display.height = height - 20;
 		line.maxX =  window.width - 20 - line_x;
@@ -588,4 +587,3 @@ class InputLine
 	}
 
 }
-#end

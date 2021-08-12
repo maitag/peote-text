@@ -6,8 +6,7 @@
 	<android target-sdk-version="28" />
 	<!-- <meta build-number="714" /> --> <!-- let set the buildnumber manual (android) -->
 	
-	<app main="Main" path="bin" file="Main" />
-	<haxedef name="Glyphes" />
+	<app main="Gl3FontRendering" path="bin" file="Main" />
 	<!--
 		Gl3FontRendering,
 		Glyphes,
