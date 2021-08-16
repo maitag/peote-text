@@ -55,7 +55,7 @@ class $className extends peote.view.Program
 	public var penX:Float = 0.0;
 	public var penY:Float = 0.0;
 	
-	var isMasked = false;
+	public var isMasked(default, null) = false;
 	var maskProgram:peote.view.Program;
 	var maskBuffer:peote.view.Buffer<peote.text.MaskElement>;
 	
@@ -68,14 +68,7 @@ class $className extends peote.view.Program
 		_buffer = new peote.view.Buffer<$glyphType>(1024,1024,true);
 		super(_buffer);
 		
-		if (isMasked) {
-			this.isMasked = true;
-			maskBuffer = new peote.view.Buffer<peote.text.MaskElement>(16, 16, true);
-			maskProgram = new peote.view.Program(maskBuffer);
-			maskProgram.mask = peote.view.Mask.DRAW;
-			maskProgram.colorEnabled = false;
-			mask = peote.view.Mask.USE;			
-		}
+		if (isMasked) enableMasking();
 
 		setFont(font);
 		setFontStyle(fontStyle);
@@ -84,6 +77,15 @@ class $className extends peote.view.Program
 	// -----------------------------------------
 	// ----------- Mask Program  ---------------
 	// -----------------------------------------
+	public function enableMasking() {
+			isMasked = true;
+			maskBuffer = new peote.view.Buffer<peote.text.MaskElement>(16, 16, true);
+			maskProgram = new peote.view.Program(maskBuffer);
+			maskProgram.mask = peote.view.Mask.DRAW;
+			//maskProgram.colorEnabled = false;
+			mask = peote.view.Mask.USE;			
+	}
+	
 	override public function addToDisplay(display:peote.view.Display, ?atProgram:peote.view.Program, addBefore:Bool=false)
 	{
 		super.addToDisplay(display, atProgram, addBefore);
@@ -92,8 +94,8 @@ class $className extends peote.view.Program
 	
 	override public function removeFromDisplay(display:peote.view.Display):Void
 	{
-		maskProgram.removeFromDisplay(display);
-		if (isMasked) super.removeFromDisplay(display);
+		super.removeFromDisplay(display);
+		if (isMasked) maskProgram.removeFromDisplay(display);
 	}
 	
 	public inline function createMask(x:Int, y:Int, w:Int, h:Int):peote.text.MaskElement {
@@ -106,8 +108,7 @@ class $className extends peote.view.Program
 		maskBuffer.addElement(maskElement);
 	}
 	
-	public inline function updateMask(maskElement:peote.text.MaskElement, x:Int, y:Int, w:Int, h:Int):Void {
-		maskElement.update(x, y, w, h);
+	public inline function updateMask(maskElement:peote.text.MaskElement):Void {
 		maskBuffer.updateElement(maskElement);
 	}
 	
