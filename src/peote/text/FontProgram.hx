@@ -55,17 +55,64 @@ class $className extends peote.view.Program
 	public var penX:Float = 0.0;
 	public var penY:Float = 0.0;
 	
+	var isMasked = false;
+	var maskProgram:peote.view.Program;
+	var maskBuffer:peote.view.Buffer<peote.text.MaskElement>;
+	
 	var prev_charcode = -1;
 	
 	var _buffer:peote.view.Buffer<$glyphType>;
 	
-	public function new(font:peote.text.Font<$styleType>, fontStyle:$styleType)
+	public function new(font:peote.text.Font<$styleType>, fontStyle:$styleType, isMasked:Bool = false)
 	{
 		_buffer = new peote.view.Buffer<$glyphType>(1024,1024,true);
-		super(_buffer);	
+		super(_buffer);
 		
+		if (isMasked) {
+			this.isMasked = true;
+			maskBuffer = new peote.view.Buffer<peote.text.MaskElement>(16, 16, true);
+			maskProgram = new peote.view.Program(maskBuffer);
+			maskProgram.mask = peote.view.Mask.DRAW;
+			maskProgram.colorEnabled = false;
+			mask = peote.view.Mask.USE;			
+		}
+
 		setFont(font);
 		setFontStyle(fontStyle);
+	}
+	
+	// -----------------------------------------
+	// ----------- Mask Program  ---------------
+	// -----------------------------------------
+	override public function addToDisplay(display:peote.view.Display, ?atProgram:peote.view.Program, addBefore:Bool=false)
+	{
+		super.addToDisplay(display, atProgram, addBefore);
+		if (isMasked) maskProgram.addToDisplay(display, this, true);
+	}
+	
+	override public function removeFromDisplay(display:peote.view.Display):Void
+	{
+		maskProgram.removeFromDisplay(display);
+		if (isMasked) super.removeFromDisplay(display);
+	}
+	
+	public inline function createMask(x:Int, y:Int, w:Int, h:Int):peote.text.MaskElement {
+		var maskElement = new peote.text.MaskElement(x, y, w, h);
+		maskBuffer.addElement(maskElement);
+		return maskElement;
+	}
+	
+	public inline function addMask(maskElement:peote.text.MaskElement):Void {
+		maskBuffer.addElement(maskElement);
+	}
+	
+	public inline function updateMask(maskElement:peote.text.MaskElement, x:Int, y:Int, w:Int, h:Int):Void {
+		maskElement.update(x, y, w, h);
+		maskBuffer.updateElement(maskElement);
+	}
+	
+	public inline function removeMask(maskElement:peote.text.MaskElement):Void {
+		maskBuffer.removeElement(maskElement);
 	}
 	
 	// -----------------------------------------
@@ -1065,6 +1112,7 @@ class $className extends peote.view.Program
 		
 		var x_start = x;
 		
+		// TODO: haxe4 -> for(charcode in StringTools.iterator(chars))
 		haxe.Utf8.iter(chars, function(charcode)
 		{
 			charData = getCharData(charcode);

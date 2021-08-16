@@ -117,6 +117,9 @@ class $className
 	var rParsePathConfig = new EReg("^(.*?)([^/]+)$", "");
 	var rParseEnding = new EReg("\\.[a-z]+$", "i");
 	var rComments = new EReg("//.*?$", "gm");
+	// TODO: check https://try.haxe.org/#d86D1Fee
+	//var rComments:EReg = ~/(\/\/[^"\n\r]*(?:"[^"\n\r]*"[^"\n\r]*)*[\r\n]|\/\*([^*]|\*(?!\/))*?\*\/)(?=[^"]*(?:"[^"]*"[^"]*)*$)/gs;
+	//var rComments:EReg = ~/(\/\/[^"\r\n]*(?:"[^"\r\n]*"[^"\r\n]*)*|\/\*([^*]|\*(?!\/))*?\*\/)(?=[^"]*(?:"[^"]*"[^"]*)*$)/gs;
 	var rHexToDec = new EReg("(\"\\s*)?(0x[0-9a-f]+)(\\s*\")?", "gi");
 	
 	public function new(configJsonPath:String, ranges:Array<peote.text.Range>=null, kerning:Bool=true, maxTextureSize:Int=16384) 
@@ -132,9 +135,9 @@ class $className
 	}
 	
 	//public function createFontProgram(fontStyle:$styleType):$fontProgramType
-	public function createFontProgram(fontStyle:$styleType):peote.text.FontProgram<$styleType>
+	public function createFontProgram(fontStyle:$styleType, isMasked:Bool = false):peote.text.FontProgram<$styleType>
 	{
-		return new peote.text.FontProgram<$styleType>(this, fontStyle);
+		return new peote.text.FontProgram<$styleType>(this, fontStyle, isMasked);
 		//return new $fontProgramPath(this, fontStyle);
 	}
 	

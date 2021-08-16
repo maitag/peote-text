@@ -37,10 +37,10 @@ class $className
 	public var xOffset:Float = 0.0;
 	public var yOffset:Float = 0.0;				
 	public var maxX:Float = 0xffff;
-	public var maxY:Float = 0xffff;
+	//public var maxY:Float = 0xffff;
 	
 	@:allow(peote.text) public var fullWidth(default, null):Float = 0.0;
-	@:allow(peote.text) public var fullHeight(default, null):Float = 0.0; // TODO
+	//@:allow(peote.text) public var fullHeight(default, null):Float = 0.0; // TODO
 	
 	public var lineHeight:Float = 0.0;
 	public var height:Float = 0.0; // height (highest glyph)

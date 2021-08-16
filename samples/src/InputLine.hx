@@ -2,6 +2,7 @@ package;
 
 import haxe.Timer;
 import haxe.CallStack;
+import peote.text.MaskElement;
 
 import lime.app.Application;
 import lime.ui.Window;
@@ -104,6 +105,8 @@ class InputLine extends Application
 	var line_xOffset:Float = 0;
 	var line_y:Float = 100;
 	
+	var mask:MaskElement;
+	
 	var actual_style:Int = 0;
 	var glyphStyle = new Array<GlyphStyle>();
 		
@@ -137,85 +140,90 @@ class InputLine extends Application
 	{
 		window.textInputEnabled = true; // this is disabled on default for html5
 
-		try {	
-			peoteView = new PeoteView(window);
-			display   = new Display(10, 10, window.width - 20, window.height - 20, Color.GREY1);
-			#if mobile
-			display.zoom = 3.0;
-			#end
-			peoteView.addDisplay(display);
-			helperLinesBuffer = new Buffer<ElementSimple>(100);
-			helperLinesProgram = new Program(helperLinesBuffer);
-			display.addProgram(helperLinesProgram);
+		peoteView = new PeoteView(window);
+		display   = new Display(10, 10, window.width - 20, window.height - 20, Color.GREY1);
+		#if mobile
+		display.zoom = 3.0;
+		#end
+		peoteView.addDisplay(display);
+		helperLinesBuffer = new Buffer<ElementSimple>(100);
+		helperLinesProgram = new Program(helperLinesBuffer);
+		display.addProgram(helperLinesProgram);
+		
+		#if packed
+		new Font<GlyphStyle>("assets/fonts/packed/hack/config.json")
+		//new Font<GlyphStyle>("assets/fonts/packed/unifont/config.json", [new peote.text.Range(0x0000,0x0fff)])
+		//new Font<GlyphStyle>("assets/fonts/packed/unifont/config.json")
+		//new Font<GlyphStyle>("assets/fonts/packed/unifont/config.json", [peote.text.Range.C0ControlsBasicLatin(), peote.text.Range.C1ControlsLatin1Supplement()])
+		#else
+		new Font<GlyphStyle>("assets/fonts/tiled/hack_ascii.json")
+		//new Font<GlyphStyle>("assets/fonts/tiled/liberation_ascii.json")
+		//new Font<GlyphStyle>("assets/fonts/tiled/peote.json")
+		#end
+		.load( function(font) {
+		
+			var fontStyle = new GlyphStyle();
 			
-			#if packed
-			new Font<GlyphStyle>("assets/fonts/packed/hack/config.json")
-			//new Font<GlyphStyle>("assets/fonts/packed/unifont/config.json", [new peote.text.Range(0x0000,0x0fff)])
-			//new Font<GlyphStyle>("assets/fonts/packed/unifont/config.json")
-			//new Font<GlyphStyle>("assets/fonts/packed/unifont/config.json", [peote.text.Range.C0ControlsBasicLatin(), peote.text.Range.C1ControlsLatin1Supplement()])
-			#else
-			new Font<GlyphStyle>("assets/fonts/tiled/hack_ascii.json")
-			//new Font<GlyphStyle>("assets/fonts/tiled/liberation_ascii.json")
-			//new Font<GlyphStyle>("assets/fonts/tiled/peote.json")
-			#end
+			//fontProgram = new FontProgram<GlyphStyle>(font, fontStyle, true); // manage the Programs to render glyphes in different size/colors/fonts
+			// alternative way to create the FontProgram<GlyphStyle>:
+			fontProgram = font.createFontProgram(fontStyle, true);
 			
-			.load( function(font) {
+			display.addProgram(fontProgram);
 			
-				var fontStyle = new GlyphStyle();
-				
-				//fontProgram = new FontProgram<GlyphStyle>(font, fontStyle); // manage the Programs to render glyphes in different size/colors/fonts
-				// alternative way to create the FontProgram<GlyphStyle>:
-				fontProgram = font.createFontProgram(fontStyle);
-				
-				display.addProgram(fontProgram);
-				
-				// ------------------- Styles  -------------------				
-				var style:GlyphStyle;
-				
-				style = new GlyphStyle();
-				style.width = font.config.width;
-				style.height = font.config.height;
-				glyphStyle.push(style);
-				
-				style = new GlyphStyle();
-				style.color = Color.YELLOW;
-				style.width = font.config.width * 2.0;
-				style.height = font.config.height * 2.0;
-				glyphStyle.push(style);
-				
-				style = new GlyphStyle();
-				style.color = Color.RED;
-				style.width = font.config.width * 3.0;
-				style.height = font.config.height * 3.0;
-				glyphStyle.push(style);				
-				
-				// ------------------- line  -------------------				
-				line = new Line<GlyphStyle>();
-				line.maxX =  window.width - 20 - line_x;
-				line.maxY = line_y + 50;
-				line.xOffset = line_xOffset;
+			// ------------------- Styles  -------------------				
+			var style:GlyphStyle;
+			
+			style = new GlyphStyle();
+			style.width = font.config.width;
+			style.height = font.config.height;
+			glyphStyle.push(style);
+			
+			style = new GlyphStyle();
+			style.color = Color.YELLOW;
+			style.width = font.config.width * 2.0;
+			style.height = font.config.height * 2.0;
+			glyphStyle.push(style);
+			
+			style = new GlyphStyle();
+			style.color = Color.RED;
+			style.width = font.config.width * 3.0;
+			style.height = font.config.height * 3.0;
+			glyphStyle.push(style);				
+			
+			// ------------------- line  -------------------				
+			line = new Line<GlyphStyle>();
+			line.maxX =  window.width - 20 - line_x;
+			
+			line.xOffset = line_xOffset;
 
-				setLine("Testing input textline and masking. (page up/down is toggling glyphstyle)");
-				
-				// -------- background and helperlines ---------				
-				addHelperLines(line.maxX-line.x, line.maxY-line.y);
-				
-				// ----------------- Cursor  -------------------	
-				cursor_x = line_x;
-				cursorElem = new ElementSimple(cursor_x, line_y, 1, 30, Color.RED);
-				helperLinesBuffer.addElement(cursorElem);
-				
-				// --------------- Selection  -------------------				
-				selectElem = new ElementSimple(cursor_x, line_y, 0, 20, Color.GREY4);
-				helperLinesBuffer.addElement(selectElem);
-				
-					
-				//fontProgram.lineSetChar(line, "A".charCodeAt(0) , 0, glyphStyle2);
-				
-				//fontProgram.lineSetPosition(line, line.x+10, line.y+10);
-			});
+			setLine("Testing input textline and masking. (page up/down is toggling glyphstyle)");
+
+			trace("font height "+font.config.height+"");
+			trace("base "+line.base+" (font baseline)");
+			trace("lineHeight "+line.lineHeight);
+			trace("height "+line.height+" (heighest glyph)" );
+			trace("fullWidth "+line.fullWidth);
+			trace("length "+line.length+" (number of glyphes)" );
+
+			mask = fontProgram.createMask(Std.int(line.x), Std.int(line.y), Std.int(line.maxX-line.x), Std.int(line.lineHeight));
 			
-		} catch (e:Dynamic) trace("ERROR:", e);
+			// -------- background and helperlines ---------				
+			addHelperLines(line.maxX-line.x, line.lineHeight);
+			
+			// ----------------- Cursor  -------------------	
+			cursor_x = line_x;
+			cursorElem = new ElementSimple(cursor_x, line_y, 1, 30, Color.RED);
+			helperLinesBuffer.addElement(cursorElem);
+			
+			// --------------- Selection  -------------------				
+			selectElem = new ElementSimple(cursor_x, line_y, 0, 20, Color.GREY4);
+			helperLinesBuffer.addElement(selectElem);
+			
+				
+			//fontProgram.lineSetChar(line, "A".charCodeAt(0) , 0, glyphStyle2);
+			
+			//fontProgram.lineSetPosition(line, line.x+10, line.y+10);
+		});
 	}
 	
 	// ---------------------------------------------------------------
@@ -351,7 +359,7 @@ class InputLine extends Application
 	public function lineUpdate()
 	{
 		fontProgram.updateLine(line);
-		updateHelperLines(line_x, line.maxX-line.x, line.maxY-line.y);
+		updateHelperLines(line_x, line.maxX - line.x, line.lineHeight);
 	}
 	
 	public function moveCursor(offset:Float)
@@ -584,6 +592,7 @@ class InputLine extends Application
 		cursor_x = cursorElem.x;
 		select_x = selectElem.x;
 		lineSetXOffset(0);
+		fontProgram.updateMask(mask, Std.int(line.x), Std.int(line.y), Std.int(line.maxX-line.x), Std.int(line.lineHeight));
 	}
 
 }
