@@ -3,7 +3,7 @@
 
 ## Installation:
 ```
-haxelib git peote-view https://github.com/maitag/peote-text
+haxelib git peote-text https://github.com/maitag/peote-text
 ```
 
 ## Todo:
