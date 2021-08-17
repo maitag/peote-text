@@ -592,7 +592,8 @@ class InputLine extends Application
 		cursor_x = cursorElem.x;
 		select_x = selectElem.x;
 		lineSetXOffset(0);
-		fontProgram.updateMask(mask, Std.int(line.x), Std.int(line.y), Std.int(line.maxX-line.x), Std.int(line.lineHeight));
+		mask.update(Std.int(line.x), Std.int(line.y), Std.int(line.maxX - line.x), Std.int(line.lineHeight) );
+		fontProgram.updateMask(mask);
 	}
 
 }
