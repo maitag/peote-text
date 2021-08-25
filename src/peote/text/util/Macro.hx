@@ -111,9 +111,12 @@ class Macro
 			}
 			for (field in style_fields.fields.get()) {//trace("param",Context.getTypedExpr(field.expr()).expr);
 				var local = true;
-				var meta = field.meta.get();
-				if (meta.length > 0)
-					if (meta[0].name == "global") local = false;
+				for (meta in field.meta.get()) {
+					if (meta.name == "global") {
+						local = false;
+						break;
+					}
+				}
 					
 				switch (field.name) {
 					case "color":   glyphStyleHasField.color   = true; if (local) glyphStyleHasField.local_color   = true;

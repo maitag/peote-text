@@ -154,7 +154,7 @@ class $className extends peote.view.Program
 				}
 			}}
 			var sharp = peote.view.utils.Util.toFloatString(0.5);
-			setColorFormula(color + " * smoothstep( "+weight+" - "+sharp+" * fwidth(TEX.r), "+weight+" + "+sharp+" * fwidth(TEX.r), TEX.r)");							
+			setColorFormula(color + " * smoothstep( " + weight + " - " + sharp + " * fwidth(TEX.r), " + weight + " + " + sharp + " * fwidth(TEX.r), TEX.r)");							
 		}
 		else {
 			// TODO: bold for no distancefields needs some more spice inside fragmentshader (access to neightboar pixels!)

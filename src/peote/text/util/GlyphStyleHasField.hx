@@ -1,22 +1,22 @@
 package peote.text.util;
 
 @:publicFields class GlyphStyleHasField {
-	var color:Bool;
-	var bgColor:Bool;
-	var width:Bool;
-	var height:Bool;
-	var rotation:Bool;
-	var weight:Bool;
-	var tilt:Bool;
-	var zIndex:Bool;
+	var color:Bool = false;
+	var bgColor:Bool = false;
+	var width:Bool = false;
+	var height:Bool = false;
+	var rotation:Bool = false;
+	var weight:Bool = false;
+	var tilt:Bool = false;
+	var zIndex:Bool = false;
 	
-	var local_color:Bool;
-	var local_bgColor:Bool;
-	var local_width:Bool;
-	var local_height:Bool;
-	var local_rotation:Bool;
-	var local_weight:Bool;
-	var local_tilt:Bool;
-	var local_zIndex:Bool;
+	var local_color:Bool = false;
+	var local_bgColor:Bool = false;
+	var local_width:Bool = false;
+	var local_height:Bool = false;
+	var local_rotation:Bool = false;
+	var local_weight:Bool = false;
+	var local_tilt:Bool = false;
+	var local_zIndex:Bool = false;
 	public function new() {}
 }

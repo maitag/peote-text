@@ -118,7 +118,7 @@ class $className implements peote.view.Element
 					name:  "zIndex",
 					meta:  meta,
 					access:  [Access.APublic],
-					kind: FieldType.FVar(macro:Int, macro 0),
+					kind: FieldType.FVar(macro:Int, macro 0), // default value is set via Fontprogram!
 					pos: Context.currentPos(),
 				});
 			}
@@ -130,7 +130,7 @@ class $className implements peote.view.Element
 					name:  "rotation",
 					meta:  meta,
 					access:  [Access.APublic],
-					kind: FieldType.FVar(macro:Float, macro 0.0),
+					kind: FieldType.FVar(macro:Float, macro 0.0), // default value is set via Fontprogram!
 					pos: Context.currentPos(),
 				});
 			}

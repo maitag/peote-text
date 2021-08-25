@@ -4,9 +4,9 @@
 	"license": "MIT",
 	"tags": ["peote", "text", "textrendering", "font", "glyph"],
 	"description": "Glyph and Textrendering for peote-view",
-	"version": "0.8.3",
+	"version": "0.8.4",
 	"classPath": "src/",
-	"releasenote": "using unicode features for haxe 4",
+	"releasenote": "fixing glyphstyle-parsing into macro",
 	"contributors": ["Sylvio Sell - maitag"],
 	"dependencies": {
 		"lime": "",
