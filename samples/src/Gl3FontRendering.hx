@@ -89,77 +89,73 @@ class Gl3FontRendering extends Application
 
 	public function startSample(window:Window)
 	{
-		try{	
-			peoteView = new PeoteView(window);
-			display   = new Display(10,10, window.width-20, window.height-20, Color.GREY1);
-			peoteView.addDisplay(display);  // display to peoteView
-			
-			buffer  = new Buffer<Elem>(10000);
-			program = new Program(buffer);
-			
-			
-			// no kerning (much faster then to convert fontdata!) for the u n i glyphes
-			//loadFont("assets/fonts/packed/DejavuSans", 0x0000, 0x0fff, true,
-			loadFont("assets/fonts/packed/unifont/unifont_0000-0fff", 0x0000, 0x0fff, false,
-			//loadFont("assets/fonts/packed/unifont/unifont_1000-1fff", 0x1000, 0x1fff, false,
-			//loadFont("assets/fonts/packed/unifont/unifont_3000-3fff", 0x3000, 0x3fff, false,
-				function(gl3font:Gl3FontData, image:Image, isKerning:Bool)
+		peoteView = new PeoteView(window);
+		display   = new Display(10,10, window.width-20, window.height-20, Color.GREY1);
+		peoteView.addDisplay(display);  // display to peoteView
+		
+		buffer  = new Buffer<Elem>(10000);
+		program = new Program(buffer);
+		
+		
+		// no kerning (much faster then to convert fontdata!) for the u n i glyphes
+		//loadFont("assets/fonts/packed/DejavuSans", 0x0000, 0x0fff, true,
+		loadFont("assets/fonts/packed/unifont/unifont_0000-0fff", 0x0000, 0x0fff, false,
+		//loadFont("assets/fonts/packed/unifont/unifont_1000-1fff", 0x1000, 0x1fff, false,
+		//loadFont("assets/fonts/packed/unifont/unifont_3000-3fff", 0x3000, 0x3fff, false,
+			function(gl3font:Gl3FontData, image:Image, isKerning:Bool)
+			{
+				var texture = new Texture(image.width, image.height, 1, 4, false, 1, 1);
+				texture.setImage(image);
+				program.setTexture(texture, "TEX");
+				display.addProgram(program);    // programm to display
+				
+				var bold = Util.toFloatString(0.5);
+				var sharp = Util.toFloatString(0.5);
+				
+				program.setColorFormula('COL * smoothstep( $bold - $sharp * fwidth(TEX.r), $bold + $sharp * fwidth(TEX.r), TEX.r)');
+				//program.setColorFormula('vec4(COL.rgb,  smoothstep( $bold - $sharp * fwidth(TEX.r), $bold + $sharp * fwidth(TEX.r), TEX.r) )');
+				//program.setColorFormula('vec4(COL.rgb,  smoothstep( 0.5 - fwidth(TEX.r), 0.5 + fwidth(TEX.r), TEX.r) )');
+				//program.alphaEnabled = true;
+				//program.discardAtAlpha( 0.0 );
+				
+				// for unifont + INT is this best readable (but good not scalable and not not for all letters!!!) at fixed scale 16 ( or 32.. etc)
+				//program.setColorFormula('COL * smoothstep( 0.5, 0.5, TEX.r)');
+				
+				renderTextLine(	100, 4, 24, gl3font, image.width, image.height, isKerning,
+					"Unifont Test with peote-view and gl3font"
+				);
+				renderTextLine(	100, 30, 24, gl3font, image.width, image.height, isKerning,
+					" -> move the display with cursorkeys (more speed with shift)"
+				);
+				renderTextLine(	100, 50, 24, gl3font, image.width, image.height, isKerning,
+					" -> zoom the display with numpad +- (shift is zooming the view)"
+				);
+				
+				var i:Int = 0;
+				var l:Int = 90;
+				var c:Int = 0;
+				var s = new haxe.Utf8();
+				
+				for (charcode in gl3font.rangeMin...gl3font.rangeMax+1)
 				{
-					var texture = new Texture(image.width, image.height, 1, 4, false, 1, 1);
-					texture.setImage(image);
-					program.setTexture(texture, "TEX");
-					display.addProgram(program);    // programm to display
-					
-					var bold = Util.toFloatString(0.5);
-					var sharp = Util.toFloatString(0.5);
-					
-					program.setColorFormula('COL * smoothstep( $bold - $sharp * fwidth(TEX.r), $bold + $sharp * fwidth(TEX.r), TEX.r)');
-					//program.setColorFormula('vec4(COL.rgb,  smoothstep( $bold - $sharp * fwidth(TEX.r), $bold + $sharp * fwidth(TEX.r), TEX.r) )');
-					//program.setColorFormula('vec4(COL.rgb,  smoothstep( 0.5 - fwidth(TEX.r), 0.5 + fwidth(TEX.r), TEX.r) )');
-					//program.alphaEnabled = true;
-					//program.discardAtAlpha( 0.0 );
-					
-					// for unifont + INT is this best readable (but good not scalable and not not for all letters!!!) at fixed scale 16 ( or 32.. etc)
-					//program.setColorFormula('COL * smoothstep( 0.5, 0.5, TEX.r)');
-					
-					renderTextLine(	100, 4, 24, gl3font, image.width, image.height, isKerning,
-						"Unifont Test with peote-view and gl3font"
-					);
-					renderTextLine(	100, 30, 24, gl3font, image.width, image.height, isKerning,
-						" -> move the display with cursorkeys (more speed with shift)"
-					);
-					renderTextLine(	100, 50, 24, gl3font, image.width, image.height, isKerning,
-						" -> zoom the display with numpad +- (shift is zooming the view)"
-					);
-					
-					var i:Int = 0;
-					var l:Int = 90;
-					var c:Int = 0;
-					var s = new haxe.Utf8();
-					
-					for (charcode in gl3font.rangeMin...gl3font.rangeMax+1)
+					if (gl3font.getMetric(charcode) != null) 
 					{
-						if (gl3font.getMetric(charcode) != null) 
-						{
-							s.addChar( charcode );
-							i++; c++;
-							if (i > 100) {
-								//trace("charnumber:",c,"line:",l);
-								renderTextLine( 30, l, 24, gl3font, image.width, image.height, isKerning, s.toString());
-								i = 0; s = new haxe.Utf8(); l += 26;
-							}
+						s.addChar( charcode );
+						i++; c++;
+						if (i > 100) {
+							//trace("charnumber:",c,"line:",l);
+							renderTextLine( 30, l, 24, gl3font, image.width, image.height, isKerning, s.toString());
+							i = 0; s = new haxe.Utf8(); l += 26;
 						}
 					}
-					
 				}
-			);
+				
+			}
+		);
+		
+		
+		timer = new Timer(40); zoomIn();
 			
-			
-			timer = new Timer(40); zoomIn();
-			
-			
-		} catch (e:Dynamic) trace("ERROR:", e);
-		// ---------------------------------------------------------------
 	}
 
 	public function loadFont(font:String, rangeMin:Int, rangeMax:Int, isKerning:Bool, onLoad:Gl3FontData->Image->Bool->Void)
@@ -179,62 +175,60 @@ class Gl3FontRendering extends Application
 		
 		var prev_metric:Metric = null;
 		
-		try{
-			haxe.Utf8.iter(text, function(charcode)
+		peote.text.util.StringUtils.iter(text, function(charcode)
+		{
+			//trace("charcode", charcode);
+			var metric:Metric = gl3font.getMetric(charcode);
+			
+			//if (id != null)
+			if (metric != null)
 			{
-				//trace("charcode", charcode);
-				var metric:Metric = gl3font.getMetric(charcode);
-				
-				//if (id != null)
-				if (metric != null)
-				{
-					#if isInt
-					if (isKerning && prev_metric != null) { // KERNING
-						penX += Math.ceil(gl3font.kerning[prev_metric.kerning][metric.kerning] * scale);
-						//trace("kerning to left letter: " + Math.round(gl3font.kerning[prev_metric.kerning][metric.kerning] * scale) );
-					}
-					prev_metric = metric;
-					
-					//trace(charcode, "h:"+metric.height, "t:"+metric.top );
-					element  = new Elem(
-						Math.floor((penX + metric.left * scale )),
-						Math.floor((penY + ( gl3font.height - metric.top ) * scale ))
-					);
-					
-					penX += Math.ceil(metric.advance * scale);
-
-					element.w  = Math.ceil( metric.width  * scale );
-					element.h  = Math.ceil( metric.height * scale );
-					element.tx = Math.floor(metric.u * imgWidth );
-					element.ty = Math.floor(metric.v * imgHeight);
-					element.tw = Math.floor(1+metric.w * imgWidth );
-					element.th = Math.floor(1+metric.h * imgHeight);
-					#else
-					if (isKerning && prev_metric != null) { // KERNING
-						penX += gl3font.kerning[prev_metric.kerning][metric.kerning] * scale;
-						//trace("kerning to left letter: " + Math.round(gl3font.kerning[prev_metric.kerning][metric.kerning] * scale) );
-					}
-					prev_metric = metric;
-					
-					//trace(charcode, "h:"+metric.height, "t:"+metric.top );
-					element  = new Elem(
-						penX + metric.left * scale,
-						penY + ( gl3font.height - metric.top ) * scale
-					);
-					
-					penX += metric.advance * scale;
-
-					element.w  = metric.width  * scale;
-					element.h  = metric.height * scale;
-					element.tx = metric.u * imgWidth;
-					element.ty = metric.v * imgHeight;
-					element.tw = metric.w * imgWidth;
-					element.th = metric.h * imgHeight;
-					#end
-					buffer.addElement(element);     // element to buffer
+				#if isInt
+				if (isKerning && prev_metric != null) { // KERNING
+					penX += Math.ceil(gl3font.kerning[prev_metric.kerning][metric.kerning] * scale);
+					//trace("kerning to left letter: " + Math.round(gl3font.kerning[prev_metric.kerning][metric.kerning] * scale) );
 				}
-			});
-		} catch (e:Dynamic) trace("ERR", e); // <-- problem with utf8 and neko breaks haxe.Utf8.iter()
+				prev_metric = metric;
+				
+				//trace(charcode, "h:"+metric.height, "t:"+metric.top );
+				element  = new Elem(
+					Math.floor((penX + metric.left * scale )),
+					Math.floor((penY + ( gl3font.height - metric.top ) * scale ))
+				);
+				
+				penX += Math.ceil(metric.advance * scale);
+
+				element.w  = Math.ceil( metric.width  * scale );
+				element.h  = Math.ceil( metric.height * scale );
+				element.tx = Math.floor(metric.u * imgWidth );
+				element.ty = Math.floor(metric.v * imgHeight);
+				element.tw = Math.floor(1+metric.w * imgWidth );
+				element.th = Math.floor(1+metric.h * imgHeight);
+				#else
+				if (isKerning && prev_metric != null) { // KERNING
+					penX += gl3font.kerning[prev_metric.kerning][metric.kerning] * scale;
+					//trace("kerning to left letter: " + Math.round(gl3font.kerning[prev_metric.kerning][metric.kerning] * scale) );
+				}
+				prev_metric = metric;
+				
+				//trace(charcode, "h:"+metric.height, "t:"+metric.top );
+				element  = new Elem(
+					penX + metric.left * scale,
+					penY + ( gl3font.height - metric.top ) * scale
+				);
+				
+				penX += metric.advance * scale;
+
+				element.w  = metric.width  * scale;
+				element.h  = metric.height * scale;
+				element.tx = metric.u * imgWidth;
+				element.ty = metric.v * imgHeight;
+				element.tw = metric.w * imgWidth;
+				element.th = metric.h * imgHeight;
+				#end
+				buffer.addElement(element);     // element to buffer
+			}
+		});
 	}
 		
 	var isZooming:Bool = false;

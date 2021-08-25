@@ -26,6 +26,7 @@ class GlyphStylePacked
 	//@global public var tilt:Float = 0.5;
 	public var tilt:Float = 0.0;
 	
+	// TODO:
 	//@global public var weight = 0.48;
 	public var weight:Float = 0.5;
 	

@@ -9,7 +9,6 @@ import lime.ui.Window;
 import lime.ui.KeyCode;
 import lime.ui.KeyModifier;
 import lime.ui.MouseButton;
-import lime.ui.ScanCode;
 
 import peote.view.PeoteView;
 import peote.view.Display;
@@ -21,7 +20,6 @@ import peote.view.Element;
 import peote.text.Font;
 
 import peote.text.FontProgram;
-import peote.text.Glyph;
 //import peote.text.Range;
 
 //import peote.text.GlyphStyle;

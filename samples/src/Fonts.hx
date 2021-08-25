@@ -17,16 +17,8 @@ import peote.view.Color;
 import elements.ElementSimple;
 
 import peote.text.Font;
-
 import peote.text.FontProgram;
-import peote.text.Glyph;
-//import peote.text.Range;
-
-//import peote.text.GlyphStyle;
-//import peote.text.Gl3GlyphStyle;
-
-import peote.text.Line;
-import peote.text.Page;
+import peote.text.Range;
 
 class Fonts extends Application
 {
@@ -49,96 +41,90 @@ class Fonts extends Application
 
 	public function startSample(window:Window)
 	{
-		try {	
-			peoteView = new PeoteView(window);
-			display   = new Display(10,10, window.width-20, window.height-20, Color.GREY1);
-			peoteView.addDisplay(display);
-			helperLinesBuffer = new Buffer<ElementSimple>(100);
-			helperLinesProgram = new Program(helperLinesBuffer);
-			display.addProgram(helperLinesProgram);
-			
-			// --------------------------------------------------------
-			
-			var packedFonts = [
-				{ name: "hack",    y:  30, range: null },
-				{ name: "unifont", y:  80, range: [new peote.text.Range(0x0000,0x0fff)] }
-			];
+		peoteView = new PeoteView(window);
+		display   = new Display(10,10, window.width-20, window.height-20, Color.GREY1);
+		peoteView.addDisplay(display);
+		helperLinesBuffer = new Buffer<ElementSimple>(100);
+		helperLinesProgram = new Program(helperLinesBuffer);
+		display.addProgram(helperLinesProgram);
+		
+		// --------------------------------------------------------
+		
+		var packedFonts = [
+			{ name: "hack",    y:  30, range: null },
+			{ name: "unifont", y:  80, range: [new Range(0x0000,0x0fff)] }
+		];
 
-			for (f in packedFonts) 
+		for (f in packedFonts) 
+		{
+			new Font<GlyphStylePacked>('assets/fonts/packed/${f.name}/config.json', f.range).load( function(font)
 			{
-				new Font<GlyphStylePacked>('assets/fonts/packed/${f.name}/config.json', f.range).load( function(font)
-				{
-					var glyphStyle = new GlyphStylePacked();
-					glyphStyle.width = 28;// font.config.width * 1.0;
-					glyphStyle.height = 28;// font.config.height * 1.0;								
-					
-					// var fontProgram = new FontProgram<GlyphStylePacked>(font, glyphStyle);
-					// alternative way to create the FontProgram<GlyphStylePacked>:
-					var fontProgram = font.createFontProgram(glyphStyle);
-					
-					display.addProgram(fontProgram);
-					
-					var line = fontProgram.createLine('ÄABC defg (packed: ${f.name})', 0, f.y);
-
-					glyphStyle.color = Color.YELLOW;
-					glyphStyle.width = 56;// font.config.width * 2.0;
-					glyphStyle.height = 56;// font.config.height * 2.0;								
-													
-					fontProgram.lineSetStyle(line, glyphStyle, 2, 3);
-					fontProgram.updateLine(line);			
-					
-					//var range = font.getRange("a".charCodeAt(0));trace(range);
-					addHelperLines(Std.int(line.x), Std.int(line.y), Std.int(line.fullWidth), Std.int(line.lineHeight), Std.int(line.height), Std.int(line.base));					
-				},
-				true // debug
-				);
+				var glyphStyle = new GlyphStylePacked();
+				glyphStyle.width = 28;// font.config.width * 1.0;
+				glyphStyle.height = 28;// font.config.height * 1.0;								
 				
-			}
+				// var fontProgram = new FontProgram<GlyphStylePacked>(font, glyphStyle);
+				// alternative way to create the FontProgram<GlyphStylePacked>:
+				var fontProgram = font.createFontProgram(glyphStyle);
+				
+				display.addProgram(fontProgram);
+				
+				var line = fontProgram.createLine('ABC defg (packed: ${f.name}) ÄÖÜäöüß', 0, f.y);
+
+				glyphStyle.color = Color.YELLOW;
+				glyphStyle.width = 56;// font.config.width * 2.0;
+				glyphStyle.height = 56;// font.config.height * 2.0;													
+				fontProgram.lineSetStyle(line, glyphStyle, 2, 3);
+				fontProgram.updateLine(line);			
+				
+				//var range = font.getRange("a".charCodeAt(0));trace(range);
+				addHelperLines(Std.int(line.x), Std.int(line.y), Std.int(line.fullWidth), Std.int(line.lineHeight), Std.int(line.height), Std.int(line.base));					
+			},
+			true // debug
+			);
 			
-			// --------------------------------------------------------
-			
-			var tiledFonts = [
-				{ name: "hack_ascii",       y:  160, range: null },
-				{ name: "liberation_ascii", y:  240, range: null },
-				{ name: "peote",            y:  310, range: null }
-			];
-			
-			for (f in tiledFonts) 
+		}
+		
+		// --------------------------------------------------------
+		
+		var tiledFonts = [
+			{ name: "hack_ascii",       y:  160, range: null },
+			{ name: "liberation_ascii", y:  240, range: null },
+			{ name: "peote",            y:  310, range: null }
+		];
+		
+		for (f in tiledFonts) 
+		{
+			new Font<GlyphStyleTiled>('assets/fonts/tiled/${f.name}.json', f.range).load(function(font)
 			{
-				new Font<GlyphStyleTiled>('assets/fonts/tiled/${f.name}.json', f.range).load(function(font)
-				{
-					var glyphStyle = new GlyphStyleTiled();
-					glyphStyle.width = font.config.width;
-					glyphStyle.height = font.config.height;								
-					
-					// var fontProgram = new FontProgram<GlyphStyleTiled>(font, glyphStyle);
-					// alternative way to create the FontProgram<GlyphStylePacked>:
-					var fontProgram = font.createFontProgram(glyphStyle);
-					
-					display.addProgram(fontProgram);
-					
-					var line = fontProgram.createLine('ABC defg (tiled: ${f.name})', 0, f.y);					
-					
-					glyphStyle.color = Color.YELLOW;
-					glyphStyle.width = font.config.width * 2.0;
-					glyphStyle.height = font.config.height * 2.0;								
-													
-					fontProgram.lineSetStyle(line, glyphStyle, 2, 3);
-					fontProgram.updateLine(line);
-					
-					addHelperLines(Std.int(line.x), Std.int(line.y), Std.int(line.fullWidth), Std.int(line.lineHeight), Std.int(line.height), Std.int(line.base));
-				},
-				true // debug
-				);
+				var glyphStyle = new GlyphStyleTiled();
+				glyphStyle.width = font.config.width;
+				glyphStyle.height = font.config.height;								
 				
-			}
+				// var fontProgram = new FontProgram<GlyphStyleTiled>(font, glyphStyle);
+				// alternative way to create the FontProgram<GlyphStylePacked>:
+				var fontProgram = font.createFontProgram(glyphStyle);
+				
+				display.addProgram(fontProgram);
+				
+				var line = fontProgram.createLine('ABC defg (tiled: ${f.name})', 0, f.y);					
+				
+				glyphStyle.color = Color.YELLOW;
+				glyphStyle.width = font.config.width * 2.0;
+				glyphStyle.height = font.config.height * 2.0;								
+												
+				fontProgram.lineSetStyle(line, glyphStyle, 2, 3);
+				fontProgram.updateLine(line);
+				
+				addHelperLines(Std.int(line.x), Std.int(line.y), Std.int(line.fullWidth), Std.int(line.lineHeight), Std.int(line.height), Std.int(line.base));
+			},
+			true // debug
+			);
 			
-
-			
-			timer = new Timer(40); zoomIn();
-			
-		} catch (e:Dynamic) trace("ERROR:", e);
-		// ---------------------------------------------------------------
+		}
+		
+		
+		timer = new Timer(40); zoomIn();
 	}
 
 	public function addHelperLines(x:Int, y:Int, w:Int, lineHeight:Int, height:Int, base:Int) {

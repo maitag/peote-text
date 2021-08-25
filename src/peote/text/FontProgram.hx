@@ -82,7 +82,7 @@ class $className extends peote.view.Program
 			maskBuffer = new peote.view.Buffer<peote.text.MaskElement>(16, 16, true);
 			maskProgram = new peote.view.Program(maskBuffer);
 			maskProgram.mask = peote.view.Mask.DRAW;
-			//maskProgram.colorEnabled = false;
+			maskProgram.colorEnabled = false;
 			mask = peote.view.Mask.USE;			
 	}
 	
@@ -144,6 +144,7 @@ class $className extends peote.view.Program
 		
 		// check distancefield-rendering
 		if (font.config.distancefield) {
+			// TODO: adjusting the weight needs texture-offset in setCharcode()
 			var weight = "0.5";
 			${switch (glyphStyleHasField.local_weight) {
 				case true:  macro weight = "weight";
@@ -152,7 +153,7 @@ class $className extends peote.view.Program
 					default: macro {}
 				}
 			}}
-			var sharp = peote.view.utils.Util.toFloatString(0.5); // TODO
+			var sharp = peote.view.utils.Util.toFloatString(0.5);
 			setColorFormula(color + " * smoothstep( "+weight+" - "+sharp+" * fwidth(TEX.r), "+weight+" + "+sharp+" * fwidth(TEX.r), TEX.r)");							
 		}
 		else {
@@ -455,10 +456,10 @@ class $className extends peote.view.Program
 			case true: macro // ------- Gl3Font -------
 			{
 				// TODO: let glyphe-width also include metrics with tex-offsets on need
-				glyph.tx = charData.metric.u; // TODO: offsets for THICK letters
-				glyph.ty = charData.metric.v;
-				glyph.tw = charData.metric.w;
-				glyph.th = charData.metric.h;							
+				glyph.tx = charData.metric.u;//-2; // TODO: offsets for THICK letters
+				glyph.ty = charData.metric.v;//-2;
+				glyph.tw = charData.metric.w;//+4;
+				glyph.th = charData.metric.h;//+4;							
 			}
 			default: macro // ------- simple font -------
 			{
@@ -579,8 +580,7 @@ class $className extends peote.view.Program
 			var visibleFrom:Int = 0;
 			var visibleTo:Int = 0;
 			
-			//for (charcode in chars)
-			haxe.Utf8.iter(chars, function(charcode)
+			peote.text.util.StringUtils.iter(chars, function(charcode)
 			{
 				charData = getCharData(charcode);
 				if (charData != null)
@@ -904,7 +904,7 @@ class $className extends peote.view.Program
 		var i = position;
 		var charData:$charDataType = null;
 		
-		haxe.Utf8.iter(chars, function(charcode)
+		peote.text.util.StringUtils.iter(chars, function(charcode)
 		{
 			if (i < line.length) 
 			{							
@@ -1113,8 +1113,7 @@ class $className extends peote.view.Program
 		
 		var x_start = x;
 		
-		// TODO: haxe4 -> for(charcode in StringTools.iterator(chars))
-		haxe.Utf8.iter(chars, function(charcode)
+		peote.text.util.StringUtils.iter(chars, function(charcode)
 		{
 			charData = getCharData(charcode);
 			if (charData != null)
