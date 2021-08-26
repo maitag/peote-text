@@ -18,15 +18,6 @@ import elements.ElementSimple;
 
 import peote.text.Font;
 
-import peote.text.FontProgram;
-import peote.text.Glyph;
-//import peote.text.Range;
-
-//import peote.text.GlyphStyle;
-//import peote.text.Gl3GlyphStyle;
-
-import peote.text.Line;
-import peote.text.Page;
 
 class Pages extends Application
 {

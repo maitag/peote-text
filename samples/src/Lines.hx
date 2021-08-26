@@ -18,10 +18,6 @@ import elements.ElementSimple;
 
 
 import peote.text.Font;
-//import peote.text.FontProgram;
-//import peote.text.Glyph;
-//import peote.text.Line;
-//import peote.text.Page;
 
 
 class Lines extends Application

@@ -20,13 +20,9 @@ import peote.view.Element;
 import peote.text.Font;
 
 import peote.text.FontProgram;
-//import peote.text.Range;
-
-//import peote.text.GlyphStyle;
-//import peote.text.Gl3GlyphStyle;
-
 import peote.text.Line;
-//import peote.text.Page;
+
+
 class ElementSimple implements Element
 {
 	@posX public var x:Float;
