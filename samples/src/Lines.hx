@@ -52,9 +52,9 @@ class Lines extends Application
 		helperLinesProgram = new Program(helperLinesBuffer);
 		display.addProgram(helperLinesProgram);
 		
-		//new Font<GlyphStylePacked>("assets/fonts/packed/hack/config.json")
+		new Font<GlyphStylePacked>("assets/fonts/packed/hack/config.json")
 		//new Font<GlyphStylePacked>("assets/fonts/packed/unifont/config.json", [new peote.text.Range(0x0000,0x0fff)])
-		new Font<GlyphStyleTiled>("assets/fonts/tiled/hack_ascii.json")
+		//new Font<GlyphStyleTiled>("assets/fonts/tiled/hack_ascii.json")
 		//new Font<GlyphStyleTiled>("assets/fonts/tiled/liberation_ascii.json")
 		//new Font<GlyphStyleTiled>("assets/fonts/tiled/peote.json")
 		

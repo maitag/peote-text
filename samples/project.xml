@@ -6,7 +6,7 @@
 	<android target-sdk-version="28" />
 	<!-- <meta build-number="714" /> --> <!-- let set the buildnumber manual (android) -->
 	
-	<app main="Fonts" path="bin" file="Main" />
+	<app main="Glyphes" path="bin" file="Main" />
 	<!--
 		Gl3FontRendering,
 		Glyphes,
@@ -52,7 +52,7 @@
 	<!--<haxedef name="peoteview_debug_display" />-->
 	<!--<haxedef name="peoteview_debug_program" />-->
 	<!--<haxedef name="peoteview_debug_texture" />-->
-	<!--<haxedef name="peoteview_debug_shader" />-->
+	<haxedef name="peoteview_debug_shader" />
 
 	<!-- <haxedef name="webgl-debug" /> --> <!-- try with chrome and look here: https://www.khronos.org/webgl/wiki/Debugging -->
 	<!-- <haxedef name="source-map-content" /> --> <!-- to debug with chrome id needs also "-debug" -->

@@ -134,12 +134,22 @@ class $className extends peote.view.Program
 	{
 		this.fontStyle = fontStyle;
 		
+		alphaEnabled = true;		
+		
 		var color:String;
 		${switch (glyphStyleHasField.local_color) {
 			case true: macro color = "color";
 			default: switch (glyphStyleHasField.color) {
 				case true: macro color = Std.string(fontStyle.color.toGLSL());
 				default: macro color = Std.string(font.config.color.toGLSL());
+		}}}
+		
+		var bgColor:String;
+		${switch (glyphStyleHasField.local_bgColor) {
+			case true: macro bgColor = "bgColor";
+			default: switch (glyphStyleHasField.bgColor) {
+				case true: macro bgColor = Std.string(fontStyle.bgColor.toGLSL());
+				default: macro bgColor = Std.string(font.config.bgColor.toGLSL());
 		}}}
 		
 		// check distancefield-rendering
@@ -153,8 +163,28 @@ class $className extends peote.view.Program
 					default: macro {}
 				}
 			}}
+			
 			var sharp = peote.view.utils.Util.toFloatString(0.5);
-			setColorFormula(color + " * smoothstep( " + weight + " - " + sharp + " * fwidth(TEX.r), " + weight + " + " + sharp + " * fwidth(TEX.r), TEX.r)");							
+			
+			${switch (glyphStyleHasField.local_bgColor) {
+				case true: macro setColorFormula("mix(" + bgColor + "," + color + "," + "smoothstep( " + weight + " - " + sharp + " * fwidth(TEX.r), " + weight + " + " + sharp + " * fwidth(TEX.r), TEX.r))");
+				default: switch (glyphStyleHasField.bgColor) {
+					case true: macro {
+						if (fontStyle.bgColor == 0) setColorFormula(color + " * smoothstep( " + weight + " - " + sharp + " * fwidth(TEX.r), " + weight + " + " + sharp + " * fwidth(TEX.r), TEX.r)");
+						else {
+							discardAtAlpha(null);
+							setColorFormula("mix(" + bgColor + "," + color + "," + "smoothstep( " + weight + " - " + sharp + " * fwidth(TEX.r), " + weight + " + " + sharp + " * fwidth(TEX.r), TEX.r))");
+						}
+					}
+					default: macro {
+						if (font.config.bgColor == 0) setColorFormula(color + " * smoothstep( " + weight + " - " + sharp + " * fwidth(TEX.r), " + weight + " + " + sharp + " * fwidth(TEX.r), TEX.r)");
+						else {
+							discardAtAlpha(null);
+							setColorFormula("mix(" + bgColor + "," + color + "," + "smoothstep( " + weight + " - " + sharp + " * fwidth(TEX.r), " + weight + " + " + sharp + " * fwidth(TEX.r), TEX.r))");
+						}
+					}
+			}}}
+						
 		}
 		else {
 			// TODO: bold for no distancefields needs some more spice inside fragmentshader (access to neightboar pixels!)
@@ -172,11 +202,27 @@ class $className extends peote.view.Program
 			//setColorFormula(color + " * mix( TEX.r, 1.0, outline(TEX.r, 0.3, 1.0*uZoom) )");							
 			//setColorFormula("mix("+color+"*TEX.r, vec4(1.0,1.0,0.0,1.0), outline(TEX.r, 0.0, 1.0*uZoom) )");							
 */						
-			setColorFormula(color + " * TEX.r");							
+			${switch (glyphStyleHasField.local_bgColor) {
+				case true: macro setColorFormula("mix(" + bgColor + "," + color + "," + "TEX.r)");
+				default: switch (glyphStyleHasField.bgColor) {
+					case true: macro {
+						if (fontStyle.bgColor == 0) setColorFormula(color + " * TEX.r");
+						else {
+							discardAtAlpha(null);
+							setColorFormula("mix(" + bgColor + "," + color + "," + "TEX.r)");
+						}
+					}
+					default: macro {
+						if (font.config.bgColor == 0) setColorFormula(color + " * TEX.r");
+						else {
+							discardAtAlpha(null);
+							setColorFormula("mix(" + bgColor + "," + color + "," + "TEX.r)");
+						}
+					}
+			}}}
+										
 		}
 
-		alphaEnabled = true;
-		
 		${switch (glyphStyleHasField.zIndex && !glyphStyleHasField.local_zIndex) {
 			case true: macro setFormula("zIndex", peote.view.utils.Util.toFloatString(fontStyle.zIndex));
 			default: macro {}
@@ -226,9 +272,9 @@ class $className extends peote.view.Program
 				}}}
 				
 				// mixing alpha while use of zIndex
-				${switch (glyphStyleHasField.zIndex) {
-					case true: macro {discardAtAlpha(0.5);}
-					default: macro {}
+				${switch (glyphStyleHasField.zIndex && !glyphStyleHasField.bgColor) {
+					case true: macro { discardAtAlpha(0.5); }
+					default: macro { }
 				}}
 				
 				if (tilt != "" && tilt != "0.0") setFormula("x", "x + (1.0-aPosition.y)*width*" + tilt);

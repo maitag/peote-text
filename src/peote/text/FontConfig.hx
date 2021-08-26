@@ -13,6 +13,7 @@ class FontConfig
 	@:optional @:default(16) public var width(default, null):Float;
 	@:optional @:default(16) public var height(default, null):Float;	
 	@:optional @:default(0xffffffff) public var color(default, null):Color;
+	@:optional @:default(0x00000000) public var bgColor(default, null):Color;
 
 /*	@:optional @:default(0) var paddingRight(default, null):Float;
 	@:optional @:default(0) var paddingLeft(default, null):Float;

@@ -27,6 +27,9 @@ class GlyphStyle {
 	//@global public var color:Color = Color.BLUE;
 	public var color:Color = Color.GREEN;
 	
+	//@global public var bgColor:Color = Color.BLUE;
+	public var bgColor:Color = Color.BLUE;
+	
 	//@global public var width:Float = 10.0;
 	public var width:Float = 16;
 	//@global public var height:Float = 16.0;
@@ -58,9 +61,12 @@ class GlyphStyle {
 	public function new() {}
 }
 
+//@multiSlot    // multiple slots per texture to store multiple unicode-ranges
+//@multiTexture // multiple textures to store multiple unicode-ranges
 @packed
 class GlyphStylePacked { //TODO: extends GlyphStyle {
 	public var color:Color = Color.GREEN;
+	public var bgColor:Color = Color.BLUE;
 	public var width:Float = 16;
 	public var height:Float = 16;
 	public var tilt:Float = 0.0;
@@ -93,11 +99,11 @@ class Glyphes extends Application
 		display   = new Display(10,10, window.width-20, window.height-20, Color.GREY1);
 		peoteView.addDisplay(display);
 		
-		//new Font<GlyphStylePacked>("assets/fonts/packed/hack/config.json")
+		new Font<GlyphStylePacked>("assets/fonts/packed/hack/config.json")
 		//new Font<GlyphStylePacked>("assets/fonts/packed/unifont/config.json", [new peote.text.Range(0x0000,0x0fff)])
-		//new Font<GlyphStylePacked>("assets/fonts/packed/unifont/config.json")
+		//new Font<GlyphStylePacked>("assets/fonts/packed/unifont/config.json") // needs multi-slot/texture
 		//new Font<GlyphStylePacked>("assets/fonts/packed/unifont/config.json", [peote.text.Range.C0ControlsBasicLatin(), peote.text.Range.C1ControlsLatin1Supplement()])
-		new Font<GlyphStyle>("assets/fonts/tiled/hack_ascii.json")
+		//new Font<GlyphStyle>("assets/fonts/tiled/hack_ascii.json")
 		//new Font<GlyphStyle>("assets/fonts/tiled/liberation_ascii.json")
 		//new Font<GlyphStyle>("assets/fonts/tiled/peote.json")
 		.load( function(font) {
@@ -142,6 +148,7 @@ class Glyphes extends Application
 			//var glyphStyle2 = new GlyphStyle();
 			var glyphStyle2 = font.createFontStyle();
 			glyphStyle2.color = Color.RED;
+			glyphStyle2.bgColor = Color.YELLOW; glyphStyle2.bgColor.alpha = 120;
 			glyphStyle2.width = font.config.width * 2.0;
 			glyphStyle2.height = font.config.height * 2.0;
 			glyphStyle2.zIndex = 2;
@@ -155,7 +162,7 @@ class Glyphes extends Application
 			var glyph2 = font.createGlyph();
 			
 			
-			if (fontProgram.setGlyph( glyph2, "B".charCodeAt(0), 5, 50, glyphStyle1)) {
+			if (fontProgram.setGlyph( glyph2, "B".charCodeAt(0), 4, 50, glyphStyle1)) {
 				Timer.delay(function() {
 					fontProgram.glyphSetStyle(glyph2, glyphStyle2);
 					fontProgram.updateGlyph(glyph2);

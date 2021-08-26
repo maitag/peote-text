@@ -27,6 +27,7 @@ class GlyphMacro
 			if (glyphStyleHasField.local_width)  exprBlock.push( macro width = glyphStyle.width );
 			if (glyphStyleHasField.local_height) exprBlock.push( macro height= glyphStyle.height );
 			if (glyphStyleHasField.local_color)  exprBlock.push( macro color = glyphStyle.color );
+			if (glyphStyleHasField.local_bgColor) exprBlock.push( macro bgColor = glyphStyle.bgColor );
 			if (glyphStyleHasField.local_zIndex) exprBlock.push( macro zIndex= glyphStyle.zIndex );
 			if (glyphStyleHasField.local_rotation) exprBlock.push( macro rotation = glyphStyle.rotation );
 			if (glyphStyleHasField.local_weight) exprBlock.push( macro weight = glyphStyle.weight );
@@ -108,6 +109,14 @@ class $className implements peote.view.Element
 				meta:  [{name:"color", params:[], pos:Context.currentPos()}],
 				access:  [Access.APublic],
 				kind: FieldType.FVar(macro:peote.view.Color, macro 0xffffffff),
+				pos: Context.currentPos(),
+			});
+			
+			if (glyphStyleHasField.local_bgColor) c.fields.push({
+				name:  "bgColor",
+				meta:  [{name:"color", params:[], pos:Context.currentPos()}],
+				access:  [Access.APublic],
+				kind: FieldType.FVar(macro:peote.view.Color, macro 0x000000ff),
 				pos: Context.currentPos(),
 			});
 			

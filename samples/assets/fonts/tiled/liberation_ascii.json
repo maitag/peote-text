@@ -5,6 +5,7 @@
 	"width" : 20,
 	"height": 32,
 	"color" : 0x50e040ff,
+	//"bgColor" : 0x330033e0,
 		
 	// (for all ranges)
 	"tiles": { "x": 16, "y": 6  }, // how the image is splitted into tiles
