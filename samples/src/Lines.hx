@@ -11,10 +11,7 @@ import lime.ui.MouseButton;
 
 import peote.view.PeoteView;
 import peote.view.Display;
-import peote.view.Buffer;
-import peote.view.Program;
 import peote.view.Color;
-import elements.ElementSimple;
 
 
 import peote.text.Font;
@@ -25,8 +22,6 @@ class Lines extends Application
 	var peoteView:PeoteView;
 	var display:Display;
 	var timer:Timer;
-	var helperLinesBuffer:Buffer<ElementSimple>;
-	var helperLinesProgram:Program;
 	
 	override function onWindowCreate():Void
 	{
@@ -44,9 +39,6 @@ class Lines extends Application
 		peoteView = new PeoteView(window);
 		display   = new Display(10,10, window.width-20, window.height-20, Color.GREY1);
 		peoteView.addDisplay(display);
-		helperLinesBuffer = new Buffer<ElementSimple>(100);
-		helperLinesProgram = new Program(helperLinesBuffer);
-		display.addProgram(helperLinesProgram);
 		
 		new Font<GlyphStylePacked>("assets/fonts/packed/hack/config.json")
 		//new Font<GlyphStylePacked>("assets/fonts/packed/unifont/config.json", [new peote.text.Range(0x0000,0x0fff)])

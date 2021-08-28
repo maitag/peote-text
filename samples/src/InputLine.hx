@@ -2,7 +2,6 @@ package;
 
 import haxe.Timer;
 import haxe.CallStack;
-import peote.text.MaskElement;
 
 import lime.app.Application;
 import lime.ui.Window;
@@ -12,36 +11,15 @@ import lime.ui.MouseButton;
 
 import peote.view.PeoteView;
 import peote.view.Display;
-import peote.view.Buffer;
-import peote.view.Program;
 import peote.view.Color;
-import peote.view.Element;
 
 import peote.text.Font;
 
 import peote.text.FontProgram;
 import peote.text.Line;
+import peote.text.MaskElement;
+import peote.text.BackgroundElement;
 
-
-class ElementSimple implements Element
-{
-	@posX public var x:Float;
-	@posY public var y:Float;
-	
-	@sizeX public var w:Float=100.0;
-	@sizeY public var h:Float=100.0;
-	
-	@color public var c:Color = 0xff0000ff;
-		
-	public function new(x:Float=0, y:Float=0, w:Float=100, h:Int=100, c:Int=0xFF0000FF )
-	{
-		this.x = x;
-		this.y = y;
-		this.w = w;
-		this.h = h;
-		this.c = c;
-	}
-}
 
 //@multiSlot    // multiple slots per texture to store multiple unicode-ranges
 //@multiTexture // multiple textures to store multiple unicode-ranges
@@ -52,8 +30,11 @@ class ElementSimple implements Element
 @packed        // glyphes are packed into textureatlas with ttfcompile (gl3font)
 #end
 class GlyphStyle {
-	//@global public var color:Color = Color.BLUE;
+	//@global public var color:Color = Color.GREEN;
 	public var color:Color = Color.GREEN;
+	
+	//@global public var bgColor:Color = Color.BLUE;
+	//public var bgColor:Color = Color.BLUE;
 	
 	//@global public var width:Float = 10.0;
 	public var width:Float = 16;
@@ -61,19 +42,15 @@ class GlyphStyle {
 	public var height:Float = 16;
 	
 	//@global public var tilt:Float = 0.5;
-	public var tilt:Float = 0.0;
+	//public var tilt:Float = 0.0;
 	
-	//@global public var weight = 0.48;
-	public var weight:Float = 0.5;
+	@global public var weight = 0.49;
+	//public var weight:Float = 0.5;
 	
 	// TODO: additional spacing after each letter
-	//@global public var letterSpacing:Float = 0.0;
-	//public var letterSpacing:Float = 2.0;
+	//@global public var letterSpace:Float = 0.0;
+	//public var letterSpace:Float = 2.0;
 	
-	// TODO: for adjusting Glyphes inside Line
-	// letterSpace
-	
-	// TODO: bgColor:Color = Color.ORANGE
 	// TODO: outline/glow for distance field fonts
 	
 	public function new() {}
@@ -88,9 +65,7 @@ class InputLine extends Application
 	var display:Display;
 	var timer:Timer;
 	
-	var helperLinesBuffer:Buffer<ElementSimple>;
-	var helperLinesProgram:Program;
-	var helperElems:{bg:ElementSimple,top:ElementSimple,base:ElementSimple,desc:ElementSimple};
+	var helperElems:{bg:BackgroundElement,top:BackgroundElement,base:BackgroundElement,desc:BackgroundElement};
 	
 	var fontProgram:FontProgram<GlyphStyle>;
 	
@@ -105,10 +80,10 @@ class InputLine extends Application
 	var glyphStyle = new Array<GlyphStyle>();
 		
 	var cursor:Int = 0;
-	var cursorElem:ElementSimple;
+	var cursorElem:BackgroundElement;
 	var cursor_x:Float = 0;
 	
-	var selectElem:ElementSimple;
+	var selectElem:BackgroundElement;
 	var select_x:Float = 0;
 	var select_from:Int = 0;
 	var select_to:Int = 0;
@@ -140,9 +115,6 @@ class InputLine extends Application
 		display.zoom = 3.0;
 		#end
 		peoteView.addDisplay(display);
-		helperLinesBuffer = new Buffer<ElementSimple>(100);
-		helperLinesProgram = new Program(helperLinesBuffer);
-		display.addProgram(helperLinesProgram);
 		
 		#if packed
 		new Font<GlyphStyle>("assets/fonts/packed/hack/config.json")
@@ -160,7 +132,8 @@ class InputLine extends Application
 			
 			//fontProgram = new FontProgram<GlyphStyle>(font, fontStyle, true); // manage the Programs to render glyphes in different size/colors/fonts
 			// alternative way to create the FontProgram<GlyphStyle>:
-			fontProgram = font.createFontProgram(fontStyle, true);
+			fontProgram = font.createFontProgram(fontStyle, true, true);
+			//fontProgram.snapToPixel(1.0);
 			
 			display.addProgram(fontProgram);
 			
@@ -199,19 +172,17 @@ class InputLine extends Application
 			trace("fullWidth "+line.fullWidth);
 			trace("length "+line.length+" (number of glyphes)" );
 
-			mask = fontProgram.createMask(Std.int(line.x), Std.int(line.y), Std.int(line.maxX-line.x), Std.int(line.lineHeight));
+			mask = fontProgram.createMask(Std.int(line.x), Std.int(line.y)-40, Std.int(line.maxX-line.x), Std.int(line.lineHeight)+80);
 			
 			// -------- background and helperlines ---------				
-			addHelperLines(line.maxX-line.x, line.lineHeight);
+			createHelperLines(line.maxX-line.x, line.lineHeight);
 			
 			// ----------------- Cursor  -------------------	
 			cursor_x = line_x;
-			cursorElem = new ElementSimple(cursor_x, line_y, 1, 30, Color.RED);
-			helperLinesBuffer.addElement(cursorElem);
+			cursorElem = fontProgram.createBackground(cursor_x, line_y, 1, line.height, Color.RED);
 			
 			// --------------- Selection  -------------------				
-			selectElem = new ElementSimple(cursor_x, line_y, 0, 20, Color.GREY4);
-			helperLinesBuffer.addElement(selectElem);
+			selectElem = fontProgram.createBackground(cursor_x, line_y, 0, line.lineHeight, Color.GREY4);
 			
 				
 			//fontProgram.lineSetChar(line, "A".charCodeAt(0) , 0, glyphStyle2);
@@ -345,9 +316,9 @@ class InputLine extends Application
 		fontProgram.lineSetXOffset(line, line_xOffset + xOffset);
 		lineUpdate();
 		cursorElem.x = cursor_x + xOffset;
-		helperLinesBuffer.updateElement(cursorElem);
+		fontProgram.updateBackground(cursorElem);
 		selectElem.x = select_x + xOffset;
-		helperLinesBuffer.updateElement(selectElem);
+		fontProgram.updateBackground(selectElem);
 	}
 	
 	public function lineUpdate()
@@ -359,7 +330,7 @@ class InputLine extends Application
 	public function moveCursor(offset:Float)
 	{
 		cursorElem.x += offset;
-		helperLinesBuffer.updateElement(cursorElem);
+		fontProgram.updateBackground(cursorElem);
 	}
 	
 	public function cursorRight(isShift:Bool, isCtrl:Bool)
@@ -373,7 +344,7 @@ class InputLine extends Application
 			}
 			else cursor++;
 			cursorElem.x = fontProgram.lineGetCharPosition(line, cursor);
-			helperLinesBuffer.updateElement(cursorElem);
+			fontProgram.updateBackground(cursorElem);
 			if (isShift) selectionSetTo(cursor);
 		}
 		if (!isShift) selectionSetTo(select_from);
@@ -390,7 +361,7 @@ class InputLine extends Application
 			}
 			else cursor--;
 			cursorElem.x = fontProgram.lineGetCharPosition(line, cursor);
-			helperLinesBuffer.updateElement(cursorElem);
+			fontProgram.updateBackground(cursorElem);
 			if (isShift) selectionSetTo(cursor);
 		}
 		if (!isShift) selectionSetTo(select_from);
@@ -401,7 +372,7 @@ class InputLine extends Application
 		if (position >= 0 && position <= line.length) {
 			cursor = position;
 			cursorElem.x = fontProgram.lineGetCharPosition(line, cursor);
-			helperLinesBuffer.updateElement(cursorElem);
+			fontProgram.updateBackground(cursorElem);
 		}
 	}
 	
@@ -412,7 +383,7 @@ class InputLine extends Application
 			select_from = select_to = from;
 			selectElem.x = fontProgram.lineGetCharPosition(line, from);
 			selectElem.w = 0;
-			helperLinesBuffer.updateElement(selectElem);
+			fontProgram.updateBackground(selectElem);
 		}
 	}
 
@@ -421,7 +392,7 @@ class InputLine extends Application
 		if (from >= 0) {
 			select_from = from;
 			selectElem.x = fontProgram.lineGetCharPosition(line, from);
-			helperLinesBuffer.updateElement(selectElem);
+			fontProgram.updateBackground(selectElem);
 		}
 	}
 	
@@ -430,37 +401,35 @@ class InputLine extends Application
 		if (to <= line.length) {
 			select_to = to;
 			selectElem.w = fontProgram.lineGetCharPosition(line, to) - selectElem.x;
-			helperLinesBuffer.updateElement(selectElem);
+			fontProgram.updateBackground(selectElem);
 		}
 	}
 	
 	// ---------------------------------------------------------------
 	
-	public function addHelperLines( width:Float, height:Float) {
+	public function createHelperLines( width:Float, height:Float)
+	{
 		// bg
-		var bg = new ElementSimple(Std.int(line.x), Std.int(line.y), Std.int(width), Std.int(height), Color.GREY2);
-		helperLinesBuffer.addElement(bg);
+		var bg = fontProgram.createLineBackground(line, Color.GREY2);
 		// top line
-		var top = new ElementSimple(Std.int(line.x), Std.int(line.y), Std.int(width), 1, Color.GREY4);				
-		helperLinesBuffer.addElement(top);				
+		var top = fontProgram.createBackground(Std.int(line.x), Std.int(line.y), Std.int(width), 1, Color.GREY4);				
 		// baseline
-		var base = new ElementSimple(Std.int(line.x), Std.int(line.y + line.base), Std.int(width), 1, Color.GREY3);
-		helperLinesBuffer.addElement(base);
+		var base = fontProgram.createBackground(Std.int(line.x), Std.int(line.y + line.base), Std.int(width), 1, Color.GREY3);
 		// descender line
-		var desc = new ElementSimple(Std.int(line.x), Std.int(line.y + height), Std.int(width), 1, Color.GREY4);
-		helperLinesBuffer.addElement(desc);
+		var desc = fontProgram.createBackground(Std.int(line.x), Std.int(line.y + height), Std.int(width), 1, Color.GREY4);
 		
 		helperElems = {bg:bg, top:top, base:base, desc:desc};
 	}
 	
-	public function updateHelperLines(x:Float, width:Float, height:Float) {
-		helperElems.bg.x = helperElems.top.x = helperElems.base.x = helperElems.desc.x = x;
-		helperElems.bg.w = helperElems.top.w = helperElems.base.w = helperElems.desc.w = width;
-		helperElems.bg.h = height;
-		helperLinesBuffer.updateElement(helperElems.bg);
-		helperLinesBuffer.updateElement(helperElems.top);
-		helperLinesBuffer.updateElement(helperElems.base);
-		helperLinesBuffer.updateElement(helperElems.desc);
+	public function updateHelperLines(x:Float, width:Float, height:Float)
+	{
+		helperElems.top.x = helperElems.base.x = helperElems.desc.x = x;
+		helperElems.top.w = helperElems.base.w = helperElems.desc.w = width;
+		
+		fontProgram.setLineBackground(helperElems.bg, line);
+		fontProgram.updateBackground(helperElems.top);
+		fontProgram.updateBackground(helperElems.base);
+		fontProgram.updateBackground(helperElems.desc);
 	}
 
 	// ---------------------------------------------------------------
@@ -470,7 +439,7 @@ class InputLine extends Application
 	var dragX:Float = 0.0;
 	override function onMouseDown (x:Float, y:Float, button:MouseButton):Void
 	{	
-		if ((y-display.y)/display.zoom > line.y && (y-display.y)/display.zoom < line.y + 30) {
+		if ((y-display.y)/display.zoom > line.y && (y-display.y)/display.zoom < line.y + line.height) {
 			cursorSet(fontProgram.lineGetCharAtPosition(line, (x - display.x) / display.zoom));
 			selectionStart(cursor);
 			selecting = true;
@@ -483,7 +452,8 @@ class InputLine extends Application
 		}
 	}
 	
-	override function onMouseUp (x:Float, y:Float, button:MouseButton):Void {
+	override function onMouseUp (x:Float, y:Float, button:MouseButton):Void 
+	{
 		selecting = false;
 		dragging = false;
 		line_xOffset = line.xOffset;
@@ -491,7 +461,8 @@ class InputLine extends Application
 		select_x = selectElem.x;
 	}
 	
-	override function onMouseMove (x:Float, y:Float):Void {
+	override function onMouseMove (x:Float, y:Float):Void
+	{
 		if (selecting) {
 			cursorSet(fontProgram.lineGetCharAtPosition(line, (x - display.x) / display.zoom));
 			selectionSetTo(cursor);
@@ -586,7 +557,7 @@ class InputLine extends Application
 		cursor_x = cursorElem.x;
 		select_x = selectElem.x;
 		lineSetXOffset(0);
-		mask.update(Std.int(line.x), Std.int(line.y), Std.int(line.maxX - line.x), Std.int(line.lineHeight) );
+		mask.update(Std.int(line.x), Std.int(line.y)-40, Std.int(line.maxX - line.x), Std.int(line.lineHeight)+80 );
 		fontProgram.updateMask(mask);
 	}
 

@@ -57,19 +57,38 @@ class $className extends peote.view.Program
 	var maskProgram:peote.view.Program;
 	var maskBuffer:peote.view.Buffer<peote.text.MaskElement>;
 	
+	public var hasBackground(default, null) = false;
+	var backgroundProgram:peote.view.Program;
+	var backgroundBuffer:peote.view.Buffer<peote.text.BackgroundElement>;
+	
 	var prev_charcode = -1;
 	
 	var _buffer:peote.view.Buffer<$glyphType>;
 	
-	public function new(font:peote.text.Font<$styleType>, fontStyle:$styleType, isMasked:Bool = false)
+	public function new(font:peote.text.Font<$styleType>, fontStyle:$styleType, isMasked:Bool = false, hasBackground:Bool = false)
 	{
 		_buffer = new peote.view.Buffer<$glyphType>(1024,1024,true);
 		super(_buffer);
 		
 		if (isMasked) enableMasking();
+		if (hasBackground) enableBackground();
 
 		setFont(font);
 		setFontStyle(fontStyle);
+	}
+	
+	override public function addToDisplay(display:peote.view.Display, ?atProgram:peote.view.Program, addBefore:Bool=false)
+	{
+		super.addToDisplay(display, atProgram, addBefore);
+		if (isMasked) maskProgram.addToDisplay(display, this, true);
+		if (hasBackground) backgroundProgram.addToDisplay(display, this, true);
+	}
+	
+	override public function removeFromDisplay(display:peote.view.Display):Void
+	{
+		super.removeFromDisplay(display);
+		if (isMasked) maskProgram.removeFromDisplay(display);
+		if (hasBackground) backgroundProgram.removeFromDisplay(display);
 	}
 	
 	// -----------------------------------------
@@ -81,27 +100,51 @@ class $className extends peote.view.Program
 			maskProgram = new peote.view.Program(maskBuffer);
 			maskProgram.mask = peote.view.Mask.DRAW;
 			maskProgram.colorEnabled = false;
-			mask = peote.view.Mask.USE;			
+			mask = peote.view.Mask.USE;
+			if (hasBackground) backgroundProgram.mask = peote.view.Mask.USE;
 	}
 	
-	override public function addToDisplay(display:peote.view.Display, ?atProgram:peote.view.Program, addBefore:Bool=false)
-	{
-		super.addToDisplay(display, atProgram, addBefore);
-		if (isMasked) maskProgram.addToDisplay(display, this, true);
-	}
-	
-	override public function removeFromDisplay(display:peote.view.Display):Void
-	{
-		super.removeFromDisplay(display);
-		if (isMasked) maskProgram.removeFromDisplay(display);
-	}
-	
-	public inline function createMask(x:Int, y:Int, w:Int, h:Int):peote.text.MaskElement {
+	public inline function createMask(x:Int, y:Int, w:Int, h:Int, autoAdd = true):peote.text.MaskElement {
 		var maskElement = new peote.text.MaskElement(x, y, w, h);
-		maskBuffer.addElement(maskElement);
+		if (autoAdd ) maskBuffer.addElement(maskElement);
 		return maskElement;
 	}
 	
+	public inline function createLineMask(line:$lineType, from:Null<Int> = null, to:Null<Int> = null, autoAdd = true):peote.text.MaskElement {		
+		if (from != null && to != null && from > to) {
+			var tmp = to;
+			to = from;
+			from = tmp;
+		}
+		if (from == null || from < line.visibleFrom) from = line.visibleFrom;		
+		if (to == null || to > line.visibleTo - 1) to = line.visibleTo - 1;
+		var w:Int = 0;
+		var x:Int = 0;		
+		if (from <= to) {
+			x = Std.int( leftGlyphPos(line.getGlyph(from), getCharData(line.getGlyph(from).char)) );
+			w = Std.int( rightGlyphPos(line.getGlyph(to), getCharData(line.getGlyph(to).char)) - x);
+		}
+		return createMask(x, Std.int(line.y), w, Std.int(line.height), autoAdd);
+	}
+	
+	public inline function setLineMask(maskElement:peote.text.MaskElement, line:$lineType, from:Null<Int> = null, to:Null<Int> = null, autoUpdate = true):Void {
+		if (from != null && to != null && from > to) {
+			var tmp = to;
+			to = from;
+			from = tmp;
+		}
+		if (from == null || from < line.visibleFrom) from = line.visibleFrom;		
+		if (to == null || to > line.visibleTo - 1) to = line.visibleTo - 1;
+		if (from > to) maskElement.w = 0;
+		else {
+			maskElement.x = Std.int( leftGlyphPos(line.getGlyph(from), getCharData(line.getGlyph(from).char)) );
+			maskElement.y = Std.int( line.y );
+			maskElement.w = Std.int( rightGlyphPos(line.getGlyph(to), getCharData(line.getGlyph(to).char)) - maskElement.x );		
+			maskElement.h = Std.int( line.height );
+		}
+		if (autoUpdate) updateMask(maskElement);
+	}
+
 	public inline function addMask(maskElement:peote.text.MaskElement):Void {
 		maskBuffer.addElement(maskElement);
 	}
@@ -112,6 +155,70 @@ class $className extends peote.view.Program
 	
 	public inline function removeMask(maskElement:peote.text.MaskElement):Void {
 		maskBuffer.removeElement(maskElement);
+	}
+	
+	// -----------------------------------------
+	// -------- Background Program  ------------
+	// -----------------------------------------
+	public function enableBackground() {
+		hasBackground = true;
+		backgroundBuffer = new peote.view.Buffer<peote.text.BackgroundElement>(16, 16, true);
+		backgroundProgram = new peote.view.Program(backgroundBuffer);
+		if (isMasked) backgroundProgram.mask = peote.view.Mask.USE;
+	}
+		
+	public inline function createBackground(x:Float, y:Float, w:Float, h:Float, color:peote.view.Color, autoAdd = true):peote.text.BackgroundElement {
+		var backgroundElement = new peote.text.BackgroundElement(x, y, w, h, color);
+		if (autoAdd) backgroundBuffer.addElement(backgroundElement);
+		return backgroundElement;
+	}
+	
+	public inline function createLineBackground(line:$lineType, color:peote.view.Color, from:Null<Int> = null, to:Null<Int> = null, autoAdd = true):peote.text.BackgroundElement {		
+		if (from != null && to != null && from > to) {
+			var tmp = to;
+			to = from;
+			from = tmp;
+		}
+		if (from == null || from < line.visibleFrom) from = line.visibleFrom;
+		if (to == null || to > line.visibleTo - 1) to = line.visibleTo - 1;
+		var w:Float = 0;
+		var x:Float = 0;
+		if (from <= to) {
+			x = leftGlyphPos(line.getGlyph(from), getCharData(line.getGlyph(from).char));
+			w = rightGlyphPos(line.getGlyph(to), getCharData(line.getGlyph(to).char)) - x;
+		}
+		return createBackground(x, line.y, w, line.height, color, autoAdd);
+	}
+	
+	public inline function setLineBackground(backgroundElement:peote.text.BackgroundElement, line:$lineType, color:Null<peote.view.Color> = null, from:Null<Int> = null, to:Null<Int> = null, autoUpdate = true):Void {
+		if (from != null && to != null && from > to) {
+			var tmp = to;
+			to = from;
+			from = tmp;
+		}
+		if (from == null || from < line.visibleFrom) from = line.visibleFrom;
+		if (to == null || to > line.visibleTo - 1) to = line.visibleTo - 1;		
+		if (from > to) backgroundElement.w = 0;
+		else {
+			backgroundElement.x = leftGlyphPos(line.getGlyph(from), getCharData(line.getGlyph(from).char));
+			backgroundElement.y = line.y;
+			backgroundElement.w = rightGlyphPos(line.getGlyph(to), getCharData(line.getGlyph(to).char)) - backgroundElement.x;	
+			backgroundElement.h = line.height;
+		}
+		if (color != null) backgroundElement.color = color;
+		if (autoUpdate) updateBackground(backgroundElement);
+	}
+	
+	public inline function addBackground(backgroundElement:peote.text.BackgroundElement):Void {
+		backgroundBuffer.addElement(backgroundElement);
+	}
+	
+	public inline function updateBackground(backgroundElement:peote.text.BackgroundElement):Void {
+		backgroundBuffer.updateElement(backgroundElement);
+	}
+	
+	public inline function removeBackground(backgroundElement:peote.text.BackgroundElement):Void {
+		backgroundBuffer.removeElement(backgroundElement);
 	}
 	
 	// -----------------------------------------
@@ -602,8 +709,6 @@ class $className extends peote.view.Program
 	
 	public inline function setLine(line:$lineType, chars:String, x:Float=0, y:Float=0, glyphStyle:$styleType = null):Bool
 	{
-		//trace("setLine");
-		
 		line.x = x;
 		line.y = y;
 		
@@ -1303,7 +1408,7 @@ class $className extends peote.view.Program
 	}
 	
 	
-	// ------------- get glyph index at x position (for mouse-selecting) ---------------
+	// --------------------------------------------------------------------
 	
 	public function lineGetCharPosition(line:$lineType, position:Int):Float
 	{
@@ -1324,6 +1429,8 @@ class $className extends peote.view.Program
 		line.updateTo = line.length;
 		_setLinePositionOffset(line, offset, 0, 0, line.updateTo, false);
 	}
+	
+	// ------------- get glyph index at x position (for mouse-selecting) ---------------
 	
 	public function lineGetCharAtPosition(line:$lineType, xPosition:Float):Int
 	{

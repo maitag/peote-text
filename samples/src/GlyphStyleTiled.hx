@@ -12,7 +12,7 @@ class GlyphStyleTiled
 	public var color:Color = Color.GREEN;
 	
 	//@global public var bgColor:Color = Color.BLUE;
-	//public var bgColor:Color = Color.BLUE;
+	//public var bgColor:Color = 0;
 	
 	//@global public var width:Float = 10.0;
 	public var width:Float = 16;

@@ -4,9 +4,9 @@
 	"license": "MIT",
 	"tags": ["peote", "text", "textrendering", "font", "glyph"],
 	"description": "Glyph and Textrendering for peote-view",
-	"version": "0.8.5",
+	"version": "0.8.6",
 	"classPath": "src/",
-	"releasenote": "adding bgColor for GlyphStyles",
+	"releasenote": "implementing background drawing",
 	"contributors": ["Sylvio Sell - maitag"],
 	"dependencies": {
 		"lime": "",

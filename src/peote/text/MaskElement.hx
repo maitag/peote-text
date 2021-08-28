@@ -5,11 +5,11 @@ import peote.view.Element;
 
 class MaskElement implements Element
 {
-	@posX public var x:Int=0; // signed 2 bytes integer
-	@posY public var y:Int=0; // signed 2 bytes integer
+	@posX public var x:Int;
+	@posY public var y:Int;
 	
-	@sizeX public var w:Int=0;
-	@sizeY public var h:Int=0;
+	@sizeX public var w:Int;
+	@sizeY public var h:Int;
 
 	public function new(x:Int, y:Int, w:Int, h:Int)
 	{

@@ -11,10 +11,7 @@ import lime.ui.MouseButton;
 
 import peote.view.PeoteView;
 import peote.view.Display;
-import peote.view.Buffer;
-import peote.view.Program;
 import peote.view.Color;
-import elements.ElementSimple;
 
 import peote.text.Font;
 import peote.text.FontProgram;
@@ -25,8 +22,6 @@ class Fonts extends Application
 	var peoteView:PeoteView;
 	var display:Display;
 	var timer:Timer;
-	var helperLinesBuffer:Buffer<ElementSimple>;
-	var helperLinesProgram:Program;
 	
 	override function onWindowCreate():Void
 	{
@@ -44,9 +39,6 @@ class Fonts extends Application
 		peoteView = new PeoteView(window);
 		display   = new Display(10,10, window.width-20, window.height-20, Color.GREY1);
 		peoteView.addDisplay(display);
-		helperLinesBuffer = new Buffer<ElementSimple>(100);
-		helperLinesProgram = new Program(helperLinesBuffer);
-		display.addProgram(helperLinesProgram);
 		
 		// --------------------------------------------------------
 		
@@ -65,20 +57,26 @@ class Fonts extends Application
 				
 				// var fontProgram = new FontProgram<GlyphStylePacked>(font, glyphStyle);
 				// alternative way to create the FontProgram<GlyphStylePacked>:
-				var fontProgram = font.createFontProgram(glyphStyle);
+				var fontProgram = font.createFontProgram(glyphStyle, false, true);
 				
 				display.addProgram(fontProgram);
 				
 				var line = fontProgram.createLine('ABC defg (packed: ${f.name}) ÄÖÜäöüß', 0, f.y);
 
 				glyphStyle.color = Color.YELLOW;
+				//glyphStyle.bgColor = Color.RED;
 				glyphStyle.width = 56;// font.config.width * 2.0;
-				glyphStyle.height = 56;// font.config.height * 2.0;													
+				glyphStyle.height = 56;// font.config.height * 2.0;
 				fontProgram.lineSetStyle(line, glyphStyle, 2, 3);
 				fontProgram.updateLine(line);			
 				
 				//var range = font.getRange("a".charCodeAt(0));trace(range);
-				addHelperLines(Std.int(line.x), Std.int(line.y), Std.int(line.fullWidth), Std.int(line.lineHeight), Std.int(line.height), Std.int(line.base));					
+				
+				fontProgram.createLineBackground(line, Color.GREY2);				
+				// baseline
+				fontProgram.createBackground(Std.int(line.x),  Std.int(line.y + line.base), Std.int(line.fullWidth), 1, Color.RED);
+				// descender line
+				fontProgram.createBackground(Std.int(line.x),  Std.int(line.y + line.height), Std.int(line.fullWidth), 1, Color.BLUE);
 			},
 			true // debug
 			);
@@ -103,20 +101,25 @@ class Fonts extends Application
 				
 				// var fontProgram = new FontProgram<GlyphStyleTiled>(font, glyphStyle);
 				// alternative way to create the FontProgram<GlyphStylePacked>:
-				var fontProgram = font.createFontProgram(glyphStyle);
+				var fontProgram = font.createFontProgram(glyphStyle, false, true);
 				
 				display.addProgram(fontProgram);
 				
 				var line = fontProgram.createLine('ABC defg (tiled: ${f.name})', 0, f.y);					
 				
 				glyphStyle.color = Color.YELLOW;
+				//glyphStyle.bgColor = Color.RED;
 				glyphStyle.width = font.config.width * 2.0;
 				glyphStyle.height = font.config.height * 2.0;								
 												
 				fontProgram.lineSetStyle(line, glyphStyle, 2, 3);
 				fontProgram.updateLine(line);
 				
-				addHelperLines(Std.int(line.x), Std.int(line.y), Std.int(line.fullWidth), Std.int(line.lineHeight), Std.int(line.height), Std.int(line.base));
+				fontProgram.createLineBackground(line, Color.GREY2);
+				// baseline
+				fontProgram.createBackground(Std.int(line.x),  Std.int(line.y + line.base), Std.int(line.fullWidth), 1, Color.RED);
+				// descender line
+				fontProgram.createBackground(Std.int(line.x),  Std.int(line.y + line.height), Std.int(line.fullWidth), 1, Color.BLUE);
 			},
 			true // debug
 			);
@@ -127,13 +130,6 @@ class Fonts extends Application
 		timer = new Timer(40); zoomIn();
 	}
 
-	public function addHelperLines(x:Int, y:Int, w:Int, lineHeight:Int, height:Int, base:Int) {
-		helperLinesBuffer.addElement(new ElementSimple(x,     y, w, lineHeight, Color.GREY2));
-		// baseline
-		helperLinesBuffer.addElement(new ElementSimple(x, y+base, w, 1, Color.RED));
-		// descender line
-		helperLinesBuffer.addElement(new ElementSimple(x, y+height, w, 1, Color.BLUE));
-	}
 	
 	var isZooming:Bool = false;
 	public function zoomIn() {

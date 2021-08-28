@@ -134,11 +134,11 @@ class $className
 		this.maxTextureSize = maxTextureSize;
 	}
 	
-	//public function createFontProgram(fontStyle:$styleType):$fontProgramType
-	public function createFontProgram(fontStyle:$styleType, isMasked:Bool = false):peote.text.FontProgram<$styleType>
+	//public function createFontProgram(fontStyle:$styleType, isMasked:Bool = false, hasBackground:Bool = false):$fontProgramType
+	public function createFontProgram(fontStyle:$styleType, isMasked:Bool = false, hasBackground:Bool = false):peote.text.FontProgram<$styleType>
 	{
-		return new peote.text.FontProgram<$styleType>(this, fontStyle, isMasked);
-		//return new $fontProgramPath(this, fontStyle);
+		return new peote.text.FontProgram<$styleType>(this, fontStyle, isMasked, hasBackground);
+		//return new $fontProgramPath(this, fontStyle, isMasked, hasBackground);
 	}
 	
 	public function createFontStyle():$styleType return new $stylePath();

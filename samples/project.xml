@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project>
 	
-	<meta title="PeoteText" package="peote.text" version="0.8.2" company="Sylvio Sell - maitag" />
+	<meta title="PeoteText" package="peote.text" version="0.8.6" company="Sylvio Sell - maitag" />
 	
 	<android target-sdk-version="28" />
 	<!-- <meta build-number="714" /> --> <!-- let set the buildnumber manual (android) -->
@@ -52,7 +52,7 @@
 	<!--<haxedef name="peoteview_debug_display" />-->
 	<!--<haxedef name="peoteview_debug_program" />-->
 	<!--<haxedef name="peoteview_debug_texture" />-->
-	<haxedef name="peoteview_debug_shader" />
+	<!--<haxedef name="peoteview_debug_shader" />-->
 
 	<!-- <haxedef name="webgl-debug" /> --> <!-- try with chrome and look here: https://www.khronos.org/webgl/wiki/Debugging -->
 	<!-- <haxedef name="source-map-content" /> --> <!-- to debug with chrome id needs also "-debug" -->
