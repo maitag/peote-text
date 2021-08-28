@@ -190,6 +190,8 @@ class InputLine extends Application
 			//fontProgram.lineSetChar(line, "A".charCodeAt(0) , 0, glyphStyle2);
 			
 			//fontProgram.lineSetPosition(line, line.x+10, line.y+10);
+			
+			window.onResize.add(onResize);
 		});
 	}
 	
@@ -551,7 +553,7 @@ class InputLine extends Application
 		lineInsertChars(text);
 	}
 
-	override function onWindowResize(width:Int, height:Int)
+	function onResize(width:Int, height:Int)
 	{
 		display.width  = width - 20;
 		display.height = height - 20;
