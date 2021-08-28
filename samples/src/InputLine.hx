@@ -41,6 +41,8 @@ class GlyphStyle {
 	//@global public var height:Float = 16.0;
 	public var height:Float = 16;
 	
+	//public var zIndex:Int = -1;
+	
 	//@global public var tilt:Float = 0.5;
 	//public var tilt:Float = 0.0;
 	
@@ -179,10 +181,10 @@ class InputLine extends Application
 			
 			// ----------------- Cursor  -------------------	
 			cursor_x = line_x;
-			cursorElem = fontProgram.createBackground(cursor_x, line_y, 1, line.height, Color.RED);
+			cursorElem = fontProgram.createBackground(cursor_x, line_y, 1, line.height, 0, Color.RED);
 			
 			// --------------- Selection  -------------------				
-			selectElem = fontProgram.createBackground(cursor_x, line_y, 0, line.lineHeight, Color.GREY4);
+			selectElem = fontProgram.createBackground(cursor_x, line_y, 0, line.lineHeight, 0, Color.GREY3);
 			
 				
 			//fontProgram.lineSetChar(line, "A".charCodeAt(0) , 0, glyphStyle2);
@@ -412,11 +414,11 @@ class InputLine extends Application
 		// bg
 		var bg = fontProgram.createLineBackground(line, Color.GREY2);
 		// top line
-		var top = fontProgram.createBackground(Std.int(line.x), Std.int(line.y), Std.int(width), 1, Color.GREY4);				
+		var top = fontProgram.createBackground(Std.int(line.x), Std.int(line.y), Std.int(width), 1, 0, Color.GREY4);				
 		// baseline
-		var base = fontProgram.createBackground(Std.int(line.x), Std.int(line.y + line.base), Std.int(width), 1, Color.GREY3);
+		var base = fontProgram.createBackground(Std.int(line.x), Std.int(line.y + line.base), Std.int(width), 1, 0, Color.GREY3);
 		// descender line
-		var desc = fontProgram.createBackground(Std.int(line.x), Std.int(line.y + height), Std.int(width), 1, Color.GREY4);
+		var desc = fontProgram.createBackground(Std.int(line.x), Std.int(line.y + height), Std.int(width), 1, 0, Color.GREY4);
 		
 		helperElems = {bg:bg, top:top, base:base, desc:desc};
 	}

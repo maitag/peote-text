@@ -165,10 +165,14 @@ class $className extends peote.view.Program
 		backgroundBuffer = new peote.view.Buffer<peote.text.BackgroundElement>(16, 16, true);
 		backgroundProgram = new peote.view.Program(backgroundBuffer);
 		if (isMasked) backgroundProgram.mask = peote.view.Mask.USE;
+		${switch (glyphStyleHasField.zIndex) {
+			case true: macro {}
+			default: macro backgroundProgram.zIndexEnabled = false;
+		}}
 	}
 		
-	public inline function createBackground(x:Float, y:Float, w:Float, h:Float, color:peote.view.Color, autoAdd = true):peote.text.BackgroundElement {
-		var backgroundElement = new peote.text.BackgroundElement(x, y, w, h, color);
+	public inline function createBackground(x:Float, y:Float, w:Float, h:Float, z:Int, color:peote.view.Color, autoAdd = true):peote.text.BackgroundElement {
+		var backgroundElement = new peote.text.BackgroundElement(x, y, w, h, z, color);
 		if (autoAdd) backgroundBuffer.addElement(backgroundElement);
 		return backgroundElement;
 	}
@@ -183,11 +187,19 @@ class $className extends peote.view.Program
 		if (to == null || to > line.visibleTo - 1) to = line.visibleTo - 1;
 		var w:Float = 0;
 		var x:Float = 0;
+		var z:Int = 0;
 		if (from <= to) {
 			x = leftGlyphPos(line.getGlyph(from), getCharData(line.getGlyph(from).char));
 			w = rightGlyphPos(line.getGlyph(to), getCharData(line.getGlyph(to).char)) - x;
+			${switch (glyphStyleHasField.zIndex) {
+				case true: switch (glyphStyleHasField.local_zIndex) {
+					case true: macro z = line.getGlyph(from).zIndex;
+					default: macro z = fontStyle.zIndex;
+				}
+				default: macro {}
+			}}
 		}
-		return createBackground(x, line.y, w, line.height, color, autoAdd);
+		return createBackground(x, line.y, w, line.height, z, color, autoAdd);
 	}
 	
 	public inline function setLineBackground(backgroundElement:peote.text.BackgroundElement, line:$lineType, color:Null<peote.view.Color> = null, from:Null<Int> = null, to:Null<Int> = null, autoUpdate = true):Void {
@@ -204,6 +216,13 @@ class $className extends peote.view.Program
 			backgroundElement.y = line.y;
 			backgroundElement.w = rightGlyphPos(line.getGlyph(to), getCharData(line.getGlyph(to).char)) - backgroundElement.x;	
 			backgroundElement.h = line.height;
+			${switch (glyphStyleHasField.zIndex) {
+				case true: switch (glyphStyleHasField.local_zIndex) {
+					case true: macro backgroundElement.z = line.getGlyph(from).zIndex;
+					default: macro backgroundElement.z = fontStyle.zIndex;
+				}
+				default: macro {}
+			}}
 		}
 		if (color != null) backgroundElement.color = color;
 		if (autoUpdate) updateBackground(backgroundElement);

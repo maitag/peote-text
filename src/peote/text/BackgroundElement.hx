@@ -10,20 +10,23 @@ class BackgroundElement implements Element
 	
 	@sizeX public var w:Float;
 	@sizeY public var h:Float;
+	
+	@zIndex public var z:Int = 0; // TODO: check why needs a default
 
 	@color public var color:Color;
 
-	public function new(x:Float, y:Float, w:Float, h:Float, color:Color)
+	public function new(x:Float, y:Float, w:Float, h:Float, z:Int, color:Color)
 	{
-		update(x, y, w, h, color);
+		update(x, y, w, h, z, color);
 	}
 	
-	public inline function update(x:Float, y:Float, w:Float, h:Float, color:Color)
+	public inline function update(x:Float, y:Float, w:Float, h:Float, z:Int, color:Color)
 	{
 		this.x = x;
 		this.y = y;
 		this.w = w;
 		this.h = h;
+		this.z = z;
 		this.color = color;
 	}
 	
