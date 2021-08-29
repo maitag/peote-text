@@ -35,7 +35,7 @@ class $className
 	@:allow(peote.text) public var x(default, null):Float = 0.0;
 	@:allow(peote.text) public var y(default, null):Float = 0.0;
 	public var xOffset:Float = 0.0;
-	public var yOffset:Float = 0.0;				
+	public var yOffset:Float = 0.0;
 	public var maxX:Float = 0xffff;
 	//public var maxY:Float = 0xffff;
 	

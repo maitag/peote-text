@@ -127,6 +127,7 @@ class Macro
 					case "weight":  glyphStyleHasField.weight  = true; if (local) glyphStyleHasField.local_weight  = true;
 					case "tilt":    glyphStyleHasField.tilt    = true; if (local) glyphStyleHasField.local_tilt    = true;
 					case "zIndex":  glyphStyleHasField.zIndex  = true; if (local) glyphStyleHasField.local_zIndex  = true;
+					case "letterSpace":  glyphStyleHasField.letterSpace  = true; if (local) glyphStyleHasField.local_letterSpace  = true;
 					default: // todo
 				}
 				// TODO: store other metas for custom anim and formula stuff

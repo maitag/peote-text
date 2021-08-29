@@ -107,7 +107,8 @@ class Lines extends Application
 				fontProgram.lineSetStyle(line, glyphStyle1, 6, 12);
 				//fontProgram.updateLine(line, 6);
 				//trace('visibleFrom: ${line.visibleFrom} visibleTo:${line.visibleTo} fullWidth:${line.fullWidth}');
-				fontProgram.lineSetPosition(line, 0, 130);
+				//fontProgram.lineSetPosition(line, 0, 130);
+				fontProgram.lineSetYPosition(line, 130);
 				fontProgram.updateLine(line);
 			}, 2000);
 			

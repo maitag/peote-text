@@ -9,6 +9,7 @@ package peote.text.util;
 	var weight:Bool = false;
 	var tilt:Bool = false;
 	var zIndex:Bool = false;
+	var letterSpace:Bool = false;
 	
 	var local_color:Bool = false;
 	var local_bgColor:Bool = false;
@@ -18,5 +19,7 @@ package peote.text.util;
 	var local_weight:Bool = false;
 	var local_tilt:Bool = false;
 	var local_zIndex:Bool = false;
+	var local_letterSpace:Bool = false;
+	
 	public function new() {}
 }

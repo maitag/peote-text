@@ -46,12 +46,12 @@ class GlyphStyle {
 	//@global public var tilt:Float = 0.5;
 	//public var tilt:Float = 0.0;
 	
-	@global public var weight = 0.49;
-	//public var weight:Float = 0.5;
+	//@global public var weight = 0.48;
+	//public var weight:Float = 0.48;
 	
 	// TODO: additional spacing after each letter
-	//@global public var letterSpace:Float = 0.0;
-	//public var letterSpace:Float = 2.0;
+	@global public var letterSpace:Float = 10.0;
+	//public var letterSpace:Float = 10.0;
 	
 	// TODO: outline/glow for distance field fonts
 	
@@ -166,6 +166,7 @@ class InputLine extends Application
 			line.xOffset = line_xOffset;
 
 			setLine("Testing input textline and masking. (page up/down is toggling glyphstyle)");
+			
 
 			trace("font height "+font.config.height+"");
 			trace("base "+line.base+" (font baseline)");
@@ -238,6 +239,7 @@ class InputLine extends Application
 			else {
 				fontProgram.lineDeleteChar(line, cursor);
 				lineUpdate();
+				if (cursor == line.length) cursorSet(line.length);
 			}
 		}
 	}
@@ -334,6 +336,7 @@ class InputLine extends Application
 	public function moveCursor(offset:Float)
 	{
 		cursorElem.x += offset;
+		if (cursorElem.x < line.x + line.xOffset) cursorElem.x = line.x + line.xOffset;
 		fontProgram.updateBackground(cursorElem);
 	}
 	

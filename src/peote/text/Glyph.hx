@@ -28,10 +28,11 @@ class GlyphMacro
 			if (glyphStyleHasField.local_height) exprBlock.push( macro height= glyphStyle.height );
 			if (glyphStyleHasField.local_color)  exprBlock.push( macro color = glyphStyle.color );
 			if (glyphStyleHasField.local_bgColor) exprBlock.push( macro bgColor = glyphStyle.bgColor );
-			if (glyphStyleHasField.local_zIndex) exprBlock.push( macro zIndex= glyphStyle.zIndex );
 			if (glyphStyleHasField.local_rotation) exprBlock.push( macro rotation = glyphStyle.rotation );
 			if (glyphStyleHasField.local_weight) exprBlock.push( macro weight = glyphStyle.weight );
 			if (glyphStyleHasField.local_tilt) exprBlock.push( macro tilt = glyphStyle.tilt );
+			if (glyphStyleHasField.local_zIndex) exprBlock.push( macro zIndex = glyphStyle.zIndex );
+			if (glyphStyleHasField.local_letterSpace) exprBlock.push( macro letterSpace = glyphStyle.letterSpace );
 			
 			var c = macro
 
@@ -68,24 +69,8 @@ class $className implements peote.view.Element
 				pos: Context.currentPos(),
 			});
 			
-			// TODO
-			// to cut of a glyph horizontal - only for non-monospaced!
-/*			c.fields.push({
-				name:  "txOffset",
-				meta: [{name:"texPosX", params:[], pos:Context.currentPos()}],
-				access:  [Access.APublic],
-				kind: FieldType.FVar(macro:Float, macro 0.0),
-				pos: Context.currentPos(),
-			});
-			c.fields.push({
-				name:  "tyOffset",
-				meta: [{name:"texPosY", params:[], pos:Context.currentPos()}],
-				access:  [Access.APublic],
-				kind: FieldType.FVar(macro:Float, macro 0.0),
-				pos: Context.currentPos(),
-			});
-*/			
 			// --- add fields depending on unit/slots
+			
 			if (glyphStyleHasMeta.multiTexture) c.fields.push({
 				name:  "unit",
 				meta:  [{name:"texUnit", params:[], pos:Context.currentPos()},
@@ -104,6 +89,7 @@ class $className implements peote.view.Element
 			});
 			
 			// --- add fields depending on style
+			
 			if (glyphStyleHasField.local_color) c.fields.push({
 				name:  "color",
 				meta:  [{name:"color", params:[], pos:Context.currentPos()}],
@@ -120,18 +106,6 @@ class $className implements peote.view.Element
 				pos: Context.currentPos(),
 			});
 			
-			if (glyphStyleHasField.zIndex) {
-				var meta = [{name:"zIndex", params:[], pos:Context.currentPos()}];
-				if (!glyphStyleHasField.local_zIndex) meta.push({name:"@const", params:[], pos:Context.currentPos()});
-				c.fields.push({
-					name:  "zIndex",
-					meta:  meta,
-					access:  [Access.APublic],
-					kind: FieldType.FVar(macro:Int, macro 0), // default value is set via Fontprogram!
-					pos: Context.currentPos(),
-				});
-			}
-			
 			if (glyphStyleHasField.rotation) {
 				var meta = [{name:"rotation", params:[], pos:Context.currentPos()}];
 				if (!glyphStyleHasField.local_rotation) meta.push({name:"@const", params:[], pos:Context.currentPos()});
@@ -144,6 +118,15 @@ class $className implements peote.view.Element
 				});
 			}
 			
+			if (glyphStyleHasField.local_weight) c.fields.push({
+				name:  "weight",
+				meta:  [{name:"custom", params:[], pos:Context.currentPos()},
+				       {name:"varying", params:[], pos:Context.currentPos()}],
+				access:  [Access.APublic],
+				kind: FieldType.FVar(macro:Float, macro 0.0),
+				pos: Context.currentPos(),
+			});
+			
 			if (glyphStyleHasField.local_tilt) c.fields.push({
 				name:  "tilt",
 				meta:  [{name:"custom", params:[], pos:Context.currentPos()}],
@@ -152,10 +135,21 @@ class $className implements peote.view.Element
 				pos: Context.currentPos(),
 			});
 			
-			if (glyphStyleHasField.local_weight) c.fields.push({
-				name:  "weight",
-				meta:  [{name:"custom", params:[], pos:Context.currentPos()},
-				       {name:"varying", params:[], pos:Context.currentPos()}],
+			if (glyphStyleHasField.zIndex) {
+				var meta = [{name:"zIndex", params:[], pos:Context.currentPos()}];
+				if (!glyphStyleHasField.local_zIndex) meta.push({name:"@const", params:[], pos:Context.currentPos()});
+				c.fields.push({
+					name:  "zIndex",
+					meta:  meta,
+					access:  [Access.APublic],
+					kind: FieldType.FVar(macro:Int, macro 0), // default value is set via Fontprogram!
+					pos: Context.currentPos(),
+				});
+			}
+			
+			if (glyphStyleHasField.local_letterSpace) c.fields.push({
+				name:  "letterSpace",
+				meta:  [{name:"custom", params:[], pos:Context.currentPos()}],
 				access:  [Access.APublic],
 				kind: FieldType.FVar(macro:Float, macro 0.0),
 				pos: Context.currentPos(),

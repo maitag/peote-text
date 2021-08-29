@@ -11,15 +11,13 @@ class FontConfig
 	@:optional @:default(null) public var kerning(default, null):Null<Bool>;
 	
 	@:optional @:default(16) public var width(default, null):Float;
-	@:optional @:default(16) public var height(default, null):Float;	
+	@:optional @:default(16) public var height(default, null):Float;
+	
 	@:optional @:default(0xffffffff) public var color(default, null):Color;
 	@:optional @:default(0x00000000) public var bgColor(default, null):Color;
 
-/*	@:optional @:default(0) var paddingRight(default, null):Float;
-	@:optional @:default(0) var paddingLeft(default, null):Float;
-	@:optional @:default(0) var paddingTop(default, null):Float;
-	@:optional @:default(0) var paddingBottom(default, null):Float;
-*/		
+	//@:optional @:default(0.0) public var letterSpace(default, null):Float;	
+
 	@:optional @:default(null) var line(default, null):{height:Float, base:Float};
 
 	@:optional @:default(null) var tiles:{x:Int, y:Int};

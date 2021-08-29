@@ -39,7 +39,7 @@ class FontProgramMacro
 				else if (glyphStyleHasMeta.multiSlot) charDataType = macro: {slot:Int, min:Int, max:Int, height:Float, base:Float};
 				else charDataType = macro: {min:Int, max:Int, height:Float, base:Float};
 			}
-
+			
 			var c = macro
 			
 			// -------------------------------------------------------------------------------------------
@@ -47,11 +47,8 @@ class FontProgramMacro
 
 class $className extends peote.view.Program
 {
-	public var font:peote.text.Font<$styleType>; // TODO peote.text.Font<$styleType>
+	public var font:peote.text.Font<$styleType>;
 	public var fontStyle:$styleType;
-	
-	public var penX:Float = 0.0;
-	public var penY:Float = 0.0;
 	
 	public var isMasked(default, null) = false;
 	var maskProgram:peote.view.Program;
@@ -60,8 +57,6 @@ class $className extends peote.view.Program
 	public var hasBackground(default, null) = false;
 	var backgroundProgram:peote.view.Program;
 	var backgroundBuffer:peote.view.Buffer<peote.text.BackgroundElement>;
-	
-	var prev_charcode = -1;
 	
 	var _buffer:peote.view.Buffer<$glyphType>;
 	
@@ -208,13 +203,15 @@ class $className extends peote.view.Program
 			to = from;
 			from = tmp;
 		}
-		if (from == null || from < line.visibleFrom) from = line.visibleFrom;
-		if (to == null || to > line.visibleTo - 1) to = line.visibleTo - 1;		
+		if (from == null || from < line.visibleFrom) from = (line.visibleFrom>0) ? line.visibleFrom-1 : line.visibleFrom;
+		if (to == null || to > line.visibleTo - 1) to = (line.visibleTo < line.length) ? line.visibleTo : line.visibleTo - 1;	
 		if (from > to) backgroundElement.w = 0;
 		else {
 			backgroundElement.x = leftGlyphPos(line.getGlyph(from), getCharData(line.getGlyph(from).char));
+			//backgroundElement.x = leftGlyphPos(line.getGlyph(from), getCharData(line.getGlyph(from).char)) - ((from==0) ? 0 : letterSpace(line.getGlyph(from-1))/2);
 			backgroundElement.y = line.y;
-			backgroundElement.w = rightGlyphPos(line.getGlyph(to), getCharData(line.getGlyph(to).char)) - backgroundElement.x;	
+			backgroundElement.w = rightGlyphPos(line.getGlyph(to), getCharData(line.getGlyph(to).char)) - backgroundElement.x;
+			//backgroundElement.w = rightGlyphPos(line.getGlyph(to), getCharData(line.getGlyph(to).char)) - backgroundElement.x - letterSpace(line.getGlyph(to))/((to == line.length-1) ? 1 : 2);	
 			backgroundElement.h = line.height;
 			${switch (glyphStyleHasField.zIndex) {
 				case true: switch (glyphStyleHasField.local_zIndex) {
@@ -535,6 +532,16 @@ class $className extends peote.view.Program
 		}}					
 	}
 	
+	inline function letterSpace(glyph:$glyphType):Float
+	{	
+		${switch (glyphStyleHasField.local_letterSpace) {
+			case true: macro return glyph.letterSpace;
+			default: switch (glyphStyleHasField.letterSpace) {
+				case true: macro return fontStyle.letterSpace;
+				default: macro return 0.0;// font.config.letterSpace; // enable into FontConfig.hx
+		}}}
+	}
+	
 	inline function kerningOffset(prev_glyph:$glyphType, glyph:$glyphType, kerning:Array<Array<Float>>):Float
 	{
 		${switch (glyphStyleHasMeta.packed)
@@ -626,10 +633,11 @@ class $className extends peote.view.Program
 			case true: macro // ------- Gl3Font -------
 			{
 				// TODO: let glyphe-width also include metrics with tex-offsets on need
-				glyph.tx = charData.metric.u;//-2; // TODO: offsets for THICK letters
-				glyph.ty = charData.metric.v;//-2;
-				glyph.tw = charData.metric.w;//+4;
-				glyph.th = charData.metric.h;//+4;							
+				//var weightOffset = (0.5 - glyph.weight) * 75;
+				glyph.tx = charData.metric.u; // - weightOffset; // TODO: offsets for THICK weighted letters
+				glyph.ty = charData.metric.v; // - weightOffset;
+				glyph.tw = charData.metric.w; // + weightOffset + weightOffset;
+				glyph.th = charData.metric.h; // + weightOffset + weightOffset;							
 			}
 			default: macro // ------- simple font -------
 			{
@@ -927,6 +935,7 @@ class $className extends peote.view.Program
 		}
 
 		x_start = x - x_start;
+		
 		if (to < line.length) // rest
 		{
 			${switch (glyphStyleHasMeta.packed) {
@@ -1010,7 +1019,7 @@ class $className extends peote.view.Program
 		line.visibleFrom = visibleFrom;
 		line.visibleTo = visibleTo;
 		
-		if (updateFullWidth) line.fullWidth += deltaX;
+		if (updateFullWidth) line.fullWidth += deltaX; 
 	}
 	
 
@@ -1051,6 +1060,7 @@ class $className extends peote.view.Program
 			x += nextGlyphOffset(line.getGlyph(position), charData);
 			
 			x_start = x - x_start;
+			
 			if (position+1 < line.length) // rest
 			{	
 				${switch (glyphStyleHasMeta.packed) {
@@ -1126,6 +1136,7 @@ class $className extends peote.view.Program
 		if (position + i > line.updateTo) line.updateTo = Std.int(Math.min(position + i, line.length));
 		
 		x_start = x - x_start;
+		
 		if (i < line.length) // rest
 		{
 			${switch (glyphStyleHasMeta.packed) {
@@ -1145,7 +1156,6 @@ class $className extends peote.view.Program
 	
 	
 	// ------------- inserting chars ---------------------
-
 	
 	public function lineInsertChar(line:$lineType, charcode:Int, position:Int = 0, glyphStyle:$styleType = null):Float
 	{
@@ -1333,7 +1343,6 @@ class $className extends peote.view.Program
 			}
 		});
 
-		//line.fullWidth = x - line.x - line.xOffset;
 		line.fullWidth += x - x_start;
 		
 		if (setNewLineMetrics) _setNewLineMetric(line, prev_glyph, charData);
@@ -1406,18 +1415,20 @@ class $className extends peote.view.Program
 	
 	inline function _lineDeleteCharsOffset(line:$lineType, from:Int, to:Int):Float
 	{
-		var offset:Float = 0.0;
+		var offset:Float = 0.0; 
 		if (to < line.length) 
 		{
 			var charData = getCharData(line.getGlyph(to).char);
 			if (from == 0) offset = line.x + line.xOffset - leftGlyphPos(line.getGlyph(to), charData);
 			else {
-				offset = rightGlyphPos(line.getGlyph(from-1), getCharData(line.getGlyph(from-1).char)) - leftGlyphPos(line.getGlyph(to), charData);
+				offset = rightGlyphPos(line.getGlyph(from - 1), getCharData(line.getGlyph(from - 1).char)) - leftGlyphPos(line.getGlyph(to), charData);
+				
 				${switch (glyphStyleHasMeta.packed) {
 					case true: macro offset -= kerningOffset(line.getGlyph(from-1), line.getGlyph(to), charData.fontData.kerning);
 					default: macro {}
 				}}
 			}
+			
 			if (line.updateFrom > from) line.updateFrom = from;
 			line.updateTo = line.length - to + from;
 			_setLinePositionOffset(line, offset, to, to, line.length);
@@ -1432,7 +1443,7 @@ class $className extends peote.view.Program
 				line.updateTo = line.length - to + from;
 			}
 			
-			if (from != 0) 
+			if (from != 0)
 				offset = rightGlyphPos(line.getGlyph(from - 1), getCharData(line.getGlyph(from - 1).char)) - (line.x + line.xOffset + line.fullWidth);
 			else offset = -line.fullWidth;
 
@@ -1444,14 +1455,16 @@ class $className extends peote.view.Program
 	
 	// --------------------------------------------------------------------
 	
-	public function lineGetCharPosition(line:$lineType, position:Int):Float
+	public function lineGetCharPosition(line:$lineType, position:Int):Float // TODO: better name for function (for setting cursorposition between!)
 	{
 		if (position == 0)
 			return line.x + line.xOffset;
 		else if (position < line.length)
 			return leftGlyphPos(line.getGlyph(position), getCharData(line.getGlyph(position).char));
+			//return leftGlyphPos(line.getGlyph(position), getCharData(line.getGlyph(position).char)) - letterSpace(line.getGlyph(position-1))/2;
 		else
 			return rightGlyphPos(line.getGlyph(line.length-1), getCharData(line.getGlyph(line.length-1).char));
+			//return rightGlyphPos(line.getGlyph(line.length-1), getCharData(line.getGlyph(line.length-1).char)) - letterSpace(line.getGlyph(line.length-1));
 	}
 					
 	public function lineSetXOffset(line:$lineType, xOffset:Float)
@@ -1478,10 +1491,10 @@ class $className extends peote.view.Program
 				{
 					// TODO: binary search
 					var i:Int = line.visibleFrom;
-					while (i < line.visibleTo && xPosition > line.getGlyph(i).x) i++;
+					while (i < line.visibleTo && xPosition > line.getGlyph(i).x) i++;  // TODO: letterspace
 					if (i == 0) return 0;
 					var chardata = getCharData(line.getGlyph(i - 1).char);
-					if ( xPosition < (leftGlyphPos(line.getGlyph(i - 1), chardata) + rightGlyphPos(line.getGlyph(i - 1), chardata)) / 2)
+					if ( xPosition < (leftGlyphPos(line.getGlyph(i - 1), chardata) + rightGlyphPos(line.getGlyph(i - 1), chardata)) / 2)  // TODO: letterspace
 						return i-1;
 					else return i;
 				}
@@ -1492,18 +1505,21 @@ class $className extends peote.view.Program
 							// TODO: binary search
 							var i:Int = line.visibleFrom;
 							while (i < line.visibleTo && xPosition > line.getGlyph(i).x) i++;
+							//while (i < line.visibleTo && xPosition > line.getGlyph(i).x - ((i==0) ? 0 : (letterSpace(line.getGlyph(i-1))/2)) ) i++;
 							if (i == 0) return 0;
 							var chardata =  getCharData(line.getGlyph(i - 1).char);
 							if ( xPosition < (leftGlyphPos(line.getGlyph(i - 1), chardata) + rightGlyphPos(line.getGlyph(i - 1), chardata)) / 2)
+							//if ( xPosition < (leftGlyphPos(line.getGlyph(i - 1), chardata) + rightGlyphPos(line.getGlyph(i - 1), chardata)) / 2 + letterSpace(line.getGlyph(i - 1))  )
+							//if ( xPosition < (leftGlyphPos(line.getGlyph(i - 1), chardata) - letterSpace(line.getGlyph(i))/2 + rightGlyphPos(line.getGlyph(i - 1), chardata) - letterSpace(line.getGlyph(i - 1))/2) / 2)
 								return i-1;
 							else return i;
 						}
 						default: switch (glyphStyleHasField.width) {
 							case true: macro {
-								return Math.round((xPosition - line.x - line.xOffset)/fontStyle.width);
+								return Math.round((xPosition - line.x - line.xOffset)/(fontStyle.width)); // TODO: letterspace
 							}
 							default: macro {
-								return Math.round((xPosition - line.x - line.xOffset)/font.config.width);
+								return Math.round((xPosition - line.x - line.xOffset)/font.config.width); // TODO: letterspace
 							}
 					}}}
 				}
