@@ -943,7 +943,6 @@ class $className extends peote.view.Program
 		return x_start;
 	}
 	
-	// TODO: optimized lineSetXPosition and lineSetYPosition
 	public function lineSetPosition(line:$lineType, xNew:Float, yNew:Float)
 	{
 		line.updateFrom = 0;
@@ -953,6 +952,22 @@ class $className extends peote.view.Program
 			line.getGlyph(i).y += yNew - line.y;
 		}
 		line.x = xNew;
+		line.y = yNew;
+	}
+	
+	public function lineSetXPosition(line:$lineType, xNew:Float)
+	{
+		line.updateFrom = 0;
+		line.updateTo = line.length;
+		for (i in 0...line.updateTo) line.getGlyph(i).x += xNew - line.x;
+		line.x = xNew;
+	}
+	
+	public function lineSetYPosition(line:$lineType, yNew:Float)
+	{
+		line.updateFrom = 0;
+		line.updateTo = line.length;
+		for (i in 0...line.updateTo) line.getGlyph(i).y += yNew - line.y;
 		line.y = yNew;
 	}
 	

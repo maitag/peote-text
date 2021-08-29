@@ -11,7 +11,7 @@ class BackgroundElement implements Element
 	@sizeX public var w:Float;
 	@sizeY public var h:Float;
 	
-	@zIndex public var z:Int = 0; // TODO: check why needs a default
+	@zIndex public var z:Int;
 
 	@color public var color:Color;
 
