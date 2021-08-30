@@ -149,7 +149,7 @@ class $className implements peote.view.Element
 			
 			if (glyphStyleHasField.local_letterSpace) c.fields.push({
 				name:  "letterSpace",
-				meta:  [{name:"custom", params:[], pos:Context.currentPos()}],
+				meta:  [],
 				access:  [Access.APublic],
 				kind: FieldType.FVar(macro:Float, macro 0.0),
 				pos: Context.currentPos(),
