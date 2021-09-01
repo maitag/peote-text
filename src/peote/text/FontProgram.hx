@@ -542,26 +542,29 @@ class $className extends peote.view.Program
 		}}}
 	}
 	
-	inline function kerningOffset(prev_glyph:$glyphType, glyph:$glyphType, charData:$charDataType):Float
+	inline function kerningSpaceOffset(prev_glyph:$glyphType, glyph:$glyphType, charData:$charDataType):Float
 	{
-		${switch (glyphStyleHasMeta.packed)
-		{	case true: macro // ------- Gl3Font -------
-			{	
-				if (font.kerning && prev_glyph != null) 
-				{	trace("kerning: ", prev_glyph.char, glyph.char, " -> " + charData.fontData.kerning[prev_glyph.char][glyph.char]);
-					${switch (glyphStyleHasField.local_width) {
-						case true: macro return charData.fontData.kerning[prev_glyph.char][glyph.char] * (glyph.width + prev_glyph.width)/2;
-						default: switch (glyphStyleHasField.width) {
-							case true: macro return charData.fontData.kerning[prev_glyph.char][glyph.char] * fontStyle.width;
-							default: macro return charData.fontData.kerning[prev_glyph.char][glyph.char] * font.config.width;
-					}}}
-				} else return 0.0;
-			}
-			default: macro { // ------- simple font -------
-				if (prev_glyph != null) return letterSpace(prev_glyph);
-				else return 0.0;
-			}
-		}}					
+		if (prev_glyph != null) {
+			${switch (glyphStyleHasMeta.packed)
+			{	case true: macro // ------- Gl3Font -------
+				{	
+					if (font.kerning) 
+					{	//trace("kerning: ", prev_glyph.char, glyph.char, " -> " + charData.fontData.kerning[prev_glyph.char][glyph.char]);
+						${switch (glyphStyleHasField.local_width) {
+							case true: macro return charData.fontData.kerning[prev_glyph.char][glyph.char] * (glyph.width + prev_glyph.width)/2 + letterSpace(prev_glyph);
+							default: switch (glyphStyleHasField.width) {
+								case true: macro return charData.fontData.kerning[prev_glyph.char][glyph.char] * fontStyle.width + letterSpace(prev_glyph);
+								default: macro return charData.fontData.kerning[prev_glyph.char][glyph.char] * font.config.width + letterSpace(prev_glyph);
+						}}}
+					}
+					else return letterSpace(prev_glyph);
+				}
+				default: macro { // ------- simple font -------
+					return letterSpace(prev_glyph);
+				}
+			}}					
+		}
+		else return 0.0;
 	}
 	
 	// -------------------------------------------------
@@ -768,7 +771,7 @@ class $className extends peote.view.Program
 						setCharcode(line.getGlyph(i), charcode, charData);
 						setSize(line.getGlyph(i), charData);
 						
-						x += kerningOffset(prev_glyph, line.getGlyph(i), charData);
+						x += kerningSpaceOffset(prev_glyph, line.getGlyph(i), charData);
 						
 						setPosition(line.getGlyph(i), charData, x, y);
 
@@ -790,7 +793,7 @@ class $className extends peote.view.Program
 						setCharcode(line.getGlyph(i), charcode, charData);
 						setSize(line.getGlyph(i), charData);
 						
-						x += kerningOffset(prev_glyph, line.getGlyph(i), charData);
+						x += kerningSpaceOffset(prev_glyph, line.getGlyph(i), charData);
 						
 						setPosition(line.getGlyph(i), charData, x, y);
 				
@@ -898,7 +901,6 @@ class $className extends peote.view.Program
 		if (from < line.updateFrom) line.updateFrom = from;
 		if (to > line.updateTo) line.updateTo = to;
 		
-		//var prev_glyph:peote.text.Glyph<$styleType> = null;
 		var prev_glyph:$glyphType = null;
 		
 		var x = line.x + line.xOffset;
@@ -907,6 +909,7 @@ class $className extends peote.view.Program
 		if (from > 0) {
 			x = rightGlyphPos(line.getGlyph(from - 1), getCharData(line.getGlyph(from - 1).char));
 			prev_glyph = line.getGlyph(from - 1);
+			x += kerningSpaceOffset(prev_glyph, line.getGlyph(from), getCharData(line.getGlyph(from - 1).char));
 		}
 		var x_start = x;
 		
@@ -918,6 +921,7 @@ class $className extends peote.view.Program
 		
 		setPosition(line.getGlyph(from), charData, x, y);
 		x += nextGlyphOffset(line.getGlyph(from), charData);
+				
 		prev_glyph = line.getGlyph(from);
 		
 		for (i in from+1...to)
@@ -925,7 +929,7 @@ class $className extends peote.view.Program
 			line.getGlyph(i).setStyle(glyphStyle);
 			charData = getCharData(line.getGlyph(i).char);
 			
-			x += kerningOffset(prev_glyph, line.getGlyph(i), charData);
+			x += kerningSpaceOffset(prev_glyph, line.getGlyph(i), charData);
 			
 			setPosition(line.getGlyph(i), charData, x, y);
 			x += nextGlyphOffset(line.getGlyph(i), charData);
@@ -936,7 +940,7 @@ class $className extends peote.view.Program
 		
 		if (to < line.length) // rest
 		{
-			x += kerningOffset(prev_glyph, line.getGlyph(to), charData);
+			x += kerningSpaceOffset(prev_glyph, line.getGlyph(to), charData);
 			
 			var offset = x - leftGlyphPos(line.getGlyph(to), getCharData(line.getGlyph(to).char));
 			if (offset != 0.0) {
@@ -1048,7 +1052,7 @@ class $className extends peote.view.Program
 			setCharcode(line.getGlyph(position), charcode, charData);
 			setSize(line.getGlyph(position), charData);
 			
-			x += kerningOffset(prev_glyph, line.getGlyph(position), charData);
+			x += kerningSpaceOffset(prev_glyph, line.getGlyph(position), charData);
 			
 			setPosition(line.getGlyph(position), charData, x, y);
 			
@@ -1058,7 +1062,7 @@ class $className extends peote.view.Program
 			
 			if (position+1 < line.length) // rest
 			{	
-				x += kerningOffset(line.getGlyph(position), line.getGlyph(position+1), charData);
+				x += kerningSpaceOffset(line.getGlyph(position), line.getGlyph(position+1), charData);
 				
 				var offset = x - leftGlyphPos(line.getGlyph(position+1), getCharData(line.getGlyph(position+1).char));
 				if (offset != 0.0) {
@@ -1107,7 +1111,7 @@ class $className extends peote.view.Program
 					setCharcode(line.getGlyph(i), charcode, charData);
 					setSize(line.getGlyph(i), charData);
 					
-					x += kerningOffset(prev_glyph, line.getGlyph(i), charData);
+					x += kerningSpaceOffset(prev_glyph, line.getGlyph(i), charData);
 					
 					setPosition(line.getGlyph(i), charData, x, y);
 					x += nextGlyphOffset(line.getGlyph(i), charData);
@@ -1131,7 +1135,7 @@ class $className extends peote.view.Program
 		
 		if (i < line.length) // rest
 		{
-			x += kerningOffset(line.getGlyph(i-1), line.getGlyph(i), charData);
+			x += kerningSpaceOffset(line.getGlyph(i-1), line.getGlyph(i), charData);
 			
 			var offset = x - leftGlyphPos(line.getGlyph(i), getCharData(line.getGlyph(i).char));
 			if (offset != 0.0) {
@@ -1172,7 +1176,7 @@ class $className extends peote.view.Program
 			setCharcode(glyph, charcode, charData);
 			setSize(glyph, charData);
 			
-			x += kerningOffset(prev_glyph, glyph, charData);
+			x += kerningSpaceOffset(prev_glyph, glyph, charData);
 			
 			setPosition(glyph, charData, x, y);						
 			
@@ -1182,7 +1186,7 @@ class $className extends peote.view.Program
 				if (position < line.updateFrom) line.updateFrom = position+1;
 				line.updateTo = line.length + 1;
 				
-				if (position == 0) x += kerningOffset(glyph, line.getGlyph(position+1), charData);
+				if (position == 0) x += kerningSpaceOffset(glyph, line.getGlyph(position+1), charData);
 				
 				_setLinePositionOffset(line, x - x_start, position, position, line.length);
 			}
@@ -1225,10 +1229,15 @@ class $className extends peote.view.Program
 			var oldTo = line.visibleTo - line.length;
 			if (line.visibleFrom > line.length) line.visibleFrom = line.length;
 			if (line.visibleTo > line.length) line.visibleTo = line.length;
+			
 			var deltaX = _lineAppend(line, chars, x, y, prev_glyph, glyphStyle);
-			trace("TODO");
-//TODO: deltaX += KERNING 
-//TODO: line.fullWidth += 
+
+			if (position == 0) {
+				var kerningSpace = kerningSpaceOffset(line.getGlyph(line.length-1), rest[0], getCharData(rest[0].char));
+				deltaX += kerningSpace;
+				line.fullWidth += kerningSpace;
+			}
+			
 			if (deltaX != 0.0) // TODO
 			{
 				if (line.length < line.updateFrom) line.updateFrom = line.length;
@@ -1256,8 +1265,6 @@ class $className extends peote.view.Program
 					}
 				}
 					
-				//line.fullWidth += deltaX;
-				
 				line.append(rest);
 				line.updateTo = line.length;
 			} 
@@ -1311,7 +1318,7 @@ class $className extends peote.view.Program
 				setCharcode(glyph, charcode, charData);
 				setSize(glyph, charData);
 				
-				x += kerningOffset(prev_glyph, glyph, charData);
+				x += kerningSpaceOffset(prev_glyph, glyph, charData);
 				
 				setPosition(glyph, charData, x, y);
 				
@@ -1408,11 +1415,12 @@ class $className extends peote.view.Program
 		if (to < line.length) 
 		{
 			var charData = getCharData(line.getGlyph(to).char);
-			if (from == 0) offset = line.x + line.xOffset - leftGlyphPos(line.getGlyph(to), charData);
+			if (from == 0) {
+				offset = line.x + line.xOffset - leftGlyphPos(line.getGlyph(to), charData);
+			}
 			else {
 				offset = rightGlyphPos(line.getGlyph(from - 1), getCharData(line.getGlyph(from - 1).char)) - leftGlyphPos(line.getGlyph(to), charData);
-				
-				offset -= kerningOffset(line.getGlyph(from-1), line.getGlyph(to), charData);
+				offset += kerningSpaceOffset(line.getGlyph(from-1), line.getGlyph(to), charData);
 			}
 			
 			if (line.updateFrom > from) line.updateFrom = from;
@@ -1420,7 +1428,8 @@ class $className extends peote.view.Program
 			_setLinePositionOffset(line, offset, to, to, line.length);
 		}
 		else 
-		{ 	// delete from end
+		{
+			// delete from end
 			if ( line.updateFrom >= line.length - to + from ) {
 				line.updateFrom = 0x1000000;
 				line.updateTo = 0;

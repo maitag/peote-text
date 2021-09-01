@@ -50,7 +50,7 @@ class GlyphStyle {
 	//public var weight:Float = 0.48;
 	
 	// TODO: additional spacing after each letter
-	@global public var letterSpace:Float = 10.0;
+	//@global public var letterSpace:Float = 10.0;
 	//public var letterSpace:Float = 10.0;
 	
 	// TODO: outline/glow for distance field fonts
@@ -165,7 +165,9 @@ class InputLine extends Application
 			
 			line.xOffset = line_xOffset;
 
-			setLine("Testing input textline and masking. (page up/down is toggling glyphstyle)");
+			//setLine("Testing input textline and masking. (page up/down is toggling glyphstyle)");
+			//setLine("abc");
+			setLine("ab");
 			
 
 			trace("font height "+font.config.height+"");
