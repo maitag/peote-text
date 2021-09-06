@@ -165,9 +165,7 @@ class InputLine extends Application
 			
 			line.xOffset = line_xOffset;
 
-			//setLine("Testing input textline and masking. (page up/down is toggling glyphstyle)");
-			//setLine("abc");
-			setLine("ab");
+			setLine("Testing input textline and masking. (page up/down is toggling glyphstyle)");
 			
 
 			trace("font height "+font.config.height+"");
@@ -207,6 +205,7 @@ class InputLine extends Application
 	
 	public function lineInsertChar(charcode:Int)
 	{
+		if (hasSelection) lineDeleteChars(select_from, select_to);
 		var offset = fontProgram.lineInsertChar(line, charcode, cursor, glyphStyle[actual_style]);
 		if ( offset != 0) {
 			if (cursor == 0) moveCursor(fontProgram.lineGetPositionAtChar(line, cursor+1) - cursorElem.x);
@@ -218,6 +217,7 @@ class InputLine extends Application
 	
 	public function lineInsertChars(text:String)
 	{
+		if (hasSelection) lineDeleteChars(select_from, select_to);
 		var old_length = line.length;
 		var offset = fontProgram.lineInsertChars(line, text, cursor, glyphStyle[actual_style]);
 		if ( offset != 0) {
@@ -346,7 +346,7 @@ class InputLine extends Application
 	
 	public function cursorRight(isShift:Bool, isCtrl:Bool)
 	{
-		// TODO: if already selected and no shift -> remove selection & cursor at end of selection
+		// TODO: normal behavior if has selection -> remove selection & cursor at end of selection
 		if (cursor < line.length) {
 			if (!hasSelection && isShift) selectionStart(cursor);
 			if (isCtrl) {
@@ -363,7 +363,7 @@ class InputLine extends Application
 	
 	public function cursorLeft(isShift:Bool, isCtrl:Bool)
 	{
-		// TODO: if already selected and no shift -> remove selection & cursor at start of selection
+		// TODO: normal behavior if has selection -> remove selection & cursor at start of selection
 		if (cursor > 0) {
 			if (!hasSelection && isShift) selectionStart(cursor);
 			if (isCtrl) {
@@ -387,7 +387,6 @@ class InputLine extends Application
 		}
 	}
 	
-	// TODO:
 	public function selectionStart(from:Int)
 	{
 		if (from >= 0) {
@@ -411,7 +410,8 @@ class InputLine extends Application
 	{
 		if (to <= line.length) {
 			select_to = to;
-			selectElem.w = fontProgram.lineGetPositionAtChar(line, to) - selectElem.x;
+			if (select_from == select_to) selectElem.w = 0;
+			else selectElem.w = fontProgram.lineGetPositionAtChar(line, to) - selectElem.x;
 			fontProgram.updateBackground(selectElem);
 		}
 	}
