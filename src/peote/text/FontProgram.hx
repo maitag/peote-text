@@ -132,9 +132,9 @@ class $className extends peote.view.Program
 		if (to == null || to > line.visibleTo - 1) to = line.visibleTo - 1;
 		if (from > to) maskElement.w = 0;
 		else {
-			maskElement.x = Std.int( leftGlyphPos(line.getGlyph(from), getCharData(line.getGlyph(from).char)) );
+			maskElement.x = Std.int( lineGetPositionAtChar(line, from) );
 			maskElement.y = Std.int( line.y );
-			maskElement.w = Std.int( rightGlyphPos(line.getGlyph(to), getCharData(line.getGlyph(to).char)) - maskElement.x );		
+			maskElement.w = Std.int( lineGetPositionAtChar(line, to + 1) - maskElement.x );		
 			maskElement.h = Std.int( line.height );
 		}
 		if (autoUpdate) updateMask(maskElement);
@@ -160,10 +160,11 @@ class $className extends peote.view.Program
 		backgroundBuffer = new peote.view.Buffer<peote.text.BackgroundElement>(16, 16, true);
 		backgroundProgram = new peote.view.Program(backgroundBuffer);
 		if (isMasked) backgroundProgram.mask = peote.view.Mask.USE;
-		${switch (glyphStyleHasField.zIndex) {
+/*		${switch (glyphStyleHasField.zIndex) {
 			case true: macro {}
 			default: macro backgroundProgram.zIndexEnabled = false;
 		}}
+*/	
 	}
 		
 	public inline function createBackground(x:Float, y:Float, w:Float, h:Float, z:Int, color:peote.view.Color, autoAdd = true):peote.text.BackgroundElement {
@@ -207,11 +208,9 @@ class $className extends peote.view.Program
 		if (to == null || to > line.visibleTo - 1) to = (line.visibleTo < line.length) ? line.visibleTo : line.visibleTo - 1;	
 		if (from > to) backgroundElement.w = 0;
 		else {
-			backgroundElement.x = leftGlyphPos(line.getGlyph(from), getCharData(line.getGlyph(from).char));
-			//backgroundElement.x = leftGlyphPos(line.getGlyph(from), getCharData(line.getGlyph(from).char)) - ((from==0) ? 0 : letterSpace(line.getGlyph(from-1))/2);
+			backgroundElement.x = lineGetPositionAtChar(line, from);
 			backgroundElement.y = line.y;
-			backgroundElement.w = rightGlyphPos(line.getGlyph(to), getCharData(line.getGlyph(to).char)) - backgroundElement.x;
-			//backgroundElement.w = rightGlyphPos(line.getGlyph(to), getCharData(line.getGlyph(to).char)) - backgroundElement.x - letterSpace(line.getGlyph(to))/((to == line.length-1) ? 1 : 2);	
+			backgroundElement.w = lineGetPositionAtChar(line, to+1) - backgroundElement.x;	
 			backgroundElement.h = line.height;
 			${switch (glyphStyleHasField.zIndex) {
 				case true: switch (glyphStyleHasField.local_zIndex) {
@@ -1450,16 +1449,16 @@ class $className extends peote.view.Program
 	
 	// --------------------------------------------------------------------
 	
-	public function lineGetCharPosition(line:$lineType, position:Int):Float // TODO: better name for function (for setting cursorposition between!)
+	public function lineGetPositionAtChar(line:$lineType, position:Int):Float
 	{
 		if (position == 0)
 			return line.x + line.xOffset;
-		else if (position < line.length)
-			return leftGlyphPos(line.getGlyph(position), getCharData(line.getGlyph(position).char));
-			//return leftGlyphPos(line.getGlyph(position), getCharData(line.getGlyph(position).char)) - letterSpace(line.getGlyph(position-1))/2;
+		else if (position < line.length) {
+			var chardata = getCharData(line.getGlyph(position).char);
+			return (rightGlyphPos(line.getGlyph(position - 1), chardata) + leftGlyphPos(line.getGlyph(position), chardata)) / 2;
+		}
 		else
 			return rightGlyphPos(line.getGlyph(line.length-1), getCharData(line.getGlyph(line.length-1).char));
-			//return rightGlyphPos(line.getGlyph(line.length-1), getCharData(line.getGlyph(line.length-1).char)) - letterSpace(line.getGlyph(line.length-1));
 	}
 					
 	public function lineSetXOffset(line:$lineType, xOffset:Float)
@@ -1500,12 +1499,9 @@ class $className extends peote.view.Program
 							// TODO: binary search
 							var i:Int = line.visibleFrom;
 							while (i < line.visibleTo && xPosition > line.getGlyph(i).x) i++;
-							//while (i < line.visibleTo && xPosition > line.getGlyph(i).x - ((i==0) ? 0 : (letterSpace(line.getGlyph(i-1))/2)) ) i++;
 							if (i == 0) return 0;
 							var chardata =  getCharData(line.getGlyph(i - 1).char);
 							if ( xPosition < (leftGlyphPos(line.getGlyph(i - 1), chardata) + rightGlyphPos(line.getGlyph(i - 1), chardata)) / 2)
-							//if ( xPosition < (leftGlyphPos(line.getGlyph(i - 1), chardata) + rightGlyphPos(line.getGlyph(i - 1), chardata)) / 2 + letterSpace(line.getGlyph(i - 1))  )
-							//if ( xPosition < (leftGlyphPos(line.getGlyph(i - 1), chardata) - letterSpace(line.getGlyph(i))/2 + rightGlyphPos(line.getGlyph(i - 1), chardata) - letterSpace(line.getGlyph(i - 1))/2) / 2)
 								return i-1;
 							else return i;
 						}

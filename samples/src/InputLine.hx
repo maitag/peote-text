@@ -49,8 +49,8 @@ class GlyphStyle {
 	//@global public var weight = 0.48;
 	//public var weight:Float = 0.48;
 	
-	// TODO: additional spacing after each letter
-	//@global public var letterSpace:Float = 10.0;
+	// additional spacing after each letter
+	@global public var letterSpace:Float = 10.0;
 	//public var letterSpace:Float = 10.0;
 	
 	// TODO: outline/glow for distance field fonts
@@ -184,7 +184,7 @@ class InputLine extends Application
 			
 			// ----------------- Cursor  -------------------	
 			cursor_x = line_x;
-			cursorElem = fontProgram.createBackground(cursor_x, line_y, 1, line.height, 0, Color.RED);
+			cursorElem = fontProgram.createBackground(cursor_x, line_y, 1, line.height, 1, Color.RED);
 			
 			// --------------- Selection  -------------------				
 			selectElem = fontProgram.createBackground(cursor_x, line_y, 0, line.lineHeight, 0, Color.GREY3);
@@ -209,7 +209,8 @@ class InputLine extends Application
 	{
 		var offset = fontProgram.lineInsertChar(line, charcode, cursor, glyphStyle[actual_style]);
 		if ( offset != 0) {
-			moveCursor(offset);
+			if (cursor == 0) moveCursor(fontProgram.lineGetPositionAtChar(line, cursor+1) - cursorElem.x);
+			else moveCursor(offset);
 			lineUpdate();
 			cursor ++;
 		}
@@ -220,7 +221,8 @@ class InputLine extends Application
 		var old_length = line.length;
 		var offset = fontProgram.lineInsertChars(line, text, cursor, glyphStyle[actual_style]);
 		if ( offset != 0) {
-			moveCursor(offset);
+			if (cursor == 0) moveCursor(fontProgram.lineGetPositionAtChar(line, cursor+1) - cursorElem.x);
+			else moveCursor(offset);
 			lineUpdate();
 			cursor += line.length - old_length;
 		}
@@ -352,7 +354,7 @@ class InputLine extends Application
 				while (cursor < line.length && line.getGlyph(cursor).char == 32) cursor++;
 			}
 			else cursor++;
-			cursorElem.x = fontProgram.lineGetCharPosition(line, cursor);
+			cursorElem.x = fontProgram.lineGetPositionAtChar(line, cursor);
 			fontProgram.updateBackground(cursorElem);
 			if (isShift) selectionSetTo(cursor);
 		}
@@ -369,7 +371,7 @@ class InputLine extends Application
 				while (cursor > 0 && line.getGlyph(cursor-1).char != 32) cursor--;
 			}
 			else cursor--;
-			cursorElem.x = fontProgram.lineGetCharPosition(line, cursor);
+			cursorElem.x = fontProgram.lineGetPositionAtChar(line, cursor);
 			fontProgram.updateBackground(cursorElem);
 			if (isShift) selectionSetTo(cursor);
 		}
@@ -380,7 +382,7 @@ class InputLine extends Application
 	{
 		if (position >= 0 && position <= line.length) {
 			cursor = position;
-			cursorElem.x = fontProgram.lineGetCharPosition(line, cursor);
+			cursorElem.x = fontProgram.lineGetPositionAtChar(line, cursor);
 			fontProgram.updateBackground(cursorElem);
 		}
 	}
@@ -390,7 +392,7 @@ class InputLine extends Application
 	{
 		if (from >= 0) {
 			select_from = select_to = from;
-			selectElem.x = fontProgram.lineGetCharPosition(line, from);
+			selectElem.x = fontProgram.lineGetPositionAtChar(line, from);
 			selectElem.w = 0;
 			fontProgram.updateBackground(selectElem);
 		}
@@ -400,7 +402,7 @@ class InputLine extends Application
 	{
 		if (from >= 0) {
 			select_from = from;
-			selectElem.x = fontProgram.lineGetCharPosition(line, from);
+			selectElem.x = fontProgram.lineGetPositionAtChar(line, from);
 			fontProgram.updateBackground(selectElem);
 		}
 	}
@@ -409,7 +411,7 @@ class InputLine extends Application
 	{
 		if (to <= line.length) {
 			select_to = to;
-			selectElem.w = fontProgram.lineGetCharPosition(line, to) - selectElem.x;
+			selectElem.w = fontProgram.lineGetPositionAtChar(line, to) - selectElem.x;
 			fontProgram.updateBackground(selectElem);
 		}
 	}
