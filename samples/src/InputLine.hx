@@ -50,7 +50,7 @@ class GlyphStyle {
 	//public var weight:Float = 0.48;
 	
 	// additional spacing after each letter
-	@global public var letterSpace:Float = 10.0;
+	@global public var letterSpace:Float = 5.0;
 	//public var letterSpace:Float = 10.0;
 	
 	// TODO: outline/glow for distance field fonts
@@ -221,7 +221,7 @@ class InputLine extends Application
 		var old_length = line.length;
 		var offset = fontProgram.lineInsertChars(line, text, cursor, glyphStyle[actual_style]);
 		if ( offset != 0) {
-			if (cursor == 0) moveCursor(fontProgram.lineGetPositionAtChar(line, cursor+1) - cursorElem.x);
+			if (cursor == 0) moveCursor(fontProgram.lineGetPositionAtChar(line, cursor + line.length - old_length) - cursorElem.x);
 			else moveCursor(offset);
 			lineUpdate();
 			cursor += line.length - old_length;
@@ -346,8 +346,10 @@ class InputLine extends Application
 	
 	public function cursorRight(isShift:Bool, isCtrl:Bool)
 	{
-		// TODO: normal behavior if has selection -> remove selection & cursor at end of selection
-		if (cursor < line.length) {
+		if (hasSelection && !isShift) {
+			if (select_from > select_to) cursorSet(select_from);
+		}
+		else if (cursor < line.length) {
 			if (!hasSelection && isShift) selectionStart(cursor);
 			if (isCtrl) {
 				do cursor++ while (cursor < line.length && line.getGlyph(cursor).char != 32);
@@ -363,8 +365,10 @@ class InputLine extends Application
 	
 	public function cursorLeft(isShift:Bool, isCtrl:Bool)
 	{
-		// TODO: normal behavior if has selection -> remove selection & cursor at start of selection
-		if (cursor > 0) {
+		if (hasSelection && !isShift) {
+			if (select_from < select_to) cursorSet(select_from);
+		}
+		else if (cursor > 0) {
 			if (!hasSelection && isShift) selectionStart(cursor);
 			if (isCtrl) {
 				do cursor-- while (cursor > 0 && line.getGlyph(cursor).char == 32);
@@ -525,7 +529,6 @@ class InputLine extends Application
 			// PASTE
 			case KeyCode.V: 
 				if (modifier.ctrlKey || modifier.metaKey) {
-					selectionSetTo(select_from);
 					#if !html5
 					if (lime.system.Clipboard.text != null) lineInsertChars(lime.system.Clipboard.text);
 					#end
