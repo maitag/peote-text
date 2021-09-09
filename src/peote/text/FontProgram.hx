@@ -720,10 +720,10 @@ class $className extends peote.view.Program
 	// ---------------- Lines ------------------
 	// -----------------------------------------
 	
-	public inline function createLine(chars:String, x:Float=0, y:Float=0, glyphStyle:Null<$styleType> = null):$lineType
+	public inline function createLine(chars:String, x:Float=0, y:Float=0, size:Null<Float> = null, offset:Null<Float> = null, glyphStyle:Null<$styleType> = null):$lineType
 	{
 		var line = new peote.text.Line<$styleType>();
-		setLine(line, chars, x, y, glyphStyle);
+		setLine(line, chars, x, y, size, offset, glyphStyle);
 		return line;
 	}
 	
@@ -737,14 +737,16 @@ class $className extends peote.view.Program
 		for (i in line.visibleFrom...line.visibleTo) removeGlyph(line.getGlyph(i));
 	}
 	
-	public inline function setLine(line:$lineType, chars:String, x:Float=0, y:Float=0, glyphStyle:$styleType = null):Bool
+	public inline function setLine(line:$lineType, chars:String, x:Float=0, y:Float=0, size:Null<Float> = null, offset:Null<Float> = null, glyphStyle:Null<$styleType> = null):Bool
 	{
 		line.x = x;
 		line.y = y;
 		
-		x += line.xOffset;					
-		y += line.yOffset;					
-			
+		if (size != null) line.size = size;
+		if (offset != null) line.offset = offset;
+		
+		x += line.offset;		
+		
 		if (line.length == 0)
 		{
 			if (_lineAppend(line, chars, x, y, null, glyphStyle, true) == 0) return false else return true;
@@ -775,7 +777,7 @@ class $className extends peote.view.Program
 						setPosition(line.getGlyph(i), charData, x, y);
 
 						if (line.getGlyph(i).x + ${switch(glyphStyleHasMeta.packed) {case true: macro line.getGlyph(i).w; default: macro line.getGlyph(i).width;}} >= line.x) {														
-							if (line.getGlyph(i).x < line.maxX) {
+							if (line.getGlyph(i).x < line.size) {
 								_buffer.addElement(line.getGlyph(i));
 								visibleTo ++;
 							}
@@ -797,7 +799,7 @@ class $className extends peote.view.Program
 						setPosition(line.getGlyph(i), charData, x, y);
 				
 						if (line.getGlyph(i).x + ${switch(glyphStyleHasMeta.packed) {case true: macro line.getGlyph(i).w; default: macro line.getGlyph(i).width;}} >= line.x) {														
-							if (line.getGlyph(i).x < line.maxX) {
+							if (line.getGlyph(i).x < line.size) {
 								if (i < line.visibleFrom || i >= line.visibleTo) _buffer.addElement(line.getGlyph(i));
 								visibleTo ++;
 							} else if (i < line.visibleTo) _buffer.removeElement(line.getGlyph(i));
@@ -829,7 +831,7 @@ class $className extends peote.view.Program
 			line.visibleFrom = visibleFrom;
 			line.visibleTo = visibleTo;
 			
-			line.fullWidth = x - line.x - line.xOffset;
+			line.textSize = x - line.x - line.offset;
 			
 			_setNewLineMetric(line, prev_glyph, charData);
 			return ret;
@@ -890,7 +892,7 @@ class $className extends peote.view.Program
 		} else return 0;
 	}
 	
-	// ----------- change Line Style and Position ----------------
+	// ----------- change Line Style ----------------
 	
 	public function lineSetStyle(line:$lineType, glyphStyle:$styleType, from:Int = 0, to:Null<Int> = null):Float
 	{
@@ -902,8 +904,8 @@ class $className extends peote.view.Program
 		
 		var prev_glyph:$glyphType = null;
 		
-		var x = line.x + line.xOffset;
-		var y = line.y + line.yOffset;
+		var x = line.x + line.offset;
+		var y = line.y;
 		
 		if (from > 0) {
 			x = rightGlyphPos(line.getGlyph(from - 1), getCharData(line.getGlyph(from - 1).char));
@@ -951,74 +953,140 @@ class $className extends peote.view.Program
 		return x_start;
 	}
 	
-	public function lineSetPosition(line:$lineType, xNew:Float, yNew:Float)
+	
+	// ----------- change Line Position, Size and Offset ----------------
+
+	public function lineSetPosition(line:$lineType, xNew:Float, yNew:Float, offset:Null<Float> = null)
 	{
 		line.updateFrom = 0;
 		line.updateTo = line.length;
-		for (i in 0...line.updateTo) {
-			line.getGlyph(i).x += xNew - line.x;
-			line.getGlyph(i).y += yNew - line.y;
+		if (offset != null) _setLinePositionOffsetFull(line, offset - line.offset + xNew - line.x, yNew - line.y);
+		else
+			for (i in 0...line.updateTo) {
+				line.getGlyph(i).x += xNew - line.x;
+				line.getGlyph(i).y += yNew - line.y;
+			}
+		line.x = xNew;
+		line.y = yNew;
+	}
+	
+	public function lineSetXPosition(line:$lineType, xNew:Float, offset:Null<Float> = null)
+	{
+		line.updateFrom = 0;
+		line.updateTo = line.length;
+		if (offset != null) _setLinePositionOffsetFull(line, offset - line.offset + xNew - line.x, 0);
+		else for (i in 0...line.updateTo) line.getGlyph(i).x += xNew - line.x;
+		line.x = xNew;
+	}
+	
+	public function lineSetYPosition(line:$lineType, yNew:Float, offset:Null<Float> = null)
+	{
+		line.updateFrom = 0;
+		line.updateTo = line.length;
+		if (offset != null) _setLinePositionOffsetFull(line, offset - line.offset, yNew - line.y);
+		else for (i in 0...line.updateTo) line.getGlyph(i).y += yNew - line.y;
+		line.y = yNew;
+	}
+	
+	public function lineSetPositionSize(line:$lineType, xNew:Float, yNew:Float, size:Float, offset:Null<Float> = null)
+	{
+		line.updateFrom = 0;
+		line.updateTo = line.length;
+		line.size = size;
+		if (offset != null) _setLinePositionOffsetFull(line, offset - line.offset + xNew - line.x,  yNew - line.y);
+		else _setLinePositionOffsetFull(line, 0,  yNew - line.y);
+		line.x = xNew;
+		line.y = yNew;
+	}
+
+	public function lineSetSize(line:$lineType, size:Float, offset:Null<Float> = null)
+	{
+		line.updateFrom = 0;
+		line.updateTo = line.length;
+		line.size = size;
+		if (offset != null) _setLinePositionOffsetFull(line, offset - line.offset, 0);
+		else _setLinePositionOffsetFull(line, 0, 0, false);
+	}
+
+	public function lineSetOffset(line:$lineType, offset:Float)
+	{
+		line.updateFrom = 0;
+		line.updateTo = line.length;
+		_setLinePositionOffsetFull(line, offset - line.offset, 0);
+		line.offset = offset;
+	}
+
+	inline function _setLinePositionOffsetFull(line:$lineType, deltaX:Float, deltaY:Float, hasOffset = true) 
+	{
+		var visibleFrom = line.visibleFrom;
+		var visibleTo = line.visibleTo;
+
+		for (i in 0...line.length)
+		{
+			if (hasOffset) {
+				line.getGlyph(i).x += deltaX;
+				line.getGlyph(i).y += deltaY;
+			}
+			
+			// calc visible range
+			if (line.getGlyph(i).x + ${switch(glyphStyleHasMeta.packed) {case true: macro line.getGlyph(i).w; default: macro line.getGlyph(i).width; }} >= line.x)
+			{	
+				if (line.getGlyph(i).x < line.size) {
+					if (i < line.visibleFrom || i >= line.visibleTo) {
+						_buffer.addElement(line.getGlyph(i));
+						if (visibleFrom > i) visibleFrom = i;
+						if (visibleTo < i + 1) visibleTo = i + 1;
+					}
+				} 
+				else {
+					if (i >= line.visibleFrom && i < line.visibleTo) _buffer.removeElement(line.getGlyph(i));
+					if (visibleTo > i) visibleTo = i;
+				}
+			}
+			else {
+				if (i >= line.visibleFrom && i < line.visibleTo) _buffer.removeElement(line.getGlyph(i));
+				visibleFrom = i + 1;
+			}
 		}
-		line.x = xNew;
-		line.y = yNew;
+		
+		line.visibleFrom = visibleFrom;
+		line.visibleTo = visibleTo;		
 	}
-	
-	public function lineSetXPosition(line:$lineType, xNew:Float)
-	{
-		line.updateFrom = 0;
-		line.updateTo = line.length;
-		for (i in 0...line.updateTo) line.getGlyph(i).x += xNew - line.x;
-		line.x = xNew;
-	}
-	
-	public function lineSetYPosition(line:$lineType, yNew:Float)
-	{
-		line.updateFrom = 0;
-		line.updateTo = line.length;
-		for (i in 0...line.updateTo) line.getGlyph(i).y += yNew - line.y;
-		line.y = yNew;
-	}
-	
-	inline function _setLinePositionOffset(line:$lineType, deltaX:Float, from:Int, withDelta:Int, to:Int, updateFullWidth=true)
+
+	inline function _setLinePositionOffset(line:$lineType, deltaX:Float, from:Int, withDelta:Int, to:Int)
 	{
 		var visibleFrom = line.visibleFrom;
 		var visibleTo = line.visibleTo;
 
 		for (i in from...to) {
 			
-			if (i >= withDelta) line.getGlyph(i).x += deltaX; // OPTIMIZATION: new bool param for DCE
+			if (i >= withDelta) line.getGlyph(i).x += deltaX;
 			
+			// calc visible range
 			if (line.getGlyph(i).x + ${switch(glyphStyleHasMeta.packed) {case true: macro line.getGlyph(i).w; default: macro line.getGlyph(i).width; }} >= line.x)
 			{	
-				if (line.getGlyph(i).x < line.maxX) {
+				if (line.getGlyph(i).x < line.size) {
 					if (i < line.visibleFrom || i >= line.visibleTo) {
-						//trace("addElement",i);
 						_buffer.addElement(line.getGlyph(i));
 						if (visibleFrom > i) visibleFrom = i;
 						if (visibleTo < i + 1) visibleTo = i + 1;
-					} //else trace("-- already added", i);
+					}
 				} 
 				else {
-					if (i >= line.visibleFrom && i < line.visibleTo) {
-						//trace("removeElement",i);
-						_buffer.removeElement(line.getGlyph(i));
-					} //else trace("-- already removed", i);
+					if (i >= line.visibleFrom && i < line.visibleTo) _buffer.removeElement(line.getGlyph(i));
 					if (visibleTo > i) visibleTo = i;
 				}
 			}
 			else {
-				if (i >= line.visibleFrom && i < line.visibleTo) {
-					//trace("removeElement Front", i);
-					_buffer.removeElement(line.getGlyph(i));
-				} //else trace("-- already removed Front", i);
+				if (i >= line.visibleFrom && i < line.visibleTo) _buffer.removeElement(line.getGlyph(i));
 				visibleFrom = i + 1;
 			}
-			//trace("from " + visibleFrom, "To " + visibleTo);
 		}
+		
 		line.visibleFrom = visibleFrom;
 		line.visibleTo = visibleTo;
 		
-		if (updateFullWidth) line.fullWidth += deltaX; 
+		line.textSize += deltaX; 
 	}
 	
 
@@ -1035,8 +1103,8 @@ class $className extends peote.view.Program
 			
 			var prev_glyph:$glyphType = null;
 			
-			var x = line.x + line.xOffset;
-			var y = line.y + line.yOffset;
+			var x = line.x + line.offset;
+			var y = line.y;
 			
 			if (position > 0) {
 				x = rightGlyphPos(line.getGlyph(position - 1), getCharData(line.getGlyph(position - 1).char));
@@ -1081,8 +1149,8 @@ class $className extends peote.view.Program
 		//if (position + chars.length > line.updateTo) line.updateTo = Std.int(Math.min(position + chars.length, line.length));
 		
 		var prev_glyph:$glyphType = null;
-		var x = line.x + line.xOffset;
-		var y = line.y + line.yOffset;
+		var x = line.x + line.offset;
+		var y = line.y;
 		
 		if (position > 0) {
 			x = rightGlyphPos(line.getGlyph(position - 1), getCharData(line.getGlyph(position - 1).char));
@@ -1157,8 +1225,8 @@ class $className extends peote.view.Program
 		{
 			var prev_glyph:$glyphType = null;
 			
-			var x = line.x + line.xOffset;
-			var y = line.y + line.yOffset;
+			var x = line.x + line.offset;
+			var y = line.y;
 			
 			if (position > 0) {
 				x = rightGlyphPos(line.getGlyph(position - 1), getCharData(line.getGlyph(position - 1).char));
@@ -1189,13 +1257,13 @@ class $className extends peote.view.Program
 				
 				_setLinePositionOffset(line, x - x_start, position, position, line.length);
 			}
-			else line.fullWidth += x - x_start;
+			else line.textSize += x - x_start;
 			
 			line.insertGlyph(position, glyph);
 			
 			if (glyph.x + ${switch(glyphStyleHasMeta.packed) {case true: macro glyph.w; default: macro glyph.width; }} >= line.x)
 			{
-				if (glyph.x < line.maxX) {
+				if (glyph.x < line.size) {
 					_buffer.addElement(glyph);
 					line.visibleTo++;
 				}
@@ -1214,8 +1282,8 @@ class $className extends peote.view.Program
 	public function lineInsertChars(line:$lineType, chars:String, position:Int = 0, glyphStyle:$styleType = null):Float 
 	{					
 		var prev_glyph:$glyphType = null;
-		var x = line.x + line.xOffset;
-		var y = line.y + line.yOffset;
+		var x = line.x + line.offset;
+		var y = line.y;
 		if (position > 0) {
 			x = rightGlyphPos(line.getGlyph(position - 1), getCharData(line.getGlyph(position - 1).char));
 			prev_glyph = line.getGlyph(position - 1);
@@ -1234,7 +1302,7 @@ class $className extends peote.view.Program
 			if (position == 0) {
 				var kerningSpace = kerningSpaceOffset(line.getGlyph(line.length-1), rest[0], getCharData(rest[0].char));
 				deltaX += kerningSpace;
-				line.fullWidth += kerningSpace;
+				line.textSize += kerningSpace;
 			}
 			
 			if (deltaX != 0.0) // TODO
@@ -1246,7 +1314,7 @@ class $className extends peote.view.Program
 					
 					if (rest[i].x + ${switch(glyphStyleHasMeta.packed) {case true: macro rest[i].w; default: macro rest[i].width; }} >= line.x)
 					{	
-						if (rest[i].x < line.maxX) {
+						if (rest[i].x < line.size) {
 							if (i < oldFrom || i >= oldTo) {
 								_buffer.addElement(rest[i]);
 							}
@@ -1285,8 +1353,8 @@ class $className extends peote.view.Program
 	public function lineAppendChars(line:$lineType, chars:String, glyphStyle:$styleType = null):Float
 	{					
 		var prev_glyph:$glyphType = null;
-		var x = line.x + line.xOffset;
-		var y = line.y + line.yOffset;
+		var x = line.x + line.offset;
+		var y = line.y;
 		if (line.length > 0) {
 			x = rightGlyphPos(line.getGlyph(line.length - 1), getCharData(line.getGlyph(line.length - 1).char));
 			prev_glyph = line.getGlyph(line.length - 1);
@@ -1322,7 +1390,7 @@ class $className extends peote.view.Program
 				setPosition(glyph, charData, x, y);
 				
 				if (glyph.x + ${switch(glyphStyleHasMeta.packed) {case true: macro glyph.w; default: macro glyph.width;}} >= line.x)  {
-					if (glyph.x < line.maxX)	{
+					if (glyph.x < line.size)	{
 						_buffer.addElement(glyph);
 						line.visibleTo ++;
 					}
@@ -1338,7 +1406,7 @@ class $className extends peote.view.Program
 			}
 		});
 
-		line.fullWidth += x - x_start;
+		line.textSize += x - x_start;
 		
 		if (setNewLineMetrics) _setNewLineMetric(line, prev_glyph, charData);
 
@@ -1415,7 +1483,7 @@ class $className extends peote.view.Program
 		{
 			var charData = getCharData(line.getGlyph(to).char);
 			if (from == 0) {
-				offset = line.x + line.xOffset - leftGlyphPos(line.getGlyph(to), charData);
+				offset = line.x + line.offset - leftGlyphPos(line.getGlyph(to), charData);
 			}
 			else {
 				offset = rightGlyphPos(line.getGlyph(from - 1), getCharData(line.getGlyph(from - 1).char)) - leftGlyphPos(line.getGlyph(to), charData);
@@ -1438,10 +1506,10 @@ class $className extends peote.view.Program
 			}
 			
 			if (from != 0)
-				offset = rightGlyphPos(line.getGlyph(from - 1), getCharData(line.getGlyph(from - 1).char)) - (line.x + line.xOffset + line.fullWidth);
-			else offset = -line.fullWidth;
+				offset = rightGlyphPos(line.getGlyph(from - 1), getCharData(line.getGlyph(from - 1).char)) - (line.x + line.offset + line.textSize);
+			else offset = -line.textSize;
 
-			line.fullWidth += offset;
+			line.textSize += offset;
 		}
 		return offset;
 	}
@@ -1452,7 +1520,7 @@ class $className extends peote.view.Program
 	public function lineGetPositionAtChar(line:$lineType, position:Int):Float
 	{
 		if (position == 0)
-			return line.x + line.xOffset;
+			return line.x + line.offset;
 		else if (position < line.length) {
 			var chardata = getCharData(line.getGlyph(position).char);
 			return (rightGlyphPos(line.getGlyph(position - 1), chardata) + leftGlyphPos(line.getGlyph(position), chardata)) / 2;
@@ -1461,22 +1529,12 @@ class $className extends peote.view.Program
 			return rightGlyphPos(line.getGlyph(line.length-1), getCharData(line.getGlyph(line.length-1).char));
 	}
 					
-	public function lineSetXOffset(line:$lineType, xOffset:Float)
-	{
-		var offset = xOffset - line.xOffset;
-		line.xOffset = xOffset;
-		
-		line.updateFrom = 0;
-		line.updateTo = line.length;
-		_setLinePositionOffset(line, offset, 0, 0, line.updateTo, false);
-	}
-	
 	// ------------- get glyph index at x position (for mouse-selecting) ---------------
 	
 	public function lineGetCharAtPosition(line:$lineType, xPosition:Float):Int
 	{
 		if (xPosition <= line.x) return 0;
-		else if (xPosition >= line.maxX) return line.visibleTo;
+		else if (xPosition >= line.size) return line.visibleTo;
 		else 
 		{
 			${switch (glyphStyleHasMeta.packed)
@@ -1507,10 +1565,10 @@ class $className extends peote.view.Program
 						}
 						default: switch (glyphStyleHasField.width) {
 							case true: macro {
-								return Math.round((xPosition - line.x - line.xOffset)/(fontStyle.width)); // TODO: letterspace
+								return Math.round((xPosition - line.x - line.offset)/(fontStyle.width)); // TODO: letterspace
 							}
 							default: macro {
-								return Math.round((xPosition - line.x - line.xOffset)/font.config.width); // TODO: letterspace
+								return Math.round((xPosition - line.x - line.offset)/font.config.width); // TODO: letterspace
 							}
 					}}}
 				}

@@ -34,21 +34,18 @@ class $className
 {
 	@:allow(peote.text) public var x(default, null):Float = 0.0;
 	@:allow(peote.text) public var y(default, null):Float = 0.0;
-	public var xOffset:Float = 0.0;
-	public var yOffset:Float = 0.0;
-	public var maxX:Float = 0xffff;
-	//public var maxY:Float = 0xffff;
 	
-	@:allow(peote.text) public var fullWidth(default, null):Float = 0.0;
-	//@:allow(peote.text) public var fullHeight(default, null):Float = 0.0; // TODO
+	@:allow(peote.text) public var offset(default, null):Float = 0.0;  // offset about how much the letters is shifted
+	@:allow(peote.text) public var size(default, null):Float = 0xffff; // visible size of the line (in pixel)
+	
+	@:allow(peote.text) public var textSize(default, null):Float = 0.0; // size of all letters into line (in pixel)
+	
 	
 	public var lineHeight:Float = 0.0;
 	public var height:Float = 0.0; // height (highest glyph)
 	public var base:Float = 0.0;   // baseline for font
 	
 	
-	//public var xDirection:Int = 1;  // <- TODO: better later with LineStyle !!!
-	//public var yDirection:Int = 0;
 	public var length(get, never):Int; // number of glyphes
 	public inline function get_length():Int return glyphes.length;
 	

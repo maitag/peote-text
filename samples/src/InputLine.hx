@@ -73,7 +73,7 @@ class InputLine extends Application
 	
 	var line:Line<GlyphStyle>;
 	var line_x:Float = 10;
-	var line_xOffset:Float = 0;
+	var line_offset:Float = 0;
 	var line_y:Float = 100;
 	
 	var mask:MaskElement;
@@ -161,24 +161,21 @@ class InputLine extends Application
 			
 			// ------------------- line  -------------------				
 			line = new Line<GlyphStyle>();
-			line.maxX =  window.width - 20 - line_x;
 			
-			line.xOffset = line_xOffset;
-
-			setLine("Testing input textline and masking. (page up/down is toggling glyphstyle)");
+			setLine("Testing input textline and masking. (page up/down is toggling glyphstyle)", window.width - 20 - line_x, line_offset);
 			
 
 			trace("font height "+font.config.height+"");
 			trace("base "+line.base+" (font baseline)");
 			trace("lineHeight "+line.lineHeight);
 			trace("height "+line.height+" (heighest glyph)" );
-			trace("fullWidth "+line.fullWidth);
+			trace("textSize "+line.textSize);
 			trace("length "+line.length+" (number of glyphes)" );
 
-			mask = fontProgram.createMask(Std.int(line.x), Std.int(line.y)-40, Std.int(line.maxX-line.x), Std.int(line.lineHeight)+80);
+			mask = fontProgram.createMask(Std.int(line.x), Std.int(line.y)-40, Std.int(line.size-line.x), Std.int(line.lineHeight)+80);
 			
 			// -------- background and helperlines ---------				
-			createHelperLines(line.maxX-line.x, line.lineHeight);
+			createHelperLines(line.size-line.x, line.lineHeight);
 			
 			// ----------------- Cursor  -------------------	
 			cursor_x = line_x;
@@ -198,9 +195,9 @@ class InputLine extends Application
 	
 	// ---------------------------------------------------------------
 
-	public function setLine(s:String)
+	public function setLine(s:String, size:Float, offset:Float)
 	{
-		fontProgram.setLine(line, s, line_x, line_y, glyphStyle[actual_style]);
+		fontProgram.setLine(line, s, line_x, line_y, size, offset, glyphStyle[actual_style]);
 	}
 	
 	public function lineInsertChar(charcode:Int)
@@ -321,26 +318,26 @@ class InputLine extends Application
 		}
 	}
 	
-	public function lineSetXOffset(xOffset:Float)
+	public function lineSetOffset(offset:Float)
 	{
-		fontProgram.lineSetXOffset(line, line_xOffset + xOffset);
+		fontProgram.lineSetOffset(line, line_offset + offset);
 		lineUpdate();
-		cursorElem.x = cursor_x + xOffset;
+		cursorElem.x = cursor_x + offset;
 		fontProgram.updateBackground(cursorElem);
-		selectElem.x = select_x + xOffset;
+		selectElem.x = select_x + offset;
 		fontProgram.updateBackground(selectElem);
 	}
 	
 	public function lineUpdate()
 	{
 		fontProgram.updateLine(line);
-		updateHelperLines(line_x, line.maxX - line.x, line.lineHeight);
+		updateHelperLines(line_x, line.size - line.x, line.lineHeight);
 	}
 	
 	public function moveCursor(offset:Float)
 	{
 		cursorElem.x += offset;
-		if (cursorElem.x < line.x + line.xOffset) cursorElem.x = line.x + line.xOffset;
+		if (cursorElem.x < line.x + line.offset) cursorElem.x = line.x + line.offset;
 		fontProgram.updateBackground(cursorElem);
 	}
 	
@@ -471,7 +468,7 @@ class InputLine extends Application
 	{
 		selecting = false;
 		dragging = false;
-		line_xOffset = line.xOffset;
+		line_offset = line.offset;
 		cursor_x = cursorElem.x;
 		select_x = selectElem.x;
 	}
@@ -483,7 +480,7 @@ class InputLine extends Application
 			selectionSetTo(cursor);
 		}
 		else if (dragging) {
-			lineSetXOffset((x - dragX)/display.zoom);
+			lineSetOffset((x - dragX)/display.zoom);
 		}
 	}
 
@@ -567,11 +564,11 @@ class InputLine extends Application
 	{
 		display.width  = width - 20;
 		display.height = height - 20;
-		line.maxX =  window.width - 20 - line_x;
+		fontProgram.lineSetSize(line, window.width - 20 - line_x);
 		cursor_x = cursorElem.x;
 		select_x = selectElem.x;
-		lineSetXOffset(0);
-		mask.update(Std.int(line.x), Std.int(line.y)-40, Std.int(line.maxX - line.x), Std.int(line.lineHeight)+80 );
+		lineSetOffset(0);
+		mask.update(Std.int(line.x), Std.int(line.y)-40, Std.int(line.size - line.x), Std.int(line.lineHeight)+80 );
 		fontProgram.updateMask(mask);
 	}
 
