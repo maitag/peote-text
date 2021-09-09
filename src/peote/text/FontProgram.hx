@@ -60,7 +60,7 @@ class $className extends peote.view.Program
 	
 	var _buffer:peote.view.Buffer<$glyphType>;
 	
-	public function new(font:peote.text.Font<$styleType>, fontStyle:$styleType, isMasked:Bool = false, hasBackground:Bool = false)
+	public inline function new(font:peote.text.Font<$styleType>, fontStyle:$styleType, isMasked:Bool = false, hasBackground:Bool = false)
 	{
 		_buffer = new peote.view.Buffer<$glyphType>(1024,1024,true);
 		super(_buffer);
@@ -89,7 +89,7 @@ class $className extends peote.view.Program
 	// -----------------------------------------
 	// ----------- Mask Program  ---------------
 	// -----------------------------------------
-	public function enableMasking() {
+	public inline function enableMasking() {
 			isMasked = true;
 			maskBuffer = new peote.view.Buffer<peote.text.MaskElement>(16, 16, true);
 			maskProgram = new peote.view.Program(maskBuffer);
@@ -155,7 +155,7 @@ class $className extends peote.view.Program
 	// -----------------------------------------
 	// -------- Background Program  ------------
 	// -----------------------------------------
-	public function enableBackground() {
+	public inline function enableBackground() {
 		hasBackground = true;
 		backgroundBuffer = new peote.view.Buffer<peote.text.BackgroundElement>(16, 16, true);
 		backgroundProgram = new peote.view.Program(backgroundBuffer);
@@ -894,7 +894,7 @@ class $className extends peote.view.Program
 	
 	// ----------- change Line Style ----------------
 	
-	public function lineSetStyle(line:$lineType, glyphStyle:$styleType, from:Int = 0, to:Null<Int> = null):Float
+	public inline function lineSetStyle(line:$lineType, glyphStyle:$styleType, from:Int = 0, to:Null<Int> = null):Float
 	{
 		if (to == null) to = line.length;
 		//else if (to <= from) throw('lineSetStyle parameter "from" has to be greater then "to"');
@@ -956,7 +956,7 @@ class $className extends peote.view.Program
 	
 	// ----------- change Line Position, Size and Offset ----------------
 
-	public function lineSetPosition(line:$lineType, xNew:Float, yNew:Float, offset:Null<Float> = null)
+	public inline function lineSetPosition(line:$lineType, xNew:Float, yNew:Float, offset:Null<Float> = null)
 	{
 		line.updateFrom = 0;
 		line.updateTo = line.length;
@@ -970,7 +970,7 @@ class $className extends peote.view.Program
 		line.y = yNew;
 	}
 	
-	public function lineSetXPosition(line:$lineType, xNew:Float, offset:Null<Float> = null)
+	public inline function lineSetXPosition(line:$lineType, xNew:Float, offset:Null<Float> = null)
 	{
 		line.updateFrom = 0;
 		line.updateTo = line.length;
@@ -979,7 +979,7 @@ class $className extends peote.view.Program
 		line.x = xNew;
 	}
 	
-	public function lineSetYPosition(line:$lineType, yNew:Float, offset:Null<Float> = null)
+	public inline function lineSetYPosition(line:$lineType, yNew:Float, offset:Null<Float> = null)
 	{
 		line.updateFrom = 0;
 		line.updateTo = line.length;
@@ -988,7 +988,7 @@ class $className extends peote.view.Program
 		line.y = yNew;
 	}
 	
-	public function lineSetPositionSize(line:$lineType, xNew:Float, yNew:Float, size:Float, offset:Null<Float> = null)
+	public inline function lineSetPositionSize(line:$lineType, xNew:Float, yNew:Float, size:Float, offset:Null<Float> = null)
 	{
 		line.updateFrom = 0;
 		line.updateTo = line.length;
@@ -999,7 +999,7 @@ class $className extends peote.view.Program
 		line.y = yNew;
 	}
 
-	public function lineSetSize(line:$lineType, size:Float, offset:Null<Float> = null)
+	public inline function lineSetSize(line:$lineType, size:Float, offset:Null<Float> = null)
 	{
 		line.updateFrom = 0;
 		line.updateTo = line.length;
@@ -1008,7 +1008,7 @@ class $className extends peote.view.Program
 		else _setLinePositionOffsetFull(line, 0, 0, false);
 	}
 
-	public function lineSetOffset(line:$lineType, offset:Float)
+	public inline function lineSetOffset(line:$lineType, offset:Float)
 	{
 		line.updateFrom = 0;
 		line.updateTo = line.length;
@@ -1093,7 +1093,7 @@ class $className extends peote.view.Program
 	
 	// ------------ set chars  ---------------
 	
-	public function lineSetChar(line:$lineType, charcode:Int, position:Int=0, glyphStyle:$styleType = null):Float
+	public inline function lineSetChar(line:$lineType, charcode:Int, position:Int=0, glyphStyle:$styleType = null):Float
 	{
 		var charData = getCharData(charcode);
 		if (charData != null)
@@ -1143,7 +1143,7 @@ class $className extends peote.view.Program
 		else return 0;					
 	}
 	
-	public function lineSetChars(line:$lineType, chars:String, position:Int=0, glyphStyle:$styleType = null):Float
+	public inline function lineSetChars(line:$lineType, chars:String, position:Int=0, glyphStyle:$styleType = null):Float
 	{
 		//if (position < line.updateFrom) line.updateFrom = position;
 		//if (position + chars.length > line.updateTo) line.updateTo = Std.int(Math.min(position + chars.length, line.length));
@@ -1218,7 +1218,7 @@ class $className extends peote.view.Program
 	
 	// ------------- inserting chars ---------------------
 	
-	public function lineInsertChar(line:$lineType, charcode:Int, position:Int = 0, glyphStyle:$styleType = null):Float
+	public inline function lineInsertChar(line:$lineType, charcode:Int, position:Int = 0, glyphStyle:$styleType = null):Float
 	{
 		var charData = getCharData(charcode);
 		if (charData != null)
@@ -1279,7 +1279,7 @@ class $className extends peote.view.Program
 	}
 	
 	
-	public function lineInsertChars(line:$lineType, chars:String, position:Int = 0, glyphStyle:$styleType = null):Float 
+	public inline function lineInsertChars(line:$lineType, chars:String, position:Int = 0, glyphStyle:$styleType = null):Float 
 	{					
 		var prev_glyph:$glyphType = null;
 		var x = line.x + line.offset;
@@ -1350,7 +1350,7 @@ class $className extends peote.view.Program
 	// ------------- appending chars ---------------------
 	
 	
-	public function lineAppendChars(line:$lineType, chars:String, glyphStyle:$styleType = null):Float
+	public inline function lineAppendChars(line:$lineType, chars:String, glyphStyle:$styleType = null):Float
 	{					
 		var prev_glyph:$glyphType = null;
 		var x = line.x + line.offset;
@@ -1418,7 +1418,7 @@ class $className extends peote.view.Program
 	// ------------- deleting chars ---------------------
 	
 	
-	public function lineDeleteChar(line:$lineType, position:Int = 0):Float
+	public inline function lineDeleteChar(line:$lineType, position:Int = 0):Float
 	{
 		if (position >= line.visibleFrom && position < line.visibleTo) {
 			removeGlyph(line.getGlyph(position));
@@ -1438,7 +1438,7 @@ class $className extends peote.view.Program
 		return offset;
 	}
 	
-	public function lineCutChars(line:$lineType, from:Int = 0, to:Null<Int> = null):String
+	public inline function lineCutChars(line:$lineType, from:Int = 0, to:Null<Int> = null):String
 	{
 		if (to == null) to = line.length;
 		var cut = "";
@@ -1450,7 +1450,7 @@ class $className extends peote.view.Program
 		return cut;
 	}
 	
-	public function lineDeleteChars(line:$lineType, from:Int = 0, to:Null<Int> = null):Float
+	public inline function lineDeleteChars(line:$lineType, from:Int = 0, to:Null<Int> = null):Float
 	{
 		if (to == null) to = line.length;
 		for (i in ((from < line.visibleFrom) ? line.visibleFrom : from)...((to < line.visibleTo) ? to : line.visibleTo)) {
@@ -1517,7 +1517,7 @@ class $className extends peote.view.Program
 	
 	// --------------------------------------------------------------------
 	
-	public function lineGetPositionAtChar(line:$lineType, position:Int):Float
+	public inline function lineGetPositionAtChar(line:$lineType, position:Int):Float
 	{
 		if (position == 0)
 			return line.x + line.offset;
@@ -1531,7 +1531,7 @@ class $className extends peote.view.Program
 					
 	// ------------- get glyph index at x position (for mouse-selecting) ---------------
 	
-	public function lineGetCharAtPosition(line:$lineType, xPosition:Float):Int
+	public inline function lineGetCharAtPosition(line:$lineType, xPosition:Float):Int
 	{
 		if (xPosition <= line.x) return 0;
 		else if (xPosition >= line.size) return line.visibleTo;
@@ -1579,7 +1579,7 @@ class $className extends peote.view.Program
 	
 	// ------------- update line ---------------------
 	
-	public function updateLine(line:$lineType, from:Null<Int> = null, to:Null<Int> = null)
+	public inline function updateLine(line:$lineType, from:Null<Int> = null, to:Null<Int> = null)
 	{
 		if (from != null) line.updateFrom = from;
 		if (to != null) line.updateTo = to;
@@ -1604,18 +1604,18 @@ class $className extends peote.view.Program
 	// ---------------- Pages ------------------
 	// -----------------------------------------
 
-	public function createPage(chars:String, x:Float=0, y:Float=0, glyphStyle:Null<$styleType> = null):peote.text.Page<$styleType>
+	public inline function createPage(chars:String, x:Float=0, y:Float=0, glyphStyle:Null<$styleType> = null):peote.text.Page<$styleType>
 	{
 		var page = new peote.text.Page<$styleType>();
 		if (setPage(page, chars, x, y, glyphStyle)) return page else return null;
 	}
 	
-	public function addPage(page:Page<$styleType>)
+	public inline function addPage(page:Page<$styleType>)
 	{
 		for (i in page.visibleFrom...page.visibleTo) addLine(page.getLine(i));
 	}
 	
-	public function removePage(page:Page<$styleType>)
+	public inline function removePage(page:Page<$styleType>)
 	{
 		for (i in page.visibleFrom...page.visibleTo) removeLine(page.getLine(i));
 	}
