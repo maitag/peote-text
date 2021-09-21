@@ -4,9 +4,9 @@
 	"license": "MIT",
 	"tags": ["peote", "text", "textrendering", "font", "glyph"],
 	"description": "Glyph and Textrendering for peote-view",
-	"version": "0.8.6",
+	"version": "0.8.7",
 	"classPath": "src/",
-	"releasenote": "implementing background drawing",
+	"releasenote": "refactoring for PageLines",
 	"contributors": ["Sylvio Sell - maitag"],
 	"dependencies": {
 		"lime": "",

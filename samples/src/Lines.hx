@@ -94,6 +94,8 @@ class Lines extends Application
 			
 			var line = fontProgram.createLine("hello World :)", 0, 100, glyphStyle);
 			
+			//fontProgram.getMetric();
+			
 			//TODO: line.setGlyphOffset(0, 3  , 5, 6);
 			//TODO: line.getGlyph(2);
 			
@@ -105,9 +107,11 @@ class Lines extends Application
 			Timer.delay(function() {
 				fontProgram.lineSetStyle(line, glyphStyle2, 1, 5);
 				fontProgram.lineSetStyle(line, glyphStyle1, 6, 12);
+				
 				//fontProgram.updateLine(line, 6);
 				//trace('visibleFrom: ${line.visibleFrom} visibleTo:${line.visibleTo} fullWidth:${line.fullWidth}');
 				//fontProgram.lineSetPosition(line, 0, 130);
+				
 				fontProgram.lineSetYPosition(line, 130);
 				fontProgram.updateLine(line);
 			}, 2000);
@@ -141,10 +145,9 @@ class Lines extends Application
 			Timer.delay(function() {
 				fontProgram.addLine(line);
 			}, 8000);
-			
+		
 			// TODO:
-			// line.clear();
-			
+			// line.clear();		
 			
 		}
 		, true // debug

@@ -22,7 +22,8 @@ class PageMacro
 		{
 			Macro.debug(className, classPackage, stylePack, styleModule, styleName, styleSuperModule, styleSuperName, styleType, styleField);
 
-			var lineType = Line.LineMacro.buildClass("Line", classPackage, stylePack, styleModule, styleName, styleSuperModule, styleSuperName, styleType, styleField);
+			//var lineType = Line.LineMacro.buildClass("Line", classPackage, stylePack, styleModule, styleName, styleSuperModule, styleSuperName, styleType, styleField);
+			var pageLineType = PageLine.PageLineMacro.buildClass("PageLine", classPackage, stylePack, styleModule, styleName, styleSuperModule, styleSuperName, styleType, styleField);
 			
 			var glyphStyleHasMeta = Macro.parseGlyphStyleMetas(styleModule+"."+styleName); // trace("FontProgram: glyphStyleHasMeta", glyphStyleHasMeta);
 			var glyphStyleHasField = Macro.parseGlyphStyleFields(styleModule+"."+styleName); // trace("FontProgram: glyphStyleHasField", glyphStyleHasField);
@@ -38,27 +39,25 @@ class $className
 	public var y:Float = 0.0;
 	public var xOffset:Float = 0.0;
 	public var yOffset:Float = 0.0;
-	public var maxX:Float = 0xffff;
-	public var maxY:Float = 0xffff;
+	public var width:Float = 0xffff;
+	public var height:Float = 0xffff;
 	
-	@:allow(peote.text) public var fullWidth(default, null):Float = 0.0;
-	@:allow(peote.text) public var fullHeight(default, null):Float = 0.0;
+	@:allow(peote.text) public var textWidth(default, null):Float = 0.0; // size of longest line
+	@:allow(peote.text) public var textHeight(default, null):Float = 0.0;
 	
-	//public var xDirection:Int = 1;  // <- TODO
-	//public var yDirection:Int = 0;
-	
-	public var length(get, never):Int; // number of lines
-	public inline function get_length():Int return lines.length;
 	
 	// TODO: optimize for neko/hl/cpp
-	var lines = new Array<$lineType>();
+	var pageLines = new Array<$pageLineType>();
 	
-	public inline function getLine(i:Int):$lineType return lines[i];
-	@:allow(peote.text) inline function setLine(i:Int, line:$lineType) lines[i] = line;
-	@:allow(peote.text) inline function pushLine(line:$lineType) lines.push(line);
+	public var length(get, never):Int; // number of lines
+	public inline function get_length():Int return pageLines.length;
+	
+	public inline function getLine(i:Int):$pageLineType return pageLines[i];
+	@:allow(peote.text) inline function setLine(i:Int, line:$pageLineType) pageLines[i] = line;
+	@:allow(peote.text) inline function pushLine(line:$pageLineType) pageLines.push(line);
 	@:allow(peote.text) inline function resize(newLength:Int) {
 		//TODO HAXE 4 lines.resize(newLength);
-		lines.splice(newLength, lines.length - newLength);
+		pageLines.splice(newLength, pageLines.length - newLength);
 	}
 	
 	@:allow(peote.text) public var visibleFrom(default, null):Int = 0;

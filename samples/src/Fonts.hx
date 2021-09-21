@@ -74,9 +74,11 @@ class Fonts extends Application
 				
 				fontProgram.createLineBackground(line, Color.GREY2);				
 				// baseline
-				fontProgram.createBackground(Std.int(line.x),  Std.int(line.y + line.base), Std.int(line.fullWidth), 1, 0, Color.RED);
+				fontProgram.createBackground(Std.int(line.x),  Std.int(line.y + line.base), Std.int(line.textSize), 1, 0, Color.RED);
 				// descender line
-				fontProgram.createBackground(Std.int(line.x),  Std.int(line.y + line.height), Std.int(line.fullWidth), 1, 0, Color.BLUE);
+				fontProgram.createBackground(Std.int(line.x),  Std.int(line.y + line.height), Std.int(line.textSize), 1, 0, Color.BLUE);
+				// lineHeight (where next line starts)
+				fontProgram.createBackground(Std.int(line.x),  Std.int(line.y + line.lineHeight), Std.int(line.textSize), 1, 0, Color.GREY4);
 			},
 			true // debug
 			);
@@ -117,9 +119,11 @@ class Fonts extends Application
 				
 				fontProgram.createLineBackground(line, Color.GREY2);
 				// baseline
-				fontProgram.createBackground(Std.int(line.x),  Std.int(line.y + line.base), Std.int(line.fullWidth), 1, 0, Color.RED);
+				fontProgram.createBackground(Std.int(line.x),  Std.int(line.y + line.base), Std.int(line.textSize), 1, 0, Color.RED);
 				// descender line
-				fontProgram.createBackground(Std.int(line.x),  Std.int(line.y + line.height), Std.int(line.fullWidth), 1, 0, Color.BLUE);
+				fontProgram.createBackground(Std.int(line.x),  Std.int(line.y + line.height), Std.int(line.textSize), 1, 0, Color.BLUE);
+				// lineHeight (where next line starts)
+				fontProgram.createBackground(Std.int(line.x),  Std.int(line.y + line.lineHeight), Std.int(line.textSize), 1, 0, Color.GREY4);
 			},
 			true // debug
 			);

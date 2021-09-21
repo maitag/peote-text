@@ -21,9 +21,10 @@ class LineMacro
 			Macro.debug(className, classPackage, stylePack, styleModule, styleName, styleSuperModule, styleSuperName, styleType, styleField);
 
 			var glyphType = Glyph.GlyphMacro.buildClass("Glyph", classPackage, stylePack, styleModule, styleName, styleSuperModule, styleSuperName, styleType, styleField);
+			var pageLinePath:TypePath =  { pack:classPackage, name:"PageLine" + Macro.classNameExtension(styleName, styleModule), params:[] };
 			
-			var glyphStyleHasMeta = Macro.parseGlyphStyleMetas(styleModule+"."+styleName); // trace("FontProgram: glyphStyleHasMeta", glyphStyleHasMeta);
-			var glyphStyleHasField = Macro.parseGlyphStyleFields(styleModule+"."+styleName); // trace("FontProgram: glyphStyleHasField", glyphStyleHasField);
+			var glyphStyleHasMeta = Macro.parseGlyphStyleMetas(styleModule+"."+styleName);
+			var glyphStyleHasField = Macro.parseGlyphStyleFields(styleModule+"."+styleName);
 			
 			var c = macro
 			
@@ -33,44 +34,48 @@ class LineMacro
 class $className
 {
 	@:allow(peote.text) public var x(default, null):Float = 0.0;
-	@:allow(peote.text) public var y(default, null):Float = 0.0;
 	
 	@:allow(peote.text) public var offset(default, null):Float = 0.0;  // offset about how much the letters is shifted
 	@:allow(peote.text) public var size(default, null):Float = 0xffff; // visible size of the line (in pixel)
 	
-	@:allow(peote.text) public var textSize(default, null):Float = 0.0; // size of all letters into line (in pixel)
+
+	// ---------- from pageLine ------------
+	@:allow(peote.text) var pageLine = new $pageLinePath();
+	
+	public var y(get, never):Float;
+	public inline function get_y():Float return pageLine.y;
+	
+	public var textSize(get, never):Float; // size of all letters into line (in pixel)
+	public inline function get_textSize():Float return pageLine.textSize;
+	
+	// metrics
+	public var lineHeight(get, never):Float; // full line-height
+	public inline function get_lineHeight():Float return pageLine.lineHeight;
+	
+	public var height(get, never):Float; // fontrange-baseline
+	public inline function get_height():Float return pageLine.height;
+	
+	public var base(get, never):Float; // height of greatest letter into fontrange
+	public inline function get_base():Float return pageLine.base;
+	
+
+	
+	public var length(get, never):Int; // number of glyphes into line
+	public inline function get_length():Int return pageLine.length;
 	
 	
-	public var lineHeight:Float = 0.0;
-	public var height:Float = 0.0; // height (highest glyph)
-	public var base:Float = 0.0;   // baseline for font
+	public inline function getGlyph(i:Int):$glyphType return pageLine.getGlyph(i);
+
 	
-	
-	public var length(get, never):Int; // number of glyphes
-	public inline function get_length():Int return glyphes.length;
-	
-	
-	// TODO: optimize for neko/hl/cpp
-	var glyphes = new Array<$glyphType>();
-	
-	public inline function getGlyph(i:Int):$glyphType return glyphes[i];
-	@:allow(peote.text) inline function setGlyph(i:Int, glyph:$glyphType) glyphes[i] = glyph;
-	@:allow(peote.text) inline function pushGlyph(glyph:$glyphType) glyphes.push(glyph);
-	@:allow(peote.text) inline function insertGlyph(pos:Int, glyph:$glyphType) glyphes.insert(pos, glyph);
-	
-	@:allow(peote.text) inline function splice(pos:Int, len:Int):Array<$glyphType> return glyphes.splice(pos, len);
-	@:allow(peote.text) inline function resize(newLength:Int) {
-		//TODO HAXE 4 lines.resize(newLength);
-		glyphes.splice(newLength, glyphes.length - newLength);
-	}
-	@:allow(peote.text) inline function append(a:Array<$glyphType>) {
-		glyphes = glyphes.concat(a);
-	}
-	
-	@:allow(peote.text) var updateFrom:Int = 0x1000000;
-	@:allow(peote.text) var updateTo:Int = 0;
-	@:allow(peote.text) public var visibleFrom(default, null):Int = 0;
-	@:allow(peote.text) public var visibleTo(default, null):Int = 0;
+	public var visibleFrom(get, never):Int;
+	public inline function get_visibleFrom():Int return pageLine.visibleFrom;
+	public var visibleTo(get, never):Int;
+	public inline function get_visibleTo():Int return pageLine.visibleTo;
+
+	public var updateFrom(get, never):Int;
+	public inline function get_updateFrom():Int return pageLine.updateFrom;
+	public var updateTo(get, never):Int;
+	public inline function get_updateTo():Int return pageLine.updateTo;
 	
 	public function new() {}
 }
