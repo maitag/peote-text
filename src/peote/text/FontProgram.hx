@@ -1534,7 +1534,7 @@ class $className extends peote.view.Program
 	public var unrecognizedChars:String = "";
 	
 	
-    /**
+	/**
 		Creates a new Line and returns it. The new created Line is displayed automatically.
 		@param chars String that contains the letters (a newline-char have no effect)
 		@param x (default 0) x position of the upper left line-position
@@ -1551,25 +1551,25 @@ class $className extends peote.view.Program
 		return line;
 	}
 	
-    /**
+	/**
 		Add the line to FontProgram to display it.
 		@param line the Line instance to show
-    **/
+	**/
 	public inline function addLine(line:$lineType):Void
 	{
 		for (i in line.visibleFrom...line.visibleTo) addGlyph(line.getGlyph(i));
 	}
 	
-    /**
+	/**
 		Removes the line from FontProgram to not display it anymore.
 		@param line the Line instance to show
-    **/
+	**/
 	public inline function removeLine(line:$lineType)
 	{
 		for (i in line.visibleFrom...line.visibleTo) removeGlyph(line.getGlyph(i));
 	}
 	
-    /**
+	/**
 		Changing all chars of an existing Line. (can be faster than creating a new line)
 		@param line the Line instance where to change the chars 
 		@param chars String that contains the letters (a newline-char have no effect)
@@ -1579,7 +1579,7 @@ class $className extends peote.view.Program
 		@param offset (optional) how much pixels the line is shifted inside it's visible range
 		@param glyphStyle (optional) GlyphStyle of the line, by default it is using the default FontStyle of the FontProgram 
 		@param defaultFontRange (optional) unicode range of the Font where to fetch the line-metric (by default it'S using the metric from the range of the first letter)
-    **/
+	**/
 	public inline function setLine(line:$lineType, chars:String, x:Float=0, y:Float=0, size:Null<Float> = null, offset:Null<Float> = null, glyphStyle:Null<$styleType> = null, defaultFontRange:Null<Int> = null):Bool
 	{
 		line.x = x;
@@ -1588,13 +1588,13 @@ class $className extends peote.view.Program
 		return setPageLine(line.pageLine, line.size, line.offset, chars, x, y, glyphStyle, defaultFontRange);
 	}
 	
-    /**
+	/**
 		Changing the style of all glyphes into an existing Line at a defined position.
 		@param line Line instance where to change the style
 		@param glyphStyle new GlyphStyle
 		@param from position of the first char to change (default 0)
 		@param to position after the last char to change (null changes to end of line)
-    **/
+	**/
 	public inline function lineSetStyle(line:$lineType, glyphStyle:$styleType, from:Int = 0, to:Null<Int> = null):Float
 	{
 		return pageLineSetStyle(line.pageLine, line.x, line.offset, line.size, glyphStyle, from, to);
