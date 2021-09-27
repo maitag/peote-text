@@ -1536,9 +1536,9 @@ class $className extends peote.view.Program
 	
 	/**
 		Creates a new Line and returns it. The new created Line is displayed automatically.
-		@param chars String that contains the letters (a newline-char have no effect)
-		@param x (default 0) x position of the upper left pixel of line-position
-		@param y (default 0) x position of the upper left pixel of line-position
+		@param chars String that contains the chars (newlines have no effect)
+		@param x horizontal position of the upper left pixel of the line, is 0 by default
+		@param y vertical position of the upper left pixel of the line, is 0 by default
 		@param size (optional) limits the line-size in pixel, so only glyphes inside this range will be displayed
 		@param offset (optional) how much pixels the line is shifted inside it's visible range
 		@param glyphStyle (optional) GlyphStyle of the line, by default it is using the default FontStyle of the FontProgram 
@@ -1553,7 +1553,7 @@ class $className extends peote.view.Program
 	
 	/**
 		Add the line to FontProgram to display it.
-		@param line the Line instance to show
+		@param line the Line instance
 	**/
 	public inline function addLine(line:$lineType):Void
 	{
@@ -1562,7 +1562,7 @@ class $className extends peote.view.Program
 	
 	/**
 		Removes the line from FontProgram to not display it anymore.
-		@param line the Line instance to show
+		@param line the Line instance
 	**/
 	public inline function removeLine(line:$lineType)
 	{
@@ -1571,10 +1571,10 @@ class $className extends peote.view.Program
 	
 	/**
 		Changing all chars of an existing Line. (can be faster than creating a new line)
-		@param line the Line instance where to change the chars 
-		@param chars String that contains the letters (a newline-char have no effect)
-		@param x (default 0) x position of the upper left pixel of line-position
-		@param y (default 0) x position of the upper left pixel of line-position
+		@param line the Line instance
+		@param chars String that contains the chars (newlines have no effect)
+		@param x horizontal position of the upper left pixel of the line, is 0 by default
+		@param y vertical position of the upper left pixel of the line, is 0 by default
 		@param size (optional) limits the line-size in pixel, so only glyphes inside this range will be displayed
 		@param offset (optional) how much pixels the line is shifted inside it's visible range
 		@param glyphStyle (optional) GlyphStyle of the line, by default it is using the default FontStyle of the FontProgram 
@@ -1589,34 +1589,61 @@ class $className extends peote.view.Program
 	}
 	
 	/**
-		Changing the style of glyphes in an existing Line.
-		@param line Line instance where to change the style
+		Changing the style of glyphes in an existing Line. Needs updateLine() after to get effect.
+		@param line Line instance
 		@param glyphStyle new GlyphStyle
-		@param from position of the first char to change (default is from start of line)
-		@param to position after the last char to change (default is to end of line)
+		@param from position of the first char to change, is 0 by default (start of line)
+		@param to position after the last char to change, is line.length by default (end of line)
 	**/
 	public inline function lineSetStyle(line:$lineType, glyphStyle:$styleType, from:UInt = 0, to:Null<UInt> = null):Float
 	{
 		return pageLineSetStyle(line.pageLine, line.x, line.offset, line.size, glyphStyle, from, to);
 	}
 	
+	/**
+		Set the position of a Line. Needs updateLine() after to get effect.
+		@param line Line instance
+		@param x horizontal position of the upper left pixel of the line
+		@param y vertical position of the upper left pixel of the line
+		@param offset (optional) how much pixels the line is shifted inside it's visible range
+	**/
 	public inline function lineSetPosition(line:$lineType, x:Float, y:Float, offset:Null<Float> = null)
 	{
 		pageLineSetPosition(line.pageLine, line.x, line.size, line.offset, x, y, offset);
 		line.x = x;
 	}
 	
+	/**
+		Set the x position of a Line. Needs updateLine() after to get effect.
+		@param line Line instance
+		@param x horizontal position of the upper left pixel of the line
+		@param offset (optional) how much pixels the line is shifted inside it's visible range
+	**/
 	public inline function lineSetXPosition(line:$lineType, x:Float, offset:Null<Float> = null)
 	{
 		pageLineSetXPosition(line.pageLine, line.x, line.size, line.offset, x, offset);
 		line.x = x;
 	}
 	
+	/**
+		Set the y position of a Line. Needs updateLine() after to get effect.
+		@param line Line instance
+		@param y vertical position of the upper left pixel of the line
+		@param offset (optional) how much pixels the line is shifted inside it's visible range
+	**/
 	public inline function lineSetYPosition(line:$lineType, y:Float, offset:Null<Float> = null)
 	{
 		pageLineSetYPosition(line.pageLine, line.x, line.size, line.offset, y, offset);
 	}
 	
+	/**
+		Set the position and size of a Line. Needs updateLine() after to get effect.
+		@param line Line instance
+		@param x horizontal position of the upper left pixel of the line
+		@param y vertical position of the upper left pixel of the line
+		@param size limits the line-size in pixel, so only glyphes inside this range will be displayed
+		@param offset (optional) how much pixels the line is shifted inside it's visible range
+	**/
 	public inline function lineSetPositionSize(line:$lineType, x:Float, y:Float, size:Float, offset:Null<Float> = null)
 	{
 		pageLineSetPositionSize(line.pageLine, line.x, size, line.offset, x, y, offset);
@@ -1624,38 +1651,83 @@ class $className extends peote.view.Program
 		line.x = x;
 	}
 		
+	/**
+		Set the size of a Line. Needs updateLine() after to get effect.
+		@param line Line instance
+		@param size limits the line-size in pixel, so only glyphes inside this range will be displayed
+		@param offset (optional) how much pixels the line is shifted inside it's visible range
+	**/
 	public inline function lineSetSize(line:$lineType, size:Float, offset:Null<Float> = null)
 	{
 		line.size = size;
 		pageLineSetSize(line.pageLine, line.x, size, line.offset, offset);
 	}
 		
+	/**
+		Set the offset of how much the Line is shifted. Needs updateLine() after to get effect.
+		@param line Line instance where to change the style
+		@param offset how much pixels the line is shifted inside it's visible range
+	**/
 	public inline function lineSetOffset(line:$lineType, offset:Float)
 	{
 		pageLineSetOffset(line.pageLine, line.x, line.size, line.offset, offset);
 		line.offset = offset;
 	}
 
+	/**
+		Changing a char inside of a Line. Needs updateLine() after to get effect.
+		@param line the Line instance
+		@param charcode the unicode number of the char (newline have no effect)
+		@param position where to change the char, is 0 by default (first char into line)
+		@param glyphStyle (optional) GlyphStyle of the new chars, by default it is using the default FontStyle of the FontProgram 
+	**/
 	public inline function lineSetChar(line:$lineType, charcode:Int, position:Int = 0, glyphStyle:$styleType = null):Float
 	{
 		return pageLineSetChar(line.pageLine, line.x, line.size, line.offset, charcode, position, glyphStyle);
 	}
 	
+	/**
+		Changing the chars inside of a Line. Needs updateLine() after to get effect.
+		@param line the Line instance
+		@param chars String that contains the letters (newlines have no effect)
+		@param position where to change, is 0 by default (first char into line)
+		@param glyphStyle (optional) GlyphStyle of the new chars, by default it is using the default FontStyle of the FontProgram 
+	**/
 	public inline function lineSetChars(line:$lineType, chars:String, position:Int = 0, glyphStyle:$styleType = null):Float
 	{
 		return pageLineSetChars(line.pageLine, line.x, line.size, line.offset, chars, position, glyphStyle);		
 	}
 	
+	/**
+		Insert a new char into a Line. If it's not inserted at end of line it needs updateLine() after to get effect.
+		@param line the Line instance
+		@param charcode the unicode number of the new char (newline have no effect)
+		@param position where to insert, is 0 by default (before first char into line)
+		@param glyphStyle (optional) GlyphStyle of the new chars, by default it is using the default FontStyle of the FontProgram 
+	**/
 	public inline function lineInsertChar(line:$lineType, charcode:Int, position:Int = 0, glyphStyle:$styleType = null):Float
 	{		
 		return pageLineInsertChar(line.pageLine, line.x, line.size, line.offset, charcode, position, glyphStyle);
 	}
 	
+	/**
+		Insert new chars into a Line. If it's not inserted at end of line it needs updateLine() after to get effect.
+		@param line the Line instance
+		@param chars String that contains the new letters (newlines have no effect)
+		@param position where to insert, is 0 by default (before first char into line)
+		@param glyphStyle (optional) GlyphStyle of the new chars, by default it is using the default FontStyle of the FontProgram 
+	**/
 	public inline function lineInsertChars(line:$lineType, chars:String, position:Int = 0, glyphStyle:$styleType = null):Float 
 	{		
 		return pageLineInsertChars(line.pageLine, line.x, line.size, line.offset, chars, position, glyphStyle);
 	}
 	
+	/**
+		Append new chars at end of a Line.
+		@param line the Line instance
+		@param chars String that contains the new chars (newlines have no effect)
+		@param glyphStyle (optional) GlyphStyle of the new chars, by default it is using the default FontStyle of the FontProgram 
+	**/
 	public inline function lineAppendChars(line:$lineType, chars:String, glyphStyle:$styleType = null):Float 
 	{		
 		if (line.length > 0)
@@ -1663,22 +1735,46 @@ class $className extends peote.view.Program
 		else return _lineAppend(line.pageLine, line.size, line.offset, chars, line.x, line.y, null, glyphStyle);
 	}
 	
+	/**
+		Delete a char from a Line and returns the offset of how much the line was shrinked.
+		If it's not the last char into line it needs updateLine() after to get effect.
+		@param line the Line instance
+		@param position where to delete, is 0 by default (first char into line)
+	**/
 	public inline function lineDeleteChar(line:$lineType, position:Int = 0):Float
 	{
 		return pageLineDeleteChar(line.pageLine, line.x, line.offset, line.size, position);
 	}
 	
-	public inline function lineCutChars(line:$lineType, from:Int = 0, to:Null<Int> = null):String
-	{
-		return pageLineCutChars(line.pageLine, line.x, line.offset, line.size, from, to);
-	}
-	
+	/**
+		Delete chars from a Line and returns the offset of how much the line was shrinked.
+		If it's not the last chars into line it needs updateLine() after to get effect.
+		@param from position of the first char to delete, is 0 by default (start of line)
+		@param to position after the last char to delete, is line.length by default (end of line)
+	**/
 	public inline function lineDeleteChars(line:$lineType, from:Int = 0, to:Null<Int> = null):Float
 	{
 		return pageLineDeleteChars(line.pageLine, line.x, line.offset, line.size, from, to);
 	}
 	
-	// update line 	
+	/**
+		Delete chars from a Line and returns it as a String. If it's not the last chars it needs updateLine() after to get effect.
+		@param line the Line instance
+		@param position where to delete, is 0 by default (first char into line)
+	**/
+	public inline function lineCutChars(line:$lineType, from:Int = 0, to:Null<Int> = null):String
+	{
+		return pageLineCutChars(line.pageLine, line.x, line.offset, line.size, from, to);
+	}
+	
+	/**
+		Updates a Line to apply the changes by one or more of the following functions:
+		lineSetStyle(), lineSetPosition(), lineSetXPosition(), lineSetYPosition(), lineSetPositionSize(), lineSetSize(), lineSetOffset(),
+		lineSetChar(), lineSetChars(), lineInsertChar(), lineInsertChars(), lineDeleteChar(), lineDeleteChars(), lineCutChars().
+		Only chars that are into the visible area will be updated if the line is shifted by offset or limited by size.
+		@param from position of the first char to delete, is 0 by default (start of line)
+		@param to position after the last char to delete, is line.length by default (end of line)
+	**/
 	public inline function updateLine(line:$lineType, from:Null<Int> = null, to:Null<Int> = null)
 	{
 		 updatePageLine(line.pageLine, from, to);
