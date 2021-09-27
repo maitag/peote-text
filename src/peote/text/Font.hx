@@ -23,6 +23,8 @@ class FontMacro
 			//var fontProgramType = FontProgram.FontProgramMacro.buildClass("FontProgram", classPackage, stylePack, styleModule, styleName, styleSuperModule, styleSuperName, styleType, styleField);
 			var glyphType  = Glyph.GlyphMacro.buildClass("Glyph", classPackage, stylePack, styleModule, styleName, styleSuperModule, styleSuperName, styleType, styleField);
 			var lineType  = Line.LineMacro.buildClass("Line", classPackage, stylePack, styleModule, styleName, styleSuperModule, styleSuperName, styleType, styleField);
+			//var pageLineType = 
+			PageLine.PageLineMacro.buildClass("PageLine", classPackage, stylePack, styleModule, styleName, styleSuperModule, styleSuperName, styleType, styleField);
 			
 			#if peote_ui
 			//var interactiveTextLineType = peote.ui.interactive.InteractiveTextLine.InteractiveTextLineMacro.buildClass("InteractiveTextLine", ["peote","ui","interactive"], stylePack, styleModule, styleName, styleSuperModule, styleSuperName, styleType, styleField);
