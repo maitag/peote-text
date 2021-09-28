@@ -1760,7 +1760,8 @@ class $className extends peote.view.Program
 	/**
 		Delete chars from a Line and returns it as a String. If it's not the last chars it needs updateLine() after to get effect.
 		@param line the Line instance
-		@param position where to delete, is 0 by default (first char into line)
+		@param from position of the first char to cut, is 0 by default (start of line)
+		@param to position after the last char to cut, is line.length by default (end of line)
 	**/
 	public inline function lineCutChars(line:$lineType, from:Int = 0, to:Null<Int> = null):String
 	{
@@ -1772,16 +1773,21 @@ class $className extends peote.view.Program
 		lineSetStyle(), lineSetPosition(), lineSetXPosition(), lineSetYPosition(), lineSetPositionSize(), lineSetSize(), lineSetOffset(),
 		lineSetChar(), lineSetChars(), lineInsertChar(), lineInsertChars(), lineDeleteChar(), lineDeleteChars(), lineCutChars().
 		Only chars that are into the visible area will be updated if the line is shifted by offset or limited by size.
-		@param from position of the first char to delete, is 0 by default (start of line)
-		@param to position after the last char to delete, is line.length by default (end of line)
+		@param line the Line instance
+		@param from position of the first char to update, by default this is set by the functions that was changing the line
+		@param to position after the last char to update, by default this is set by the functions that was changing the line
 	**/
 	public inline function updateLine(line:$lineType, from:Null<Int> = null, to:Null<Int> = null)
 	{
 		 updatePageLine(line.pageLine, from, to);
 	}
 	
-	// ------------------------------------
-	
+	/**
+		Returns the x pixel-value of the middle position between a char and its previous char into a line.
+		This function can be used to calculate a cursor-position.
+		@param line the Line instance
+		@param position index of the char into the line (0 returns the position before the first char)
+	**/
 	public inline function lineGetPositionAtChar(line:$lineType, position:Int):Float
 	{
 		if (position == 0) return line.x + line.offset;
@@ -1791,7 +1797,12 @@ class $className extends peote.view.Program
 		} else return rightGlyphPos(line.getGlyph(line.length-1), getCharData(line.getGlyph(line.length-1).char));
 	}
 					
-	// get glyph index at x position (for mouse-selecting) 	
+	/**
+		Returns the index of the nearest char at a given x pixel-value.
+		This function can be used to pick a char by mouse-position.
+		@param line the Line instance
+		@param xPosition x pixel-value at where to pick the nearest char
+	**/
 	public inline function lineGetCharAtPosition(line:$lineType, xPosition:Float):Int
 	{
 		if (xPosition <= line.x) return 0;
