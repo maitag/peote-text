@@ -1809,47 +1809,28 @@ class $className extends peote.view.Program
 		else if (xPosition >= line.size) return line.visibleTo;
 		else 
 		{
-			${switch (glyphStyleHasMeta.packed)
+			${switch (glyphStyleHasMeta.packed || glyphStyleHasField.local_width || glyphStyleHasField.local_letterSpace)
 			{
-				case true: macro // ------- Gl3Font -------
+				case true: macro
 				{
-					// TODO: binary search
+					// TODO: binary search to optimze
 					var i:Int = line.visibleFrom;
-					while (i < line.visibleTo && xPosition > line.getGlyph(i).x) i++;  // TODO: letterspace
+					while (i < line.visibleTo && xPosition > line.getGlyph(i).x) i++;
 					if (i == 0) return 0;
 					var chardata = getCharData(line.getGlyph(i - 1).char);
-					if ( xPosition < (leftGlyphPos(line.getGlyph(i - 1), chardata) + rightGlyphPos(line.getGlyph(i - 1), chardata)) / 2)  // TODO: letterspace
+					if ( xPosition < (leftGlyphPos(line.getGlyph(i - 1), chardata) + rightGlyphPos(line.getGlyph(i - 1), chardata)) / 2)
 						return i-1;
 					else return i;
 				}
-				default: macro // ------- simple font -------
-				{
-					${switch (glyphStyleHasField.local_width) {
-						case true: macro {
-							// TODO: binary search
-							var i:Int = line.visibleFrom;
-							while (i < line.visibleTo && xPosition > line.getGlyph(i).x) i++;
-							if (i == 0) return 0;
-							var chardata =  getCharData(line.getGlyph(i - 1).char);
-							if ( xPosition < (leftGlyphPos(line.getGlyph(i - 1), chardata) + rightGlyphPos(line.getGlyph(i - 1), chardata)) / 2)
-								return i-1;
-							else return i;
-						}
-						default: switch (glyphStyleHasField.width) {
-							case true: macro {
-								return Math.round((xPosition - line.x - line.offset)/(fontStyle.width)); // TODO: letterspace
-							}
-							default: macro {
-								return Math.round((xPosition - line.x - line.offset)/font.config.width); // TODO: letterspace
-							}
-					}}}
+				default: switch (glyphStyleHasField.width) {
+					case true: macro return Math.round((xPosition - line.x - line.offset + letterSpace(null)/2)/(fontStyle.width + letterSpace(null)));
+					default: macro return Math.round((xPosition - line.x - line.offset + letterSpace(null)/2)/(font.config.width + letterSpace(null)));
 				}
 			}}
 		}
 	}
 		
-	
-	
+
 	
 	// -----------------------------------------
 	// ---------------- Pages ------------------
