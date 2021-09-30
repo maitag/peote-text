@@ -162,7 +162,7 @@ class InputLine extends Application
 			// ------------------- line  -------------------				
 			line = new Line<GlyphStyle>();
 			
-			setLine("Testing input textline and masking. (page up/down is toggling glyphstyle)", window.width - 20 - line_x, line_offset);
+			setLine("Testing input textline and masking. (page up/down is toggling glyphstyle)", window.width - 20 - line_x * 2, line_offset);
 			
 
 			trace("font height "+font.config.height+"");
@@ -172,17 +172,17 @@ class InputLine extends Application
 			trace("textSize "+line.textSize);
 			trace("length "+line.length+" (number of glyphes)" );
 
-			mask = fontProgram.createMask(Std.int(line.x), Std.int(line.y)-40, Std.int(line.size-line.x), Std.int(line.lineHeight)+80);
+			mask = fontProgram.createMask(Std.int(line.x), Std.int(line.y)-40, Std.int(line.size), Std.int(line.lineHeight)+80);
 			
 			// -------- background and helperlines ---------				
-			createHelperLines(line.size-line.x, line.lineHeight);
+			createHelperLines(line.size, line.lineHeight);
 			
 			// ----------------- Cursor  -------------------	
 			cursor_x = line_x;
-			cursorElem = fontProgram.createBackground(cursor_x, line_y, 1, line.height, 1, Color.RED);
+			cursorElem = fontProgram.createBackground(line_x, line_y, 1, line.height, 1, Color.RED);
 			
 			// --------------- Selection  -------------------				
-			selectElem = fontProgram.createBackground(cursor_x, line_y, 0, line.lineHeight, 0, Color.GREY3);
+			selectElem = fontProgram.createBackground(line_x, line_y, 0, line.lineHeight, 0, Color.GREY3);
 			
 				
 			//fontProgram.lineSetChar(line, "A".charCodeAt(0) , 0, glyphStyle2);
@@ -331,7 +331,7 @@ class InputLine extends Application
 	public function lineUpdate()
 	{
 		fontProgram.updateLine(line);
-		updateHelperLines(line_x, line.size - line.x, line.lineHeight);
+		updateHelperLines(line_x, line.size, line.lineHeight);
 	}
 	
 	public function moveCursor(offset:Float)
@@ -564,11 +564,11 @@ class InputLine extends Application
 	{
 		display.width  = width - 20;
 		display.height = height - 20;
-		fontProgram.lineSetSize(line, window.width - 20 - line_x);
+		fontProgram.lineSetSize(line, window.width - 20 - line_x * 2);
 		cursor_x = cursorElem.x;
 		select_x = selectElem.x;
 		lineSetOffset(0);
-		mask.update(Std.int(line.x), Std.int(line.y)-40, Std.int(line.size - line.x), Std.int(line.lineHeight)+80 );
+		mask.update(Std.int(line.x), Std.int(line.y)-40, Std.int(line.size), Std.int(line.lineHeight)+80 );
 		fontProgram.updateMask(mask);
 	}
 

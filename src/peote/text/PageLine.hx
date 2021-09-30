@@ -47,7 +47,7 @@ class $className
 	
 	
 	// TODO: optimize for neko/hl/cpp
-	var glyphes = new Array<$glyphType>();
+	@:allow(peote.text) var glyphes = new Array<$glyphType>();
 	
 	
 	public inline function getGlyph(i:Int):$glyphType return glyphes[i];
