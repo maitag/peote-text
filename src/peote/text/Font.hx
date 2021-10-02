@@ -148,6 +148,47 @@ class $className
 	public function createLine():$lineType return new $linePath();
 	
 	#if peote_ui
+	
+		#if (peoteui_maxDisplays == "1")
+			static var uiDisplayFontProgram:peote.text.FontProgram<$styleType>; //$fontProgramType
+		#else
+			static var uiDisplayFontProgram = new haxe.ds.Vector<peote.text.FontProgram<$styleType>;>(peote.ui.UIDisplay.MAX_DISPLAYS);
+		#end
+
+	static var uiDisplays:Int = 0;
+	
+	public inline function notIntoUiDisplay(uiDisplayNumber:Int):Bool {
+		return ((uiDisplays & (1 << uiDisplayNumber))==0);
+	}
+	
+	public inline function createFontProgramForUiDisplay(uiDisplayNumber:Int, fontStyle:$styleType, isMasked:Bool = false, hasBackground:Bool = false):peote.text.FontProgram<$styleType>
+	{
+		uiDisplays |= 1 << uiDisplayNumber;
+		var fontProgram = createFontProgram(fontStyle, isMasked, hasBackground);
+		#if (peoteui_maxDisplays == "1")
+			uiDisplayFontProgram = fontProgram;
+		#else
+			uiDisplayFontProgram.set(uiDisplay.number, fontProgram);
+		#end
+		return fontProgram;
+	}
+	
+	public inline function getFontProgramByUiDisplay(uiDisplayNumber:Int):peote.text.FontProgram<$styleType>
+	{
+		#if (peoteui_maxDisplays == "1")
+			return uiDisplayFontProgram;
+		#else
+			return uiDisplayFontProgram.get(uiDisplay.number));
+		#end
+	}	
+		
+	public inline function removeFontProgramFromUiDisplay(uiDisplayNumber:Int):peote.text.FontProgram<$styleType>
+	{
+		// for the last element into buffer remove from displays bitmask
+		uiDisplays &= ~(1 << uiDisplayNumber);
+		return getFontProgramByUiDisplay(uiDisplayNumber);
+	}	
+		
 	public function createInteractiveTextLine(xPosition:Int, yPosition:Int, width:Int, height:Int , zIndex:Int, masked:Bool = false,
 	                    text:String, fontStyle:$styleType):peote.ui.interactive.InteractiveTextLine<$styleType>
 	                    //text:String, fontStyle:$styleType):$interactiveTextLineType

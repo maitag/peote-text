@@ -1,4 +1,5 @@
 package peote.text;
+import lime.text.Glyph;
 
 #if !macro
 @:genericBuild(peote.text.FontProgram.FontProgramMacro.build("FontProgram"))
@@ -834,8 +835,7 @@ class $className extends peote.view.Program
 		pageLine.textSize = x - x_start - line_offset;
 
 		return ret;		
-	}
-	
+	}	
 	
 	inline function _setDefaultMetric(pageLine:$pageLineType, defaultFontRange:Int, glyphStyle:Null<$styleType>) {
 		var charCode = font.config.ranges[defaultFontRange].range.min;
