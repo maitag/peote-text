@@ -1,5 +1,4 @@
 package peote.text;
-import lime.text.Glyph;
 
 #if !macro
 @:genericBuild(peote.text.FontProgram.FontProgramMacro.build("FontProgram"))
