@@ -564,10 +564,17 @@ class InputLine extends Application
 	{
 		display.width  = width - 20;
 		display.height = height - 20;
+		
 		fontProgram.lineSetSize(line, window.width - 20 - line_x * 2);
-		cursor_x = cursorElem.x;
-		select_x = selectElem.x;
-		lineSetOffset(0);
+		lineUpdate();
+		
+		//cursor_x = cursorElem.x;
+		//select_x = selectElem.x;
+		
+		//lineSetOffset(0);
+		//fontProgram.updateBackground(selectElem);
+		
+
 		mask.update(Std.int(line.x), Std.int(line.y)-40, Std.int(line.size), Std.int(line.lineHeight)+80 );
 		fontProgram.updateMask(mask);
 	}

@@ -971,7 +971,8 @@ class $className extends peote.view.Program
 	{
 		pageLine.updateFrom = 0;
 		pageLine.updateTo = pageLine.length;		
-		if (offset != null) _setLinePositionOffsetFull(pageLine, line_x, line_size, offset - line_offset + xNew - line_x, yNew - pageLine.y);
+		//if (offset != null) _setLinePositionOffsetFull(pageLine, line_x, line_size, offset - line_offset + xNew - line_x, yNew - pageLine.y);
+		if (offset != null) _setLinePositionOffsetFull(pageLine, xNew, line_size, offset - line_offset + xNew - line_x, yNew - pageLine.y);
 		else
 			for (i in 0...pageLine.length) {
 				pageLine.getGlyph(i).x += xNew - line_x;
@@ -984,7 +985,8 @@ class $className extends peote.view.Program
 	{
 		pageLine.updateFrom = 0;
 		pageLine.updateTo = pageLine.length;		
-		if (offset != null) _setLinePositionOffsetFull(pageLine, line_x, line_size, offset - line_offset + xNew - line_x, 0);
+		//if (offset != null) _setLinePositionOffsetFull(pageLine, line_x, line_size, offset - line_offset + xNew - line_x, 0);
+		if (offset != null) _setLinePositionOffsetFull(pageLine, xNew, line_size, offset - line_offset + xNew - line_x, 0);
 		else for (i in 0...pageLine.updateTo) pageLine.getGlyph(i).x += xNew - line_x;
 	}
 	
@@ -1001,8 +1003,10 @@ class $className extends peote.view.Program
 	{
 		pageLine.updateFrom = 0;
 		pageLine.updateTo = pageLine.length;		
-		if (offset != null) _setLinePositionOffsetFull(pageLine, line_x, line_size, offset - line_offset + xNew - line_x,  yNew - pageLine.y);
-		else _setLinePositionOffsetFull(pageLine, line_x, line_size, 0,  yNew - pageLine.y);
+		//if (offset != null) _setLinePositionOffsetFull(pageLine, line_x, line_size, offset - line_offset + xNew - line_x,  yNew - pageLine.y);
+		if (offset != null) _setLinePositionOffsetFull(pageLine, xNew, line_size, offset - line_offset + xNew - line_x,  yNew - pageLine.y);
+		//else _setLinePositionOffsetFull(pageLine, line_x, line_size, xNew - line_x, yNew - pageLine.y);		
+		else _setLinePositionOffsetFull(pageLine, xNew, line_size, xNew - line_x, yNew - pageLine.y);		
 		pageLine.y = yNew;
 	}
 
@@ -1010,30 +1014,29 @@ class $className extends peote.view.Program
 	{
 		pageLine.updateFrom = 0;
 		pageLine.updateTo = pageLine.length;		
-		if (offset != null) _setLinePositionOffsetFull(pageLine, line_x, line_size, offset - line_offset, 0);
-		else _setLinePositionOffsetFull(pageLine, line_x, line_size, 0, 0, false);
+		if (offset != null) _setLinePositionOffsetFull(pageLine, line_x, line_size, offset - line_offset);
+		else _setLinePositionOffsetFull(pageLine, line_x, line_size);
 	}
 
 	public inline function pageLineSetOffset(pageLine:$pageLineType, line_x:Float, line_size:Float, line_offset:Float, offset:Float)
 	{
 		pageLine.updateFrom = 0;
-		pageLine.updateTo = pageLine.length;		
-		_setLinePositionOffsetFull(pageLine, line_x, line_size, offset - line_offset, 0);
+		pageLine.updateTo = pageLine.length;
+		_setLinePositionOffsetFull(pageLine, line_x, line_size, offset - line_offset);
 	}
 
-	inline function _setLinePositionOffsetFull(pageLine:$pageLineType, line_x:Float, line_size:Float, deltaX:Float, deltaY:Float, hasOffset = true) 
+	inline function _setLinePositionOffsetFull(pageLine:$pageLineType, line_x:Float, line_size:Float, deltaX:Null<Float> = null, deltaY:Null<Float> = null) 
 	{
 		var line_max = line_x + line_size;
+		
 		var visibleFrom = pageLine.visibleFrom;
 		var visibleTo = pageLine.visibleTo;
-
+			
 		for (i in 0...pageLine.length)
 		{
-			if (hasOffset) {
-				pageLine.getGlyph(i).x += deltaX;
-				pageLine.getGlyph(i).y += deltaY;
-			}
-			
+			if (deltaX != null) pageLine.getGlyph(i).x += deltaX;
+			if (deltaY != null) pageLine.getGlyph(i).y += deltaY;
+
 			// calc visible range
 			if (pageLine.getGlyph(i).x + ${switch(glyphStyleHasMeta.packed) {case true: macro pageLine.getGlyph(i).w; default: macro pageLine.getGlyph(i).width; }} >= line_x)
 			{	
@@ -1052,7 +1055,7 @@ class $className extends peote.view.Program
 			else {
 				if (i >= pageLine.visibleFrom && i < pageLine.visibleTo) _buffer.removeElement(pageLine.getGlyph(i));
 				visibleFrom = i + 1;
-			}
+			}			
 		}
 		
 		pageLine.visibleFrom = visibleFrom;
@@ -1625,6 +1628,7 @@ class $className extends peote.view.Program
 	{
 		pageLineSetPosition(line.pageLine, line.x, line.size, line.offset, x, y, offset);
 		line.x = x;
+		if (offset != null) line.offset = offset;
 	}
 	
 	/**
@@ -1637,6 +1641,7 @@ class $className extends peote.view.Program
 	{
 		pageLineSetXPosition(line.pageLine, line.x, line.size, line.offset, x, offset);
 		line.x = x;
+		if (offset != null) line.offset = offset;
 	}
 	
 	/**
@@ -1648,6 +1653,7 @@ class $className extends peote.view.Program
 	public inline function lineSetYPosition(line:$lineType, y:Float, offset:Null<Float> = null)
 	{
 		pageLineSetYPosition(line.pageLine, line.x, line.size, line.offset, y, offset);
+		if (offset != null) line.offset = offset;
 	}
 	
 	/**
@@ -1661,8 +1667,9 @@ class $className extends peote.view.Program
 	public inline function lineSetPositionSize(line:$lineType, x:Float, y:Float, size:Float, offset:Null<Float> = null)
 	{
 		pageLineSetPositionSize(line.pageLine, line.x, size, line.offset, x, y, offset);
-		line.size = size;
 		line.x = x;
+		line.size = size;
+		if (offset != null) line.offset = offset;
 	}
 		
 	/**
@@ -1673,8 +1680,9 @@ class $className extends peote.view.Program
 	**/
 	public inline function lineSetSize(line:$lineType, size:Float, offset:Null<Float> = null)
 	{
-		line.size = size;
 		pageLineSetSize(line.pageLine, line.x, size, line.offset, offset);
+		line.size = size;
+		if (offset != null) line.offset = offset;
 	}
 		
 	/**
