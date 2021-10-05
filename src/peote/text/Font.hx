@@ -152,7 +152,7 @@ class $className
 		#if (peoteui_maxDisplays == "1")
 			static var uiDisplayFontProgram:peote.text.FontProgram<$styleType>; //$fontProgramType
 		#else
-			static var uiDisplayFontProgram = new haxe.ds.Vector<peote.text.FontProgram<$styleType>;>(peote.ui.UIDisplay.MAX_DISPLAYS);
+			static var uiDisplayFontProgram = new haxe.ds.Vector<peote.text.FontProgram<$styleType>>(peote.ui.UIDisplay.MAX_DISPLAYS);
 		#end
 
 	static var uiDisplays:Int = 0;
@@ -168,7 +168,7 @@ class $className
 		#if (peoteui_maxDisplays == "1")
 			uiDisplayFontProgram = fontProgram;
 		#else
-			uiDisplayFontProgram.set(uiDisplay.number, fontProgram);
+			uiDisplayFontProgram.set(uiDisplayNumber, fontProgram);
 		#end
 		return fontProgram;
 	}
@@ -178,7 +178,7 @@ class $className
 		#if (peoteui_maxDisplays == "1")
 			return uiDisplayFontProgram;
 		#else
-			return uiDisplayFontProgram.get(uiDisplay.number));
+			return uiDisplayFontProgram.get(uiDisplayNumber);
 		#end
 	}	
 		
