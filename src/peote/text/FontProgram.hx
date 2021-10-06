@@ -902,7 +902,7 @@ class $className extends peote.view.Program
 	
 	// ----------- change Line Style ----------------
 	
-	public inline function pageLineSetStyle(pageLine:$pageLineType, line_x:Float, line_offset:Float, line_size:Float, glyphStyle:$styleType, from:UInt = 0, to:Null<UInt> = null):Float
+	public inline function pageLineSetStyle(pageLine:$pageLineType, line_x:Float, line_offset:Float, line_size:Float, glyphStyle:$styleType, from:Int = 0, to:Null<Int> = null):Float
 	{
 		if (to == null || to > pageLine.length) to = pageLine.length;
 		
@@ -1612,7 +1612,7 @@ class $className extends peote.view.Program
 		@param from position of the first char into range, is 0 by default (start of line)
 		@param to position after the last char into range, is line.length by default (end of line)
 	**/
-	public inline function lineSetStyle(line:$lineType, glyphStyle:$styleType, from:UInt = 0, to:Null<UInt> = null):Float
+	public inline function lineSetStyle(line:$lineType, glyphStyle:$styleType, from:Int = 0, to:Null<Int> = null):Float
 	{
 		return pageLineSetStyle(line.pageLine, line.x, line.offset, line.size, glyphStyle, from, to);
 	}
