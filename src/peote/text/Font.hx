@@ -190,18 +190,18 @@ class $className
 	}	
 		
 	public function createInteractiveTextLine(xPosition:Int, yPosition:Int, width:Int, height:Int , zIndex:Int, masked:Bool = false,
-	                    text:String, fontStyle:$styleType):peote.ui.interactive.InteractiveTextLine<$styleType>
-	                    //text:String, fontStyle:$styleType):$interactiveTextLineType
+	                text:String, fontStyle:$styleType, backgroundColor:peote.view.Color = 0):peote.ui.interactive.InteractiveTextLine<$styleType>
+	                //text:String, fontStyle:$styleType, backgroundColor:peote.view.Color = 0):$interactiveTextLineType
 	{
-		return new peote.ui.interactive.InteractiveTextLine<$styleType>(xPosition, yPosition, width, height, zIndex, masked, text, this, fontStyle);
-		//return new $interactiveTextLinePath(xPosition, yPosition, width, height, zIndex, masked, text, this, fontStyle);
+		return new peote.ui.interactive.InteractiveTextLine<$styleType>(xPosition, yPosition, width, height, zIndex, masked, text, this, fontStyle, backgroundColor);
+		//return new $interactiveTextLinePath(xPosition, yPosition, width, height, zIndex, masked, text, this, fontStyle, backgroundColor);
 	}
 	public function createLayoutedTextLine(xPosition:Int, yPosition:Int, width:Int, height:Int, zIndex:Int, masked:Bool = false,
-	                    text:String, fontStyle:$styleType):peote.ui.layouted.LayoutedTextLine<$styleType>
-	                    //text:String, fontStyle:$styleType):$layoutedTextLineType
+	                text:String, fontStyle:$styleType, backgroundColor:peote.view.Color = 0):peote.ui.layouted.LayoutedTextLine<$styleType>
+	                //text:String, fontStyle:$styleType, backgroundColor:peote.view.Color = 0):$layoutedTextLineType
 	{
-		return new peote.ui.layouted.LayoutedTextLine<$styleType>(xPosition, yPosition, width, height, zIndex, masked, text, this, fontStyle);
-		//return new $layoutedTextLinePath(xPosition, yPosition, width, height, zIndex, masked, text, this, fontStyle);
+		return new peote.ui.layouted.LayoutedTextLine<$styleType>(xPosition, yPosition, width, height, zIndex, masked, text, this, fontStyle, backgroundColor);
+		//return new $layoutedTextLinePath(xPosition, yPosition, width, height, zIndex, masked, text, this, fontStyl, backgroundColore);
 	}	
 	#end
 	

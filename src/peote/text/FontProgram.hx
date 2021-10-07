@@ -161,11 +161,11 @@ class $className extends peote.view.Program
 		backgroundBuffer = new peote.view.Buffer<peote.text.BackgroundElement>(16, 16, true);
 		backgroundProgram = new peote.view.Program(backgroundBuffer);
 		if (isMasked) backgroundProgram.mask = peote.view.Mask.USE;
-/*		${switch (glyphStyleHasField.zIndex) {
+		${switch (glyphStyleHasField.zIndex) {
 			case true: macro {}
 			default: macro backgroundProgram.zIndexEnabled = false;
 		}}
-*/	
+	
 	}
 		
 	public inline function createBackground(x:Float, y:Float, w:Float, h:Float, z:Int, color:peote.view.Color, autoAdd = true):peote.text.BackgroundElement {
