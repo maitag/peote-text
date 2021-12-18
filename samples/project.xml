@@ -6,7 +6,7 @@
 	<android target-sdk-version="28" />
 	<!-- <meta build-number="714" /> --> <!-- let set the buildnumber manual (android) -->
 	
-	<app main="Glyphes" path="bin" file="Main" />
+	<app main="InputLine" path="bin" file="Main" />
 	<!--
 		Gl3FontRendering,
 		Glyphes,

@@ -189,19 +189,19 @@ class $className
 		return getFontProgramByUiDisplay(uiDisplayNumber);
 	}	
 		
-	public function createInteractiveTextLine(xPosition:Int, yPosition:Int, width:Int, height:Int , zIndex:Int, masked:Bool = false,
-	                text:String, fontStyle:$styleType, backgroundColor:peote.view.Color = 0):peote.ui.interactive.InteractiveTextLine<$styleType>
-	                //text:String, fontStyle:$styleType, backgroundColor:peote.view.Color = 0):$interactiveTextLineType
+	public function createInteractiveTextLine(xPosition:Int, yPosition:Int, ?textSize:peote.ui.util.TextSize, zIndex:Int = 0, text:String,
+	                fontStyle:$styleType, backgroundColor:peote.view.Color = 0):peote.ui.interactive.InteractiveTextLine<$styleType>
+	                //fontStyle:$styleType, backgroundColor:peote.view.Color = 0):$interactiveTextLineType
 	{
-		return new peote.ui.interactive.InteractiveTextLine<$styleType>(xPosition, yPosition, width, height, zIndex, masked, text, this, fontStyle, backgroundColor);
-		//return new $interactiveTextLinePath(xPosition, yPosition, width, height, zIndex, masked, text, this, fontStyle, backgroundColor);
+		return new peote.ui.interactive.InteractiveTextLine<$styleType>(xPosition, yPosition, textSize, zIndex, text, this, fontStyle, backgroundColor);
+		//return new $interactiveTextLinePath(xPosition, yPosition, textSize, zIndex, text, this, fontStyle, backgroundColor);
 	}
-	public function createLayoutedTextLine(xPosition:Int, yPosition:Int, width:Int, height:Int, zIndex:Int, masked:Bool = false,
-	                text:String, fontStyle:$styleType, backgroundColor:peote.view.Color = 0):peote.ui.layouted.LayoutedTextLine<$styleType>
-	                //text:String, fontStyle:$styleType, backgroundColor:peote.view.Color = 0):$layoutedTextLineType
+	public function createLayoutedTextLine(xPosition:Int, yPosition:Int, ?textSize:peote.ui.util.TextSize, zIndex:Int = 0, text:String,
+	                fontStyle:$styleType, backgroundColor:peote.view.Color = 0):peote.ui.layouted.LayoutedTextLine<$styleType>
+	                //fontStyle:$styleType, backgroundColor:peote.view.Color = 0):$layoutedTextLineType
 	{
-		return new peote.ui.layouted.LayoutedTextLine<$styleType>(xPosition, yPosition, width, height, zIndex, masked, text, this, fontStyle, backgroundColor);
-		//return new $layoutedTextLinePath(xPosition, yPosition, width, height, zIndex, masked, text, this, fontStyl, backgroundColore);
+		return new peote.ui.layouted.LayoutedTextLine<$styleType>(xPosition, yPosition, textSize, zIndex, text, this, fontStyle, backgroundColor);
+		//return new $layoutedTextLinePath(xPosition, yPosition, textSize, zIndex, text, this, fontStyle, backgroundColor);
 	}	
 	#end
 	
@@ -316,7 +316,7 @@ class $className
 			else config.ranges = found_ranges;
 
 			init(onLoad, onProgressOverall, debug);
-		});		
+		});	
 	}
 	
 	private function init(onLoad:peote.text.Font<$styleType>->Void, onProgressOverall:Int->Int->Void, debug:Bool)
