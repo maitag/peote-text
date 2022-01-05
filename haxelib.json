@@ -4,9 +4,9 @@
 	"license": "MIT",
 	"tags": ["peote", "text", "textrendering", "font", "glyph"],
 	"description": "Glyph and Textrendering for peote-view",
-	"version": "0.8.8",
+	"version": "0.8.9",
 	"classPath": "src/",
-	"releasenote": "new param to change also non added lines",
+	"releasenote": "adding metric and baseline options for fontprogram glyph-functions",
 	"contributors": ["Sylvio Sell - maitag"],
 	"dependencies": {
 		"lime": "",

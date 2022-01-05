@@ -581,6 +581,12 @@ class $className extends peote.view.Program
 
 	inline function setPosition(glyph:$glyphType, charData:$charDataType, x:Float, y:Float)
 	{					
+		setXPosition(glyph, charData, x);
+		setYPosition(glyph, charData, y);
+	}
+	
+	inline function setXPosition(glyph:$glyphType, charData:$charDataType, x:Float)
+	{					
 		${switch (glyphStyleHasMeta.packed)
 		{
 			case true: macro // ------- Gl3Font -------
@@ -591,6 +597,20 @@ class $className extends peote.view.Program
 						case true: macro glyph.x = x + charData.metric.left * fontStyle.width;
 						default: macro glyph.x = x + charData.metric.left * font.config.width;
 				}}}
+			}
+			default: macro // ------- simple font -------
+			{
+				glyph.x = x;
+			}
+		}}
+	}
+	
+	inline function setYPosition(glyph:$glyphType, charData:$charDataType, y:Float)
+	{					
+		${switch (glyphStyleHasMeta.packed)
+		{
+			case true: macro // ------- Gl3Font -------
+			{
 				${switch (glyphStyleHasField.local_height) {
 					case true: macro glyph.y = y + (charData.fontData.base - charData.metric.top) * glyph.height;									
 					default: switch (glyphStyleHasField.height) {
@@ -600,8 +620,47 @@ class $className extends peote.view.Program
 			}
 			default: macro // ------- simple font -------
 			{
-				glyph.x = x;
 				glyph.y = y;
+			}
+		}}
+	}
+	
+	inline function getXPosition(glyph:$glyphType, charData:$charDataType):Float
+	{					
+		return ${switch (glyphStyleHasMeta.packed)
+		{
+			case true: macro // ------- Gl3Font -------
+			{
+				${switch (glyphStyleHasField.local_width) {
+					case true: macro glyph.x - charData.metric.left * glyph.width;
+					default: switch (glyphStyleHasField.width) {
+						case true: macro glyph.x - charData.metric.left * fontStyle.width;
+						default: macro glyph.x - charData.metric.left * font.config.width;
+				}}}
+			}
+			default: macro // ------- simple font -------
+			{
+				glyph.x;
+			}
+		}}
+	}
+	
+	inline function getYPosition(glyph:$glyphType, charData:$charDataType):Float
+	{					
+		return ${switch (glyphStyleHasMeta.packed)
+		{
+			case true: macro // ------- Gl3Font -------
+			{
+				${switch (glyphStyleHasField.local_height) {
+					case true: macro glyph.y - (charData.fontData.base - charData.metric.top) * glyph.height;									
+					default: switch (glyphStyleHasField.height) {
+						case true: macro glyph.y - (charData.fontData.base - charData.metric.top) * fontStyle.height;
+						default: macro glyph.y - (charData.fontData.base - charData.metric.top) * font.config.height;
+				}}}							
+			}
+			default: macro // ------- simple font -------
+			{
+				glyph.y;
 			}
 		}}
 	}
@@ -629,6 +688,10 @@ class $className extends peote.view.Program
 		}}
 	}
 	
+	public inline function setStyle(glyph:$glyphType, glyphStyle:$styleType) {
+		glyph.setStyle((glyphStyle != null) ? glyphStyle : fontStyle);
+	}
+
 	inline function setCharcode(glyph:$glyphType, charcode:Int, charData:$charDataType)
 	{
 		glyph.char = charcode;
@@ -665,33 +728,141 @@ class $className extends peote.view.Program
 	// ---------------- Glyphes ----------------
 	// -----------------------------------------
 					
-	public inline function createGlyph(charcode:Int, x:Float, y:Float, glyphStyle:$styleType = null):$glyphType {
+	public inline function createGlyph(charcode:Int, x:Float, y:Float, glyphStyle:$styleType = null, useMetric = false):$glyphType return _createGlyph(charcode, x, y, glyphStyle, useMetric, false);
+	public inline function createGlyphAtBase(charcode:Int, x:Float, y:Float, glyphStyle:$styleType = null):$glyphType return _createGlyph(charcode, x, y, glyphStyle, true, true);
+	inline function _createGlyph(charcode:Int, x:Float, y:Float, glyphStyle:$styleType = null, useMetric:Bool, atBaseline:Bool):$glyphType {
 		var charData = getCharData(charcode);
 		if (charData != null) {
 			var glyph = new peote.text.Glyph<$styleType>();
-			glyphSetStyle(glyph, glyphStyle);
+			setStyle(glyph, glyphStyle);
 			setCharcode(glyph, charcode, charData);
 			setSize(glyph, charData);
-			glyph.x = x;
-			glyph.y = y;
+			if (useMetric) {
+				if (atBaseline) setPosition(glyph, charData, x, y - _getBaseline(glyph, charData));
+				else setPosition(glyph, charData, x, y);
+			}	
+			else {
+				glyph.x = x;
+				glyph.y = y;
+			}
 			_buffer.addElement(glyph);
 			return glyph;
 		} else return null;
 	}
 	
-	public inline function setGlyph(glyph:$glyphType, charcode:Int, x:Float, y:Float, glyphStyle:$styleType = null):Bool {
+	public inline function setGlyph(glyph:$glyphType, charcode:Int, x:Float, y:Float, glyphStyle:$styleType = null, useMetric = false):Bool return _setGlyph(glyph, charcode, x, y, glyphStyle, useMetric, false);
+	public inline function setGlyphAtBase(glyph:$glyphType, charcode:Int, x:Float, y:Float, glyphStyle:$styleType = null):Bool return _setGlyph(glyph, charcode, x, y, glyphStyle, true, true);
+	inline function _setGlyph(glyph:$glyphType, charcode:Int, x:Float, y:Float, glyphStyle:$styleType = null, useMetric:Bool, atBaseline:Bool):Bool {
 		var charData = getCharData(charcode);
 		if (charData != null) {
-			glyphSetStyle(glyph, glyphStyle);
+			setStyle(glyph, glyphStyle);
 			setCharcode(glyph, charcode, charData);
 			setSize(glyph, charData);
-			glyph.x = x;
-			glyph.y = y;
+			if (useMetric) {
+				if (atBaseline) setPosition(glyph, charData, x, y - _getBaseline(glyph, charData));
+				else setPosition(glyph, charData, x, y);
+			}	
+			else {
+				glyph.x = x;
+				glyph.y = y;
+			}
 			_buffer.addElement(glyph);
 			return true;
 		} else return false;
 	}
 					
+	public inline function glyphSetStyle(glyph:$glyphType, glyphStyle:$styleType, useMetric = false) {		
+		if (useMetric) {
+			var charData = getCharData(glyph.char);
+			var old_base:Float = _getBaseline(glyph, charData);
+			var old_x = getXPosition(glyph, charData);
+			var old_y = getYPosition(glyph, charData);
+			
+			setStyle(glyph, glyphStyle);
+			
+			setPosition(glyph, charData, old_x, old_y + _baseLineOffset(old_base, glyph, charData));
+		}
+		else setStyle(glyph, glyphStyle);
+	}
+
+	public inline function glyphSetPosition(glyph:$glyphType, x:Float, y:Float, useMetric = false) _glyphSetPosition(glyph, x, y, useMetric, false);		
+	public inline function glyphSetPositionAtBase(glyph:$glyphType, x:Float, y:Float) _glyphSetPosition(glyph, x, y, true, true);	
+	inline function _glyphSetPosition(glyph:$glyphType, x:Float, y:Float, useMetric:Bool, atBaseline:Bool) {
+		if (useMetric) {
+			if (atBaseline) {
+				var charData = getCharData(glyph.char);
+				setPosition(glyph, charData, x, y - _getBaseline(glyph, charData));
+			}
+			else setPosition(glyph, getCharData(glyph.char), x, y);
+		}
+		else {
+			glyph.x = x;
+			glyph.y = y;
+		}
+	}
+
+	public inline function glyphSetXPosition(glyph:$glyphType, x:Float, useMetric = false) {
+		if (useMetric) setXPosition(glyph, getCharData(glyph.char), x) else glyph.x = x;
+	}
+	public inline function glyphGetXPosition(glyph:$glyphType, x:Float, useMetric = false):Float {
+		if (useMetric) return getXPosition(glyph, getCharData(glyph.char)) else return glyph.x;
+	}
+
+	public inline function glyphSetYPosition(glyph:$glyphType, y:Float, useMetric = false) _glyphSetYPosition(glyph, y, useMetric, false);	
+	public inline function glyphSetYPositionAtBase(glyph:$glyphType, y:Float) _glyphSetYPosition(glyph, y, true, true);	
+	inline function _glyphSetYPosition(glyph:$glyphType, y:Float, useMetric:Bool, atBaseline:Bool) {
+		if (useMetric) {
+			if (atBaseline) {
+				var charData = getCharData(glyph.char);
+				setYPosition(glyph, charData, y - _getBaseline(glyph, charData));
+			}
+			else setYPosition(glyph, getCharData(glyph.char), y);
+		}
+		else glyph.y = y;
+	}
+
+	public inline function glyphGetYPosition(glyph:$glyphType, y:Float, useMetric = false):Float return _glyphGetYPosition(glyph, y, useMetric, false);
+	public inline function glyphGetYPositionAtBase(glyph:$glyphType, y:Float):Float return _glyphGetYPosition(glyph, y, true, true);		
+	inline function _glyphGetYPosition(glyph:$glyphType, y:Float, useMetric:Bool, atBaseline:Bool):Float {
+		if (useMetric) {
+			if (atBaseline) {
+				var charData = getCharData(glyph.char);
+				return getYPosition(glyph, charData) - _getBaseline(glyph, charData);
+			}
+			else return getYPosition(glyph, getCharData(glyph.char));
+		}
+		else return glyph.y;
+	}
+
+	public inline function glyphGetBaseline(glyph:$glyphType):Float {
+		return _getBaseline(glyph, getCharData(glyph.char));
+	}
+
+	public inline function glyphSetChar(glyph:$glyphType, charcode:Int, useMetric:Bool = false):Bool
+	{
+		var charData = getCharData(charcode);
+		if (charData != null) 
+		{		
+			if (useMetric) {
+				var old_charData = getCharData(glyph.char);
+				var old_base:Float = _getBaseline(glyph, old_charData);
+				var old_x = getXPosition(glyph, old_charData);
+				var old_y = getYPosition(glyph, old_charData);
+				
+				setCharcode(glyph, charcode, charData);
+				setSize(glyph, charData);
+				
+				setPosition(glyph, charData, old_x, old_y + _baseLineOffset(old_base, glyph, charData));
+			}
+			else {
+				setCharcode(glyph, charcode, charData);
+				setSize(glyph, charData);
+			}			
+			return true;
+		} 
+		else return false;
+	}
+
 	public inline function addGlyph(glyph:$glyphType):Void {
 		_buffer.addElement(glyph);
 	}
@@ -704,27 +875,6 @@ class $className extends peote.view.Program
 		_buffer.updateElement(glyph);
 	}
 	
-	public inline function glyphSetStyle(glyph:$glyphType, glyphStyle:$styleType) {
-		glyph.setStyle((glyphStyle != null) ? glyphStyle : fontStyle);
-	}
-
-	// sets position in depend of metrics-data
-	// TODO: put on a given baseline
-	public inline function glyphSetPosition(glyph:$glyphType, x:Float, y:Float) {
-		var charData = getCharData(glyph.char);
-		setPosition(glyph, charData, x, y);
-	}
-
-	public inline function glyphSetChar(glyph:$glyphType, charcode:Int):Bool
-	{
-		var charData = getCharData(charcode);
-		if (charData != null) {
-			setCharcode(glyph, charcode, charData);
-			setSize(glyph, charData);
-			return true;
-		} else return false;
-	}
-
 	public inline function numberOfGlyphes():Int return _buffer.length();
 
 	
@@ -760,7 +910,7 @@ class $className extends peote.view.Program
 				if (i >= old_length) { // append
 					glyph = new peote.text.Glyph<$styleType>();
 					pageLine.pushGlyph(glyph);
-					glyphSetStyle(glyph, glyphStyle);
+					setStyle(glyph, glyphStyle);
 					setCharcode(glyph, charcode, charData);
 					setSize(glyph, charData);
 					
@@ -783,7 +933,7 @@ class $className extends peote.view.Program
 				}
 				else { // set over
 					glyph = pageLine.getGlyph(i);
-					if (glyphStyle != null) glyphSetStyle(glyph, glyphStyle);
+					if (glyphStyle != null) glyph.setStyle(glyphStyle);
 					setCharcode(glyph, charcode, charData);
 					setSize(glyph, charData);
 					
@@ -811,7 +961,7 @@ class $className extends peote.view.Program
 					if (defaultFontRange == null) _setLineMetric(pageLine, glyph, charData);
 					else {
 						_setDefaultMetric(pageLine, defaultFontRange, glyphStyle);
-						var y_offset = _baseLineOffset(pageLine, glyph, charData);
+						var y_offset = _baseLineOffset(pageLine.base, glyph, charData);
 						glyph.y += y_offset;
 						y += y_offset;
 					}
@@ -850,7 +1000,7 @@ class $className extends peote.view.Program
 		var charCode = font.config.ranges[defaultFontRange].range.min;
 		var charData = getCharData(charCode);
 		var glyph = new peote.text.Glyph<$styleType>();
-		glyphSetStyle(glyph, glyphStyle);
+		setStyle(glyph, glyphStyle);
 		setCharcode(glyph, charCode, charData);
 		setSize(glyph, charData);
 		_setLineMetric(pageLine, glyph, charData);
@@ -887,11 +1037,32 @@ class $className extends peote.view.Program
 		}
 	}
 	
-	inline function _baseLineOffset(pageLine:$pageLineType, glyph:$glyphType, charData:$charDataType):Float {
+	inline function _getBaseline(glyph:$glyphType, charData:$charDataType):Float {
+		${switch (glyphStyleHasMeta.packed) {
+			case true: macro {
+				return charData.fontData.base * ${switch (glyphStyleHasField.local_height) {
+					case true: macro glyph.height;
+					default: switch (glyphStyleHasField.height) {
+						case true: macro fontStyle.height;
+						default: macro font.config.height;
+				}}}
+			}
+			default: macro {
+				return charData.base * ${switch (glyphStyleHasField.local_height) {
+					case true: macro glyph.height;
+					default: switch (glyphStyleHasField.height) {
+						case true: macro fontStyle.height;
+						default: macro font.config.height;
+				}}}
+			}
+		}}
+	}
+	
+	inline function _baseLineOffset(base:Float, glyph:$glyphType, charData:$charDataType):Float {
 		if (glyph != null) {
 			${switch (glyphStyleHasMeta.packed) {
 				case true: macro {
-					return pageLine.base - charData.fontData.base * ${switch (glyphStyleHasField.local_height) {
+					return base - charData.fontData.base * ${switch (glyphStyleHasField.local_height) {
 						case true: macro glyph.height;
 						default: switch (glyphStyleHasField.height) {
 							case true: macro fontStyle.height;
@@ -899,7 +1070,7 @@ class $className extends peote.view.Program
 					}}}
 				}
 				default: macro {
-					return pageLine.base - charData.base * ${switch (glyphStyleHasField.local_height) {
+					return base - charData.base * ${switch (glyphStyleHasField.local_height) {
 						case true: macro glyph.height;
 						default: switch (glyphStyleHasField.height) {
 							case true: macro fontStyle.height;
@@ -936,10 +1107,10 @@ class $className extends peote.view.Program
 		var x_start = x;
 		
 		// first
-		pageLine.getGlyph(from).setStyle(glyphStyle);
+		pageLine.getGlyph(from).setStyle(glyphStyle); // OPTIMIZE: pageLine.getGlyph()
 		var charData = getCharData(pageLine.getGlyph(from).char);
 		
-		y += _baseLineOffset(pageLine, pageLine.getGlyph(from), charData);
+		y += _baseLineOffset(pageLine.base, pageLine.getGlyph(from), charData);
 		
 		setPosition(pageLine.getGlyph(from), charData, x, y);
 		x += nextGlyphOffset(pageLine.getGlyph(from), charData);
@@ -948,7 +1119,7 @@ class $className extends peote.view.Program
 		
 		for (i in from+1...to)
 		{
-			pageLine.getGlyph(i).setStyle(glyphStyle);
+			pageLine.getGlyph(i).setStyle(glyphStyle); // OPTIMIZE: pageLine.getGlyph()
 			charData = getCharData(pageLine.getGlyph(i).char);
 			
 			x += kerningSpaceOffset(prev_glyph, pageLine.getGlyph(i), charData);
@@ -1050,7 +1221,7 @@ class $className extends peote.view.Program
 			// calc visible range
 			if (pageLine.getGlyph(i).x + ${switch(glyphStyleHasMeta.packed) {case true: macro pageLine.getGlyph(i).w; default: macro pageLine.getGlyph(i).width; }} >= line_x)
 			{	
-				if (pageLine.getGlyph(i).x < line_max) {
+				if (pageLine.getGlyph(i).x < line_max) { // OPTIMIZE: pageLine.getGlyph()
 					if (i < pageLine.visibleFrom || i >= pageLine.visibleTo) {
 						if (addRemoveGlyphes) _buffer.addElement(pageLine.getGlyph(i));
 						if (visibleFrom > i) visibleFrom = i;
@@ -1085,7 +1256,7 @@ class $className extends peote.view.Program
 			// calc visible range
 			if (pageLine.getGlyph(i).x + ${switch(glyphStyleHasMeta.packed) {case true: macro pageLine.getGlyph(i).w; default: macro pageLine.getGlyph(i).width; }} >= line_x)
 			{	
-				if (pageLine.getGlyph(i).x < line_max) {
+				if (pageLine.getGlyph(i).x < line_max) { // OPTIMIZE: pageLine.getGlyph()
 					if (i < pageLine.visibleFrom || i >= pageLine.visibleTo) {
 						if (addRemoveGlyphes) _buffer.addElement(pageLine.getGlyph(i));
 						if (visibleFrom > i) visibleFrom = i;
@@ -1126,14 +1297,14 @@ class $className extends peote.view.Program
 			var y = pageLine.y;
 			
 			if (position > 0) {
-				x = rightGlyphPos(pageLine.getGlyph(position - 1), getCharData(pageLine.getGlyph(position - 1).char));
+				x = rightGlyphPos(pageLine.getGlyph(position - 1), getCharData(pageLine.getGlyph(position - 1).char));  // OPTIMIZE: pageLine.getGlyph()
 				prev_glyph = pageLine.getGlyph(position - 1);
 			}
 			var x_start = x;
 			
 			if (glyphStyle != null) {
-				glyphSetStyle(pageLine.getGlyph(position), glyphStyle);
-				y += _baseLineOffset(pageLine, pageLine.getGlyph(position), charData);
+				pageLine.getGlyph(position).setStyle(glyphStyle);  // OPTIMIZE: pageLine.getGlyph()
+				y += _baseLineOffset(pageLine.base, pageLine.getGlyph(position), charData);
 			}
 			setCharcode(pageLine.getGlyph(position), charcode, charData);
 			setSize(pageLine.getGlyph(position), charData);
@@ -1148,7 +1319,7 @@ class $className extends peote.view.Program
 			
 			if (position+1 < pageLine.length) // rest
 			{	
-				x += kerningSpaceOffset(pageLine.getGlyph(position), pageLine.getGlyph(position+1), charData);
+				x += kerningSpaceOffset(pageLine.getGlyph(position), pageLine.getGlyph(position+1), charData);  // OPTIMIZE: pageLine.getGlyph()
 				
 				var offset = x - leftGlyphPos(pageLine.getGlyph(position+1), getCharData(pageLine.getGlyph(position+1).char));
 				if (offset != 0.0) {
@@ -1169,7 +1340,7 @@ class $className extends peote.view.Program
 		var y = pageLine.y;
 		
 		if (position > 0) {
-			x = rightGlyphPos(pageLine.getGlyph(position - 1), getCharData(pageLine.getGlyph(position - 1).char));
+			x = rightGlyphPos(pageLine.getGlyph(position - 1), getCharData(pageLine.getGlyph(position - 1).char)); // OPTIMIZE: pageLine.getGlyph()
 			prev_glyph = pageLine.getGlyph(position - 1);
 		}
 		var x_start = x;
@@ -1185,10 +1356,10 @@ class $className extends peote.view.Program
 				if (charData != null)
 				{
 					if (glyphStyle != null) {
-						glyphSetStyle(pageLine.getGlyph(i), glyphStyle);
+						pageLine.getGlyph(i).setStyle(glyphStyle); // OPTIMIZE: pageLine.getGlyph()
 						if (i == position) // first
 						{					
-							y += _baseLineOffset(pageLine, pageLine.getGlyph(i), charData);
+							y += _baseLineOffset(pageLine.base, pageLine.getGlyph(i), charData);
 						}
 					}
 					setCharcode(pageLine.getGlyph(i), charcode, charData);
@@ -1251,9 +1422,9 @@ class $className extends peote.view.Program
 			
 			var glyph = new peote.text.Glyph<$styleType>();
 			
-			glyphSetStyle(glyph, glyphStyle);
+			setStyle(glyph, glyphStyle);
 			
-			y += _baseLineOffset(pageLine, glyph, charData);
+			y += _baseLineOffset(pageLine.base, glyph, charData);
 			
 			setCharcode(glyph, charcode, charData);
 			setSize(glyph, charData);
@@ -1384,11 +1555,11 @@ class $className extends peote.view.Program
 			{
 				glyph = new peote.text.Glyph<$styleType>();
 				pageLine.pushGlyph(glyph);
-				glyphSetStyle(glyph, glyphStyle);
+				setStyle(glyph, glyphStyle);
 
 				if (first) {
 					first = false;
-					y += _baseLineOffset(pageLine, glyph, charData);
+					y += _baseLineOffset(pageLine.base, glyph, charData);
 				}
 				setCharcode(glyph, charcode, charData);
 				setSize(glyph, charData);

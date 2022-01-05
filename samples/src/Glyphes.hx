@@ -134,7 +134,7 @@ class Glyphes extends Application
 			
 			// -----------
 
-			var glyph1 = fontProgram.createGlyph("A".charCodeAt(0), 0, 50, glyphStyle);
+			var glyph1 = fontProgram.createGlyph("A".charCodeAt(0), 0, 0, glyphStyle);
 			
 			//fontProgram.glyphSetChar(glyph1, "x".charCodeAt(0));
 			//glyph1.color = Color.BLUE;
@@ -162,7 +162,7 @@ class Glyphes extends Application
 			var glyph2 = font.createGlyph();
 			
 			
-			if (fontProgram.setGlyph( glyph2, "B".charCodeAt(0), 4, 50, glyphStyle1)) {
+/*			if (fontProgram.setGlyph( glyph2, "B".charCodeAt(0), 4, 50, glyphStyle1)) {
 				Timer.delay(function() {
 					fontProgram.glyphSetStyle(glyph2, glyphStyle2);
 					fontProgram.updateGlyph(glyph2);
@@ -175,7 +175,29 @@ class Glyphes extends Application
 				}, 1000);
 			}
 			else trace(" ----> Charcode not inside Font");
+*/			
 			
+			// use metric data for position and stylechange (for packed fonts)
+
+			var a = fontProgram.createGlyph("W".charCodeAt(0), 20, 0, glyphStyle, true);
+			
+			var b = fontProgram.createGlyph("g".charCodeAt(0), 30, 0, glyphStyle, true);
+			
+			var b1 = fontProgram.createGlyph("g".charCodeAt(0), 40, 0, glyphStyle, true);
+			trace( "baseline:", fontProgram.glyphGetBaseline(b1) );
+			
+			var b2 = fontProgram.createGlyph("g".charCodeAt(0), 30, 20, glyphStyle);
+			fontProgram.glyphSetPosition(b2, 30, 20, true); fontProgram.updateGlyph(b2);
+			
+			Timer.delay(function() {
+				fontProgram.glyphSetChar(a, "g".charCodeAt(0), true);
+				fontProgram.updateGlyph(a);
+				
+				fontProgram.glyphSetStyle(b1, glyphStyle2, true);
+				fontProgram.updateGlyph(b1);
+				trace( "new baseline:", fontProgram.glyphGetBaseline(b1) );
+			}, 1000);
+
 			
 		},
 		true // debug
