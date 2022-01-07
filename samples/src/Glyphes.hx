@@ -195,10 +195,13 @@ class Glyphes extends Application
 				
 				fontProgram.glyphSetStyle(b1, glyphStyle2, true);
 				fontProgram.updateGlyph(b1);
-				trace( "new baseline:", fontProgram.glyphGetBaseline(b1) );
 			}, 1000);
 
-			
+			var c = fontProgram.createGlyph("g".charCodeAt(0), 80, 0, glyphStyle, true);
+			trace(fontProgram.glyphGetYPosition(c, true));
+			trace(fontProgram.glyphGetYPosition(c));
+			trace(fontProgram.glyphGetYPositionAtBase(c));
+			trace(fontProgram.glyphGetBaseline(c) );
 		},
 		true // debug
 		);

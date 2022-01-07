@@ -804,7 +804,7 @@ class $className extends peote.view.Program
 	public inline function glyphSetXPosition(glyph:$glyphType, x:Float, useMetric = false) {
 		if (useMetric) setXPosition(glyph, getCharData(glyph.char), x) else glyph.x = x;
 	}
-	public inline function glyphGetXPosition(glyph:$glyphType, x:Float, useMetric = false):Float {
+	public inline function glyphGetXPosition(glyph:$glyphType, useMetric = false):Float {
 		if (useMetric) return getXPosition(glyph, getCharData(glyph.char)) else return glyph.x;
 	}
 
@@ -821,13 +821,13 @@ class $className extends peote.view.Program
 		else glyph.y = y;
 	}
 
-	public inline function glyphGetYPosition(glyph:$glyphType, y:Float, useMetric = false):Float return _glyphGetYPosition(glyph, y, useMetric, false);
-	public inline function glyphGetYPositionAtBase(glyph:$glyphType, y:Float):Float return _glyphGetYPosition(glyph, y, true, true);		
-	inline function _glyphGetYPosition(glyph:$glyphType, y:Float, useMetric:Bool, atBaseline:Bool):Float {
+	public inline function glyphGetYPosition(glyph:$glyphType, useMetric = false):Float return _glyphGetYPosition(glyph, useMetric, false);
+	public inline function glyphGetYPositionAtBase(glyph:$glyphType):Float return _glyphGetYPosition(glyph, true, true);		
+	inline function _glyphGetYPosition(glyph:$glyphType, useMetric:Bool, atBaseline:Bool):Float {
 		if (useMetric) {
 			if (atBaseline) {
 				var charData = getCharData(glyph.char);
-				return getYPosition(glyph, charData) - _getBaseline(glyph, charData);
+				return getYPosition(glyph, charData) + _getBaseline(glyph, charData);
 			}
 			else return getYPosition(glyph, getCharData(glyph.char));
 		}
