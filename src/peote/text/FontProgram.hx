@@ -875,6 +875,10 @@ class $className extends peote.view.Program
 		_buffer.updateElement(glyph);
 	}
 	
+	public inline function updateGlyphes():Void {
+		_buffer.update();
+	}
+	
 	public inline function numberOfGlyphes():Int return _buffer.length();
 
 	
