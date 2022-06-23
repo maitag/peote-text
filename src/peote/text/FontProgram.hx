@@ -165,12 +165,12 @@ class $className extends peote.view.Program
 		hasBackground = true;
 		backgroundBuffer = new peote.view.Buffer<peote.text.BackgroundElement>(16, 16, true);
 		backgroundProgram = new peote.view.Program(backgroundBuffer);
+		//backgroundProgram.alphaEnabled = true; // TODO
 		if (isMasked) backgroundProgram.mask = peote.view.Mask.USE;
 		${switch (glyphStyleHasField.zIndex) {
 			case true: macro {}
 			default: macro backgroundProgram.zIndexEnabled = false;
 		}}
-	
 	}
 		
 	public inline function createBackground(x:Float, y:Float, w:Float, h:Float, z:Int, color:peote.view.Color, autoAdd = true):peote.text.BackgroundElement {
@@ -978,7 +978,7 @@ class $className extends peote.view.Program
 		});
 								
 		if (i < old_length) {
-			pageLineDeleteChars(pageLine, x_start, line_offset, line_size, i);
+			pageLineDeleteChars(pageLine, x_start, line_offset, line_size, i, null, addRemoveGlyphes);
 			for (j in Std.int(Math.max(i, pageLine.visibleFrom))...Std.int(Math.min(pageLine.length, pageLine.visibleTo))) {
 				if (addRemoveGlyphes) _buffer.removeElement(pageLine.getGlyph(j));
 			}
@@ -1200,7 +1200,7 @@ class $className extends peote.view.Program
 		pageLine.updateFrom = 0;
 		pageLine.updateTo = pageLine.length;		
 		if (offset != null) _setLinePositionOffsetFull(pageLine, line_x, line_size, offset - line_offset, addRemoveGlyphes);
-		else _setLinePositionOffsetFull(pageLine, line_x, line_size);
+		else _setLinePositionOffsetFull(pageLine, line_x, line_size, null, null, addRemoveGlyphes);
 	}
 
 	public inline function pageLineSetOffset(pageLine:$pageLineType, line_x:Float, line_size:Float, line_offset:Float, offset:Float, addRemoveGlyphes:Bool = true)
@@ -1486,7 +1486,7 @@ class $className extends peote.view.Program
 			if (pageLine.visibleFrom > pageLine.length) pageLine.visibleFrom = pageLine.length;
 			if (pageLine.visibleTo > pageLine.length) pageLine.visibleTo = pageLine.length;
 
-			var deltaX = _lineAppend(pageLine, line_size, offset, chars, x, y, prev_glyph, glyphStyle);
+			var deltaX = _lineAppend(pageLine, line_size, offset, chars, x, y, prev_glyph, glyphStyle, addRemoveGlyphes);
 
 			if (position == 0) {
 				var kerningSpace = kerningSpaceOffset(pageLine.getGlyph(pageLine.length-1), rest[0], getCharData(rest[0].char));
