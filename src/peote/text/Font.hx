@@ -136,11 +136,11 @@ class $className
 		this.maxTextureSize = maxTextureSize;
 	}
 	
-	//public function createFontProgram(fontStyle:$styleType, isMasked:Bool = false, hasBackground:Bool = false):$fontProgramType
-	public function createFontProgram(fontStyle:$styleType, isMasked:Bool = false, hasBackground:Bool = false):peote.text.FontProgram<$styleType>
+	//public function createFontProgram(fontStyle:$styleType, isMasked:Bool = false):$fontProgramType
+	public function createFontProgram(fontStyle:$styleType, isMasked:Bool = false):peote.text.FontProgram<$styleType>
 	{
-		return new peote.text.FontProgram<$styleType>(this, fontStyle, isMasked, hasBackground);
-		//return new $fontProgramPath(this, fontStyle, isMasked, hasBackground);
+		return new peote.text.FontProgram<$styleType>(this, fontStyle, isMasked);
+		//return new $fontProgramPath(this, fontStyle, isMasked);
 	}
 	
 	public function createFontStyle():$styleType return new $stylePath();
@@ -161,10 +161,10 @@ class $className
 		return ((uiDisplays & (1 << uiDisplayNumber))==0);
 	}
 	
-	public inline function createFontProgramForUiDisplay(uiDisplayNumber:Int, fontStyle:$styleType, isMasked:Bool = false, hasBackground:Bool = false):peote.text.FontProgram<$styleType>
+	public inline function createFontProgramForUiDisplay(uiDisplayNumber:Int, fontStyle:$styleType, isMasked:Bool = false):peote.text.FontProgram<$styleType>
 	{
 		uiDisplays |= 1 << uiDisplayNumber;
-		var fontProgram = createFontProgram(fontStyle, isMasked, hasBackground);
+		var fontProgram = createFontProgram(fontStyle, isMasked);
 		#if (peoteui_maxDisplays == "1")
 			uiDisplayFontProgram = fontProgram;
 		#else

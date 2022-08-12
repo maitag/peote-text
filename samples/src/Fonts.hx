@@ -17,6 +17,9 @@ import peote.text.Font;
 import peote.text.FontProgram;
 import peote.text.Range;
 
+import peote.text.skin.simple.SimpleSkinProgram;
+import peote.text.skin.simple.SimpleSkinElement;
+
 class Fonts extends Application
 {
 	var peoteView:PeoteView;
@@ -57,7 +60,7 @@ class Fonts extends Application
 				
 				// var fontProgram = new FontProgram<GlyphStylePacked>(font, glyphStyle);
 				// alternative way to create the FontProgram<GlyphStylePacked>:
-				var fontProgram = font.createFontProgram(glyphStyle, false, true);
+				var fontProgram = font.createFontProgram(glyphStyle, false);
 				
 				display.addProgram(fontProgram);
 				
@@ -72,13 +75,24 @@ class Fonts extends Application
 				
 				//var range = font.getRange("a".charCodeAt(0));trace(range);
 				
-				fontProgram.createLineBackground(line, Color.GREY2);				
-				// baseline
-				fontProgram.createBackground(Std.int(line.x),  Std.int(line.y + line.base), Std.int(line.textSize), 1, 0, Color.RED);
-				// descender line
-				fontProgram.createBackground(Std.int(line.x),  Std.int(line.y + line.height), Std.int(line.textSize), 1, 0, Color.BLUE);
-				// lineHeight (where next line starts)
-				fontProgram.createBackground(Std.int(line.x),  Std.int(line.y + line.lineHeight), Std.int(line.textSize), 1, 0, Color.GREY4);
+				// helper lines via skin			
+				var helperLinesProgram = fontProgram.addSkin( new SimpleSkinProgram(), -1 );
+				
+				var backgroundElement = new SimpleSkinElement(Color.GREY2);
+				fontProgram.skinElemToLine(helperLinesProgram, backgroundElement, line, false);
+				helperLinesProgram.addElement(backgroundElement);
+				
+				
+				helperLinesProgram.addElement( // baseline
+					new SimpleSkinElement(Color.RED, Std.int(line.x),  Std.int(line.y + line.base), Std.int(line.textSize), 1)
+				);
+				helperLinesProgram.addElement( // descender line
+					new SimpleSkinElement(Color.BLUE, Std.int(line.x),  Std.int(line.y + line.height), Std.int(line.textSize), 1)
+				);
+				helperLinesProgram.addElement( // lineHeight (where next line starts)
+					new SimpleSkinElement(Color.GREY4, Std.int(line.x),  Std.int(line.y + line.lineHeight), Std.int(line.textSize), 1)
+				);
+				
 			},
 			true // debug
 			);
@@ -103,7 +117,7 @@ class Fonts extends Application
 				
 				// var fontProgram = new FontProgram<GlyphStyleTiled>(font, glyphStyle);
 				// alternative way to create the FontProgram<GlyphStylePacked>:
-				var fontProgram = font.createFontProgram(glyphStyle, false, true);
+				var fontProgram = font.createFontProgram(glyphStyle, false);
 				
 				display.addProgram(fontProgram);
 				
@@ -117,20 +131,29 @@ class Fonts extends Application
 				fontProgram.lineSetStyle(line, glyphStyle, 2, 3);
 				fontProgram.updateLine(line);
 				
-				fontProgram.createLineBackground(line, Color.GREY2);
-				// baseline
-				fontProgram.createBackground(Std.int(line.x),  Std.int(line.y + line.base), Std.int(line.textSize), 1, 0, Color.RED);
-				// descender line
-				fontProgram.createBackground(Std.int(line.x),  Std.int(line.y + line.height), Std.int(line.textSize), 1, 0, Color.BLUE);
-				// lineHeight (where next line starts)
-				fontProgram.createBackground(Std.int(line.x),  Std.int(line.y + line.lineHeight), Std.int(line.textSize), 1, 0, Color.GREY4);
+				// helper lines via skin				
+				var helperLinesProgram = fontProgram.addSkin( new SimpleSkinProgram(), -1 );
+				
+				var backgroundElement = new SimpleSkinElement(Color.GREY2);
+				fontProgram.skinElemToLine(helperLinesProgram, backgroundElement, line, false);
+				helperLinesProgram.addElement(backgroundElement);
+								
+				helperLinesProgram.addElement( // baseline
+					new SimpleSkinElement(Color.RED, Std.int(line.x),  Std.int(line.y + line.base), Std.int(line.textSize), 1)
+				);
+				helperLinesProgram.addElement( // descender line
+					new SimpleSkinElement(Color.BLUE, Std.int(line.x),  Std.int(line.y + line.height), Std.int(line.textSize), 1)
+				);
+				helperLinesProgram.addElement( // lineHeight (where next line starts)
+					new SimpleSkinElement(Color.GREY4, Std.int(line.x),  Std.int(line.y + line.lineHeight), Std.int(line.textSize), 1)
+				);
+				
 			},
 			true // debug
 			);
 			
 		}
-		
-		
+				
 		timer = new Timer(40); zoomIn();
 	}
 

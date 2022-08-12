@@ -55,19 +55,16 @@ class $className extends peote.view.Program
 	var maskProgram:peote.view.Program;
 	var maskBuffer:peote.view.Buffer<peote.text.MaskElement>;
 	
-	public var hasBackground(default, null) = false;
-	var backgroundProgram:peote.view.Program;
-	var backgroundBuffer:peote.view.Buffer<peote.text.BackgroundElement>;
+	public var skinPrograms:peote.text.skin.SkinProgramArray = null;
 	
 	var _buffer:peote.view.Buffer<$glyphType>;
 	
-	public inline function new(font:peote.text.Font<$styleType>, fontStyle:$styleType, isMasked:Bool = false, hasBackground:Bool = false)
+	public inline function new(font:peote.text.Font<$styleType>, fontStyle:$styleType, isMasked:Bool = false)
 	{
 		_buffer = new peote.view.Buffer<$glyphType>(1024,1024,true);
 		super(_buffer);
 		
 		if (isMasked) enableMasking();
-		if (hasBackground) enableBackground();
 
 		setFont(font);
 		setFontStyle(fontStyle);
@@ -77,32 +74,37 @@ class $className extends peote.view.Program
 	{
 		super.addToDisplay(display, atProgram, addBefore);
 		if (isMasked) maskProgram.addToDisplay(display, this, true);
-		if (hasBackground) backgroundProgram.addToDisplay(display, this, true);
+		if (skinPrograms != null) {
+			for (skinProgram in skinPrograms) {
+				if (skinProgram.depthIndex < 0) skinProgram.addToDisplay(display, this, true);
+				else skinProgram.addToDisplay(display);
+			}
+		}
 	}
 	
 	override public function removeFromDisplay(display:peote.view.Display):Void
 	{
 		super.removeFromDisplay(display);
 		if (isMasked) maskProgram.removeFromDisplay(display);
-		if (hasBackground) backgroundProgram.removeFromDisplay(display);
+		if (skinPrograms != null) for (skinProgram in skinPrograms) skinProgram.removeFromDisplay(display);
 	}
 	
 	// -----------------------------------------
 	// ----------- Mask Program  ---------------
 	// -----------------------------------------
 	public inline function enableMasking() {
-			isMasked = true;
-			maskBuffer = new peote.view.Buffer<peote.text.MaskElement>(16, 16, true);
-			maskProgram = new peote.view.Program(maskBuffer);
-			maskProgram.mask = peote.view.Mask.DRAW;
-			maskProgram.colorEnabled = false;
-			mask = peote.view.Mask.USE;
-			if (hasBackground) backgroundProgram.mask = peote.view.Mask.USE;
+		isMasked = true;
+		maskBuffer = new peote.view.Buffer<peote.text.MaskElement>(16, 16, true);
+		maskProgram = new peote.view.Program(maskBuffer);
+		maskProgram.mask = peote.view.Mask.DRAW;
+		maskProgram.colorEnabled = false;
+		mask = peote.view.Mask.USE;
+		if (skinPrograms != null) for (skinProgram in skinPrograms) if (skinProgram.useMaskIfAvail) skinProgram.mask = peote.view.Mask.USE;
 	}
 	
 	public inline function createMask(x:Int, y:Int, w:Int, h:Int, autoAdd = true):peote.text.MaskElement {
 		var maskElement = new peote.text.MaskElement(x, y, w, h);
-		if (autoAdd ) maskBuffer.addElement(maskElement);
+		if (autoAdd) maskBuffer.addElement(maskElement);
 		return maskElement;
 	}
 	
@@ -159,52 +161,28 @@ class $className extends peote.view.Program
 	}
 	
 	// -----------------------------------------
-	// -------- Background Program  ------------
+	// --------------- Skin --------------------
 	// -----------------------------------------
-	public inline function enableBackground() {
-		hasBackground = true;
-		backgroundBuffer = new peote.view.Buffer<peote.text.BackgroundElement>(16, 16, true);
-		backgroundProgram = new peote.view.Program(backgroundBuffer);
-		//backgroundProgram.alphaEnabled = true; // TODO
-		if (isMasked) backgroundProgram.mask = peote.view.Mask.USE;
-		${switch (glyphStyleHasField.zIndex) {
-			case true: macro {}
-			default: macro backgroundProgram.zIndexEnabled = false;
-		}}
+	// programs for background, selection, cursor etc.
+	
+	@:access(peote.text.skin)
+	public inline function addSkin<T:peote.text.skin.SkinProgram>(skinProgram:T, ?depthIndex:Null<Int>, ?useMaskIfAvail:Null<Bool>):T {
+	//public inline function addSkin(skinProgram:peote.text.skin.SkinProgram, ?depthIndex:Null<Int>, ?useMaskIfAvail:Null<Bool>):peote.text.skin.SkinProgram {
+		if (useMaskIfAvail != null) skinProgram.useMaskIfAvail = useMaskIfAvail;
+		if (isMasked && skinProgram.useMaskIfAvail) skinProgram.mask = peote.view.Mask.USE else skinProgram.mask = peote.view.Mask.OFF;
+		
+		if (skinPrograms == null) skinPrograms = new peote.text.skin.SkinProgramArray();
+		skinPrograms.insertZSorted(skinProgram, this, depthIndex, useMaskIfAvail);
+		
+		return(skinProgram);
 	}
 		
-	public inline function createBackground(x:Float, y:Float, w:Float, h:Float, z:Int, color:peote.view.Color, autoAdd = true):peote.text.BackgroundElement {
-		var backgroundElement = new peote.text.BackgroundElement(x, y, w, h, z, color);
-		if (autoAdd) backgroundBuffer.addElement(backgroundElement);
-		return backgroundElement;
+	public inline function removeSkin(skinProgram:peote.text.skin.SkinProgram) {
+		for (display in displays) skinProgram.removeFromDisplay(display);
+		skinPrograms.remove(skinProgram);
 	}
 	
-	public inline function createLineBackground(line:$lineType, color:peote.view.Color, from:Null<Int> = null, to:Null<Int> = null, autoAdd = true):peote.text.BackgroundElement {		
-		if (from != null && to != null && from > to) {
-			var tmp = to;
-			to = from;
-			from = tmp;
-		}
-		if (from == null || from < line.visibleFrom) from = line.visibleFrom;
-		if (to == null || to > line.visibleTo - 1) to = line.visibleTo - 1;
-		var w:Float = 0;
-		var x:Float = 0;
-		var z:Int = 0;
-		if (from <= to) {
-			x = leftGlyphPos(line.getGlyph(from), getCharData(line.getGlyph(from).char));
-			w = rightGlyphPos(line.getGlyph(to), getCharData(line.getGlyph(to).char)) - x;
-			${switch (glyphStyleHasField.zIndex) {
-				case true: switch (glyphStyleHasField.local_zIndex) {
-					case true: macro z = line.getGlyph(from).zIndex;
-					default: macro z = fontStyle.zIndex;
-				}
-				default: macro {}
-			}}
-		}
-		return createBackground(x, line.y, w, line.height, z, color, autoAdd);
-	}
-	
-	public inline function setLineBackground(backgroundElement:peote.text.BackgroundElement, line:$lineType, color:Null<peote.view.Color> = null, from:Null<Int> = null, to:Null<Int> = null, autoUpdate = true):Void {
+	public inline function skinElemToLine(skinProgram:peote.text.skin.SkinProgram, skinElement:peote.text.skin.SkinElement, line:$lineType, from:Null<Int> = null, to:Null<Int> = null, autoUpdate = true):peote.text.skin.SkinElement {
 		if (from != null && to != null && from > to) {
 			var tmp = to;
 			to = from;
@@ -212,40 +190,24 @@ class $className extends peote.view.Program
 		}
 		if (from == null || from < line.visibleFrom) from = (line.visibleFrom>0) ? line.visibleFrom-1 : line.visibleFrom;
 		if (to == null || to > line.visibleTo - 1) to = (line.visibleTo < line.length) ? line.visibleTo : line.visibleTo - 1;	
-		if (from > to) backgroundElement.w = 0;
+		if (from > to) skinElement.w = 0;
 		else {
-			backgroundElement.x = lineGetPositionAtChar(line, from);
-			backgroundElement.y = line.y;
-			backgroundElement.w = lineGetPositionAtChar(line, to+1) - backgroundElement.x;	
-			backgroundElement.h = line.height;
+			skinElement.x = Std.int(lineGetPositionAtChar(line, from));
+			skinElement.y = Std.int(line.y);
+			skinElement.w = Std.int(lineGetPositionAtChar(line, to+1)) - skinElement.x;	
+			skinElement.h = Std.int(line.height);
 			${switch (glyphStyleHasField.zIndex) {
 				case true: switch (glyphStyleHasField.local_zIndex) {
-					case true: macro backgroundElement.z = line.getGlyph(from).zIndex;
-					default: macro backgroundElement.z = fontStyle.zIndex;
+					case true: macro skinElement.z = line.getGlyph(from).zIndex;
+					default: macro skinElement.z = fontStyle.zIndex;
 				}
 				default: macro {}
 			}}
 		}
-		if (color != null) backgroundElement.color = color;
-		if (autoUpdate) updateBackground(backgroundElement);
-	}
-
-	public inline function setBackground(backgroundElement:peote.text.BackgroundElement, x:Float, y:Float, w:Float, h:Float, z:Int, color:Null<peote.view.Color> = null, autoUpdate = true):Void {
-		backgroundElement.update(x, y, w, h, z, color);
-		if (autoUpdate) updateBackground(backgroundElement);
-	}
-
-	public inline function addBackground(backgroundElement:peote.text.BackgroundElement):Void {
-		backgroundBuffer.addElement(backgroundElement);
+		if (autoUpdate) skinProgram.updateElement(skinElement);
+		return(skinElement);
 	}
 	
-	public inline function updateBackground(backgroundElement:peote.text.BackgroundElement):Void {
-		backgroundBuffer.updateElement(backgroundElement);
-	}
-	
-	public inline function removeBackground(backgroundElement:peote.text.BackgroundElement):Void {
-		backgroundBuffer.removeElement(backgroundElement);
-	}
 	
 	// -----------------------------------------
 	// ---------------- Font  ------------------
