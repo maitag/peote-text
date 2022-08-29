@@ -142,8 +142,13 @@ class $className
 		return new peote.text.FontProgram<$styleType>(this, fontStyle, isMasked);
 		//return new $fontProgramPath(this, fontStyle, isMasked);
 	}
-	
-	public function createFontStyle():$styleType return new $stylePath();
+		
+	public function createFontStyle():$styleType {
+		//var style:$styleType = new $stylePath();
+		//style.font = this;
+		//return style;
+		return new $stylePath();
+	}
 	public function createGlyph():$glyphType return new $glyphPath();
 	public function createLine():$lineType return new $linePath();
 	
@@ -161,7 +166,8 @@ class $className
 		return ((uiDisplays & (1 << uiDisplayNumber))==0);
 	}
 	
-	public inline function createFontProgramForUiDisplay(uiDisplayNumber:Int, fontStyle:$styleType, isMasked:Bool = false):peote.text.FontProgram<$styleType>
+	// inline gives problems!
+	public function createFontProgramForUiDisplay(uiDisplayNumber:Int, fontStyle:$styleType, isMasked:Bool = false):peote.text.FontProgram<$styleType>
 	{
 		uiDisplays |= 1 << uiDisplayNumber;
 		var fontProgram = createFontProgram(fontStyle, isMasked);
@@ -188,20 +194,20 @@ class $className
 		uiDisplays &= ~(1 << uiDisplayNumber);
 		return getFontProgramByUiDisplay(uiDisplayNumber);
 	}	
-		
+	
 	public function createInteractiveTextLine(xPosition:Int, yPosition:Int, ?textSize:peote.ui.util.TextSize, zIndex:Int = 0, text:String,
-	                fontStyle:$styleType, backgroundColor:peote.view.Color = 0):peote.ui.interactive.InteractiveTextLine<$styleType>
-	                //fontStyle:$styleType, backgroundColor:peote.view.Color = 0):$interactiveTextLineType
+	                fontStyle:$styleType):peote.ui.interactive.InteractiveTextLine<$styleType>
+	                //fontStyle:$styleType):$interactiveTextLineType
 	{
-		return new peote.ui.interactive.InteractiveTextLine<$styleType>(xPosition, yPosition, textSize, zIndex, text, this, fontStyle, backgroundColor);
-		//return new $interactiveTextLinePath(xPosition, yPosition, textSize, zIndex, text, this, fontStyle, backgroundColor);
+		return new peote.ui.interactive.InteractiveTextLine<$styleType>(xPosition, yPosition, textSize, zIndex, text, this, fontStyle);
+		//return new $interactiveTextLinePath(xPosition, yPosition, textSize, zIndex, text, this, fontStyle);
 	}
 	public function createLayoutedTextLine(xPosition:Int, yPosition:Int, ?textSize:peote.ui.util.TextSize, zIndex:Int = 0, text:String,
-	                fontStyle:$styleType, backgroundColor:peote.view.Color = 0):peote.ui.layouted.LayoutedTextLine<$styleType>
-	                //fontStyle:$styleType, backgroundColor:peote.view.Color = 0):$layoutedTextLineType
+	                fontStyle:$styleType):peote.ui.layouted.LayoutedTextLine<$styleType>
+	                //fontStyle:$styleType):$layoutedTextLineType
 	{
-		return new peote.ui.layouted.LayoutedTextLine<$styleType>(xPosition, yPosition, textSize, zIndex, text, this, fontStyle, backgroundColor);
-		//return new $layoutedTextLinePath(xPosition, yPosition, textSize, zIndex, text, this, fontStyle, backgroundColor);
+		return new peote.ui.layouted.LayoutedTextLine<$styleType>(xPosition, yPosition, textSize, zIndex, text, this, fontStyle);
+		//return new $layoutedTextLinePath(xPosition, yPosition, textSize, zIndex, text, this, fontStyle);
 	}	
 	#end
 	

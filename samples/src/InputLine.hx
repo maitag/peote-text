@@ -207,7 +207,7 @@ class InputLine extends Application
 			descLineElement = new SimpleSkinElement(Color.GREY4, Std.int(line.x), Std.int(line.y + line.lineHeight), Std.int(line.size), 1);			
 			helperLinesProgram.addElement(descLineElement);
 			
-			// --------------- Selection  -------------------
+			// --------------- selection  ------------------
 			selectProgram = fontProgram.addSkin( new SimpleSkinProgram(), -2 );
 			selectElement = new SimpleSkinElement(Color.GREY3, line_x, line_y, 0, line.lineHeight);
 			selectProgram.addElement(selectElement);
