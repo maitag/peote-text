@@ -152,9 +152,10 @@ class $className
 	public function createGlyph():$glyphType return new $glyphPath();
 	public function createLine():$lineType return new $linePath();
 	
+	// -------- START peote-ui ---------
 	#if peote_ui
 	
-		#if (peoteui_maxDisplays == "1")
+/*		#if (peoteui_maxDisplays == "1")
 			static var uiDisplayFontProgram:peote.text.FontProgram<$styleType>; //$fontProgramType
 		#else
 			static var uiDisplayFontProgram = new haxe.ds.Vector<peote.text.FontProgram<$styleType>>(peote.ui.UIDisplay.MAX_DISPLAYS);
@@ -194,22 +195,23 @@ class $className
 		uiDisplays &= ~(1 << uiDisplayNumber);
 		return getFontProgramByUiDisplay(uiDisplayNumber);
 	}	
-	
+*/	
 	public function createInteractiveTextLine(xPosition:Int, yPosition:Int, ?textSize:peote.ui.util.TextSize, zIndex:Int = 0, text:String,
-	                fontStyle:$styleType):peote.ui.interactive.InteractiveTextLine<$styleType>
+	                fontStyle:$styleType = null):peote.ui.interactive.InteractiveTextLine<$styleType>
 	                //fontStyle:$styleType):$interactiveTextLineType
 	{
 		return new peote.ui.interactive.InteractiveTextLine<$styleType>(xPosition, yPosition, textSize, zIndex, text, this, fontStyle);
 		//return new $interactiveTextLinePath(xPosition, yPosition, textSize, zIndex, text, this, fontStyle);
 	}
 	public function createLayoutedTextLine(xPosition:Int, yPosition:Int, ?textSize:peote.ui.util.TextSize, zIndex:Int = 0, text:String,
-	                fontStyle:$styleType):peote.ui.layouted.LayoutedTextLine<$styleType>
+	                fontStyle:$styleType = null):peote.ui.layouted.LayoutedTextLine<$styleType>
 	                //fontStyle:$styleType):$layoutedTextLineType
 	{
 		return new peote.ui.layouted.LayoutedTextLine<$styleType>(xPosition, yPosition, textSize, zIndex, text, this, fontStyle);
 		//return new $layoutedTextLinePath(xPosition, yPosition, textSize, zIndex, text, this, fontStyle);
 	}	
 	#end
+	// -------- END peote-ui ---------
 	
 	public inline function getRange(charcode:Int):$rangeType
 	{
