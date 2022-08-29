@@ -143,59 +143,15 @@ class $className
 		//return new $fontProgramPath(this, fontStyle, isMasked);
 	}
 		
-	public function createFontStyle():$styleType {
-		//var style:$styleType = new $stylePath();
-		//style.font = this;
-		//return style;
-		return new $stylePath();
-	}
 	public function createGlyph():$glyphType return new $glyphPath();
 	public function createLine():$lineType return new $linePath();
 	
-	// -------- START peote-ui ---------
-	#if peote_ui
-	
-/*		#if (peoteui_maxDisplays == "1")
-			static var uiDisplayFontProgram:peote.text.FontProgram<$styleType>; //$fontProgramType
-		#else
-			static var uiDisplayFontProgram = new haxe.ds.Vector<peote.text.FontProgram<$styleType>>(peote.ui.UIDisplay.MAX_DISPLAYS);
-		#end
-
-	static var uiDisplays:Int = 0;
-	
-	public inline function notIntoUiDisplay(uiDisplayNumber:Int):Bool {
-		return ((uiDisplays & (1 << uiDisplayNumber))==0);
+	// -------- peote-ui ---------
+	public function createFontStyle(#if peote_ui id:Int = 0 #end):$styleType {
+		return new $stylePath(#if peote_ui id #end);
 	}
 	
-	// inline gives problems!
-	public function createFontProgramForUiDisplay(uiDisplayNumber:Int, fontStyle:$styleType, isMasked:Bool = false):peote.text.FontProgram<$styleType>
-	{
-		uiDisplays |= 1 << uiDisplayNumber;
-		var fontProgram = createFontProgram(fontStyle, isMasked);
-		#if (peoteui_maxDisplays == "1")
-			uiDisplayFontProgram = fontProgram;
-		#else
-			uiDisplayFontProgram.set(uiDisplayNumber, fontProgram);
-		#end
-		return fontProgram;
-	}
-	
-	public inline function getFontProgramByUiDisplay(uiDisplayNumber:Int):peote.text.FontProgram<$styleType>
-	{
-		#if (peoteui_maxDisplays == "1")
-			return uiDisplayFontProgram;
-		#else
-			return uiDisplayFontProgram.get(uiDisplayNumber);
-		#end
-	}	
-		
-	public inline function removeFontProgramFromUiDisplay(uiDisplayNumber:Int):peote.text.FontProgram<$styleType>
-	{
-		// for the last element into buffer remove from displays bitmask
-		uiDisplays &= ~(1 << uiDisplayNumber);
-		return getFontProgramByUiDisplay(uiDisplayNumber);
-	}	
-*/	
+	#if peote_ui	
 	public function createInteractiveTextLine(xPosition:Int, yPosition:Int, ?textSize:peote.ui.util.TextSize, zIndex:Int = 0, text:String,
 	                fontStyle:$styleType = null):peote.ui.interactive.InteractiveTextLine<$styleType>
 	                //fontStyle:$styleType):$interactiveTextLineType
@@ -211,7 +167,7 @@ class $className
 		//return new $layoutedTextLinePath(xPosition, yPosition, textSize, zIndex, text, this, fontStyle);
 	}	
 	#end
-	// -------- END peote-ui ---------
+	// ---------------------------
 	
 	public inline function getRange(charcode:Int):$rangeType
 	{
