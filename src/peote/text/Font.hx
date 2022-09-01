@@ -142,14 +142,12 @@ class $className
 		return new peote.text.FontProgram<$styleType>(this, fontStyle, isMasked);
 		//return new $fontProgramPath(this, fontStyle, isMasked);
 	}
-		
+	
+	public function createFontStyle():$styleType return new $stylePath();		
 	public function createGlyph():$glyphType return new $glyphPath();
 	public function createLine():$lineType return new $linePath();
 	
 	// -------- peote-ui ---------
-	public function createFontStyle(#if peote_ui id:Int = 0 #end):$styleType {
-		return new $stylePath(#if peote_ui id #end);
-	}
 	
 	#if peote_ui	
 	public function createInteractiveTextLine(xPosition:Int, yPosition:Int, ?textSize:peote.ui.util.TextSize, zIndex:Int = 0, text:String,
