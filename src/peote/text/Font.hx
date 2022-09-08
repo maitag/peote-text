@@ -137,27 +137,27 @@ class $className
 	}
 	
 	//public function createFontProgram(fontStyle:$styleType, isMasked:Bool = false):$fontProgramType
-	public function createFontProgram(fontStyle:$styleType, isMasked:Bool = false):peote.text.FontProgram<$styleType>
+	@:keep public function createFontProgram(fontStyle:$styleType, isMasked:Bool = false):peote.text.FontProgram<$styleType>
 	{
 		return new peote.text.FontProgram<$styleType>(this, fontStyle, isMasked);
 		//return new $fontProgramPath(this, fontStyle, isMasked);
 	}
 	
-	public function createFontStyle():$styleType return new $stylePath();		
+	@:keep public function createFontStyle():$styleType return new $stylePath();		
 	public function createGlyph():$glyphType return new $glyphPath();
 	public function createLine():$lineType return new $linePath();
 	
 	// -------- peote-ui ---------
 	
 	#if peote_ui	
-	public function createInteractiveTextLine(xPosition:Int, yPosition:Int, ?textSize:peote.ui.util.TextSize, zIndex:Int = 0, text:String,
+	@:keep public function createInteractiveTextLine(xPosition:Int, yPosition:Int, ?textSize:peote.ui.util.TextSize, zIndex:Int = 0, text:String,
 	                ?fontStyle:$styleType, ?textLineStyle:peote.ui.style.TextLineStyle):peote.ui.interactive.InteractiveTextLine<$styleType>
 	                //fontStyle:$styleType):$interactiveTextLineType
 	{
 		return new peote.ui.interactive.InteractiveTextLine<$styleType>(xPosition, yPosition, textSize, zIndex, text, this, fontStyle, textLineStyle);
 		//return new $interactiveTextLinePath(xPosition, yPosition, textSize, zIndex, text, this, fontStyle);
 	}
-	public function createLayoutedTextLine(xPosition:Int, yPosition:Int, ?textSize:peote.ui.util.TextSize, zIndex:Int = 0, text:String,
+	@:keep public function createLayoutedTextLine(xPosition:Int, yPosition:Int, ?textSize:peote.ui.util.TextSize, zIndex:Int = 0, text:String,
 	                ?fontStyle:$styleType, ?textLineStyle:peote.ui.style.TextLineStyle):peote.ui.layouted.LayoutedTextLine<$styleType>
 	                //fontStyle:$styleType):$layoutedTextLineType
 	{
