@@ -1070,7 +1070,6 @@ class $className extends peote.view.Program
 			prev_glyph = pageLine.getGlyph(from - 1);
 			x += kerningSpaceOffset(prev_glyph, pageLine.getGlyph(from), getCharData(pageLine.getGlyph(from - 1).char));
 		}
-		var x_start = x;
 		
 		// first
 		pageLine.getGlyph(from).setStyle(glyphStyle); // OPTIMIZE: pageLine.getGlyph()
@@ -1094,8 +1093,6 @@ class $className extends peote.view.Program
 			x += nextGlyphOffset(pageLine.getGlyph(i), charData);
 			prev_glyph = pageLine.getGlyph(i);
 		}
-
-		x_start = x - x_start;
 		
 		if (to < pageLine.length) // rest
 		{
@@ -1105,10 +1102,15 @@ class $className extends peote.view.Program
 			if (offset != 0.0) {
 				pageLine.updateTo = pageLine.length;
 				_setLinePositionOffset(pageLine, line_x, line_size, offset, from, to, pageLine.length, addRemoveGlyphes);
-			} else _setLinePositionOffset(pageLine, line_x, line_size, offset, from, to, to, addRemoveGlyphes);
-		} else _setLinePositionOffset(pageLine, line_x, line_size, 0, from, to, to, addRemoveGlyphes);
-		
-		return x_start;
+			}
+			else _setLinePositionOffset(pageLine, line_x, line_size, offset, from, to, to, addRemoveGlyphes);
+			return offset;
+		} 
+		else {
+			var offset = x - line_x - line_offset - pageLine.textSize;
+			_setLinePositionOffset(pageLine, line_x, line_size, offset, from, to, to, addRemoveGlyphes);
+			return offset;
+		}
 	}
 	
 	
@@ -1251,6 +1253,8 @@ class $className extends peote.view.Program
 	
 	public inline function pageLineSetChar(pageLine:$pageLineType, line_x:Float, line_size:Float, line_offset:Float, charcode:Int, position:Int=0, glyphStyle:$styleType = null, addRemoveGlyphes:Bool = true):Float
 	{
+		if (position >= pageLine.length) position = pageLine.length - 1;
+		
 		var charData = getCharData(charcode);
 		if (charData != null)
 		{			
@@ -1266,7 +1270,6 @@ class $className extends peote.view.Program
 				x = rightGlyphPos(pageLine.getGlyph(position - 1), getCharData(pageLine.getGlyph(position - 1).char));  // OPTIMIZE: pageLine.getGlyph()
 				prev_glyph = pageLine.getGlyph(position - 1);
 			}
-			var x_start = x;
 			
 			if (glyphStyle != null) {
 				pageLine.getGlyph(position).setStyle(glyphStyle);  // OPTIMIZE: pageLine.getGlyph()
@@ -1281,8 +1284,6 @@ class $className extends peote.view.Program
 			
 			x += nextGlyphOffset(pageLine.getGlyph(position), charData);
 			
-			x_start = x - x_start;
-			
 			if (position+1 < pageLine.length) // rest
 			{	
 				x += kerningSpaceOffset(pageLine.getGlyph(position), pageLine.getGlyph(position+1), charData);  // OPTIMIZE: pageLine.getGlyph()
@@ -1291,16 +1292,29 @@ class $className extends peote.view.Program
 				if (offset != 0.0) {
 					pageLine.updateTo = pageLine.length;
 					_setLinePositionOffset(pageLine, line_x, line_size, offset, position, position + 1, pageLine.length, addRemoveGlyphes);
-				} else _setLinePositionOffset(pageLine, line_x, line_size, offset, position, position + 1, position + 1, addRemoveGlyphes);
-			} else _setLinePositionOffset(pageLine, line_x, line_size, 0, position, position + 1, position + 1, addRemoveGlyphes);
-			
-			return x_start;
+				}
+				else _setLinePositionOffset(pageLine, line_x, line_size, offset, position, position + 1, position + 1, addRemoveGlyphes);
+				return offset;
+			}
+			else {
+				var offset = x - line_x - line_offset - pageLine.textSize;
+				_setLinePositionOffset(pageLine, line_x, line_size, offset, position, position + 1, position + 1, addRemoveGlyphes);
+				return offset;
+			}
 		} 
 		else return 0;					
 	}
 	
 	public inline function pageLineSetChars(pageLine:$pageLineType, line_x:Float, line_size:Float, line_offset:Float, chars:String, position:Int=0, glyphStyle:$styleType = null, addRemoveGlyphes:Bool = true):Float
 	{
+		if (position + chars.length > pageLine.length) {
+			position = pageLine.length - chars.length;
+			if (position < 0) {
+				chars = chars.substring(0, chars.length + position);
+				position = 0;
+			}
+		}
+		
 		var prev_glyph:$glyphType = null;
 		var x = line_x + line_offset;
 		var y = pageLine.y;
@@ -1309,7 +1323,6 @@ class $className extends peote.view.Program
 			x = rightGlyphPos(pageLine.getGlyph(position - 1), getCharData(pageLine.getGlyph(position - 1).char)); // OPTIMIZE: pageLine.getGlyph()
 			prev_glyph = pageLine.getGlyph(position - 1);
 		}
-		var x_start = x;
 
 		var i = position;
 		var charData:$charDataType = null;
@@ -1351,8 +1364,6 @@ class $className extends peote.view.Program
 		if (position < pageLine.updateFrom) pageLine.updateFrom = position;
 		if (position + i > pageLine.updateTo) pageLine.updateTo = Std.int(Math.min(position + i, pageLine.length));
 		
-		x_start = x - x_start;
-		
 		if (i < pageLine.length) // rest
 		{
 			x += kerningSpaceOffset(pageLine.getGlyph(i-1), pageLine.getGlyph(i), charData);
@@ -1361,10 +1372,15 @@ class $className extends peote.view.Program
 			if (offset != 0.0) {
 				pageLine.updateTo = pageLine.length;
 				_setLinePositionOffset(pageLine, line_x, line_size, offset, position, i, pageLine.length, addRemoveGlyphes);
-			} else _setLinePositionOffset(pageLine, line_x, line_size, offset, position, i, i, addRemoveGlyphes);
-		} else _setLinePositionOffset(pageLine, line_x, line_size, 0, position, i, i, addRemoveGlyphes);
-	
-		return x_start;
+			}
+			else _setLinePositionOffset(pageLine, line_x, line_size, offset, position, i, i, addRemoveGlyphes);
+			return offset;
+		}
+		else {
+			var offset = x - line_x - line_offset - pageLine.textSize;
+			_setLinePositionOffset(pageLine, line_x, line_size, offset, position, i, i, addRemoveGlyphes);
+			return offset;
+		}
 	}
 	
 		
@@ -1421,8 +1437,7 @@ class $className extends peote.view.Program
 			else {
 				pageLine.visibleFrom++;
 				pageLine.visibleTo++;
-			}
-			
+			}			
 			return x - x_start;
 		}
 		else return 0;

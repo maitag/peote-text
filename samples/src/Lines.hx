@@ -11,11 +11,24 @@ import lime.ui.MouseButton;
 
 import peote.view.PeoteView;
 import peote.view.Display;
+import peote.view.Program;
+import peote.view.Buffer;
+import peote.view.Element;
 import peote.view.Color;
-
 
 import peote.text.Font;
 
+class HelperElement implements Element
+{
+	@posX public var x:Float;
+	@posY public var y:Float;
+	@sizeX public var w:Float;
+	@sizeY public var h:Float;	
+	@color public var c:Color;	
+	public function new(x:Float, y:Float, w:Float, h:Float, c:Color) {
+		this.x = x; this.y = y; this.w = w; this.h = h; this.c = c;
+	}
+}
 
 class Lines extends Application
 {
@@ -148,6 +161,61 @@ class Lines extends Application
 		
 			// TODO:
 			// line.clear();		
+
+			
+			// -------- testing offsets and new line.textSize ----------
+			
+			var buffer = new Buffer<HelperElement>(1);
+			var helperProgram = new Program(buffer);
+			
+			var line1 = fontProgram.createLine("test textsize", 100, 200, null, 30, glyphStyle);
+			var helper = new HelperElement(line1.x, line1.y, line1.textSize, line1.height, Color.BLUE);
+			buffer.addElement(helper);
+			display.addProgram(helperProgram, true);
+						
+			Timer.delay(function() {
+				//var offset = fontProgram.lineSetStyle(line1, glyphStyle2, 0, 4);
+				//var offset = fontProgram.lineSetStyle(line1, glyphStyle2, 1, 4);
+				//var offset = fontProgram.lineSetStyle(line1, glyphStyle2, 12, 13);
+				var offset = fontProgram.lineSetStyle(line1, glyphStyle2);
+				
+				//var offset = fontProgram.lineSetChar(line1, "A".charCodeAt(0) , 0, glyphStyle2); 
+				//var offset = fontProgram.lineSetChar(line1, "A".charCodeAt(0) , 1, glyphStyle2); 
+				//var offset = fontProgram.lineSetChar(line1, "A".charCodeAt(0) , 12, glyphStyle2); 
+				
+				//var offset = fontProgram.lineSetChars(line1, "AB" , 0, glyphStyle2);
+				//var offset = fontProgram.lineSetChars(line1, "AB" , 1, glyphStyle2);
+				//var offset = fontProgram.lineSetChars(line1, "TEST TEXTSIZE", 0, glyphStyle2);
+				//var offset = fontProgram.lineSetChars(line1, "AB", 11, glyphStyle2);
+				
+				//var offset = fontProgram.lineDeleteChar(line1, 0);
+				//var offset = fontProgram.lineDeleteChar(line1, 1);
+				//var offset = fontProgram.lineDeleteChar(line1, 12);
+				
+				//var offset = fontProgram.lineDeleteChars(line1, 0, 2);
+				//var offset = fontProgram.lineDeleteChars(line1, 1, 3);
+				//var offset = fontProgram.lineDeleteChars(line1, 11, 13);
+				//var offset = fontProgram.lineDeleteChars(line1, 0, 13);
+				
+				//var offset = fontProgram.lineInsertChar(line1, "A".charCodeAt(0), 0, glyphStyle2);
+				//var offset = fontProgram.lineInsertChar(line1, "A".charCodeAt(0), 1, glyphStyle2);
+				//var offset = fontProgram.lineInsertChar(line1, "A".charCodeAt(0), 13, glyphStyle2);
+				
+				//var offset = fontProgram.lineInsertChars(line1, "AB", 0, glyphStyle2);
+				//var offset = fontProgram.lineInsertChars(line1, "AB", 1, glyphStyle2);
+				//var offset = fontProgram.lineInsertChars(line1, "AB", 13, glyphStyle2);
+				
+				//helper.w = line1.textSize;
+				helper.w += offset;
+				
+				buffer.updateElement(helper);
+				fontProgram.updateLine(line1);
+			}, 1000);
+
+			Timer.delay(function() {
+				fontProgram.lineSetOffset(line1, 0);
+				fontProgram.updateLine(line1);
+			}, 2000);
 			
 		}
 		, true // debug
