@@ -1750,6 +1750,7 @@ class $className extends peote.view.Program
 	
 	/**
 		Changing all chars of an existing Line. (can be faster than creating a new line)
+		Returns false if the font don't contain one of the chars.
 		@param line the Line instance
 		@param chars String that contains the chars (newlines have no effect)
 		@param x horizontal position of the upper left pixel of the line, is 0 by default
@@ -1770,6 +1771,7 @@ class $className extends peote.view.Program
 	
 	/**
 		Changing the style of glyphes in an existing Line. Needs updateLine() after to get effect.
+		Returns the offset about how the textSize was changed.
 		@param line Line instance
 		@param glyphStyle new GlyphStyle
 		@param from position of the first char into range, is 0 by default (start of line)
@@ -1867,7 +1869,7 @@ class $className extends peote.view.Program
 	}
 
 	/**
-		Changing a char inside of a Line. Needs updateLine() after to get effect.
+		Changing a char inside of a Line. Needs updateLine() after to get effect. Returns the offset about how the textSize was changed.
 		@param line the Line instance
 		@param charcode the unicode number of the char (newline have no effect)
 		@param position where to change the char, is 0 by default (first char into line)
@@ -1880,7 +1882,7 @@ class $className extends peote.view.Program
 	}
 	
 	/**
-		Changing the chars inside of a Line. Needs updateLine() after to get effect.
+		Changing the chars inside of a Line. Needs updateLine() after to get effect. Returns the offset about how the textSize was changed.
 		@param line the Line instance
 		@param chars String that contains the letters (newlines have no effect)
 		@param position where to change, is 0 by default (first char into line)
@@ -1894,6 +1896,7 @@ class $className extends peote.view.Program
 	
 	/**
 		Insert a new char into a Line. If it's not inserted at end of line it needs updateLine() after to get effect.
+		Returns the offset about how the textSize was changed.
 		@param line the Line instance
 		@param charcode the unicode number of the new char (newline have no effect)
 		@param position where to insert, is 0 by default (before first char into line)
@@ -1907,6 +1910,7 @@ class $className extends peote.view.Program
 	
 	/**
 		Insert new chars into a Line. If it's not inserted at end of line it needs updateLine() after to get effect.
+		Returns the offset about how the textSize was changed.
 		@param line the Line instance
 		@param chars String that contains the new letters (newlines have no effect)
 		@param position where to insert, is 0 by default (before first char into line)
@@ -1919,7 +1923,7 @@ class $className extends peote.view.Program
 	}
 	
 	/**
-		Append new chars at end of a Line.
+		Append new chars at end of a Line. Returns the offset about how the textSize was changed.
 		@param line the Line instance
 		@param chars String that contains the new chars (newlines have no effect)
 		@param glyphStyle (optional) GlyphStyle of the new chars, by default it is using the default FontStyle of the FontProgram 
