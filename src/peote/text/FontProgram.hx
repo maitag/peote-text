@@ -2020,7 +2020,8 @@ class $className extends peote.view.Program
 	**/
 	public inline function lineGetCharAtPosition(line:$lineType, xPosition:Float):Int
 	{
-		if (xPosition <= line.x) return 0;
+		//if (xPosition <= line.x) return 0;
+		if (xPosition <= line.x) return line.visibleFrom;
 		else if (xPosition >= line.x + line.size) return line.visibleTo;
 		else 
 		{

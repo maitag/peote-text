@@ -152,19 +152,19 @@ class $className
 	#if peote_ui	
 	@:keep public function createInteractiveTextLine(xPosition:Int, yPosition:Int, ?textSize:peote.ui.util.TextSize, zIndex:Int = 0, text:String,
 	                ?fontStyle:$styleType, ?textLineStyle:peote.ui.style.TextLineStyle):peote.ui.interactive.InteractiveTextLine<$styleType>
-	                //fontStyle:$styleType):$interactiveTextLineType
+	                //:$interactiveTextLineType
 	{
 		return new peote.ui.interactive.InteractiveTextLine<$styleType>(xPosition, yPosition, textSize, zIndex, text, this, fontStyle, textLineStyle);
-		//return new $interactiveTextLinePath(xPosition, yPosition, textSize, zIndex, text, this, fontStyle);
+		//return new $interactiveTextLinePath(xPosition, yPosition, textSize, zIndex, text, this, fontStyle, textLineStyle);
 	}
-	@:keep public function createLayoutedTextLine(xPosition:Int, yPosition:Int, ?textSize:peote.ui.util.TextSize, zIndex:Int = 0, text:String,
+/*	@:keep public function createLayoutedTextLine(xPosition:Int, yPosition:Int, ?textSize:peote.ui.util.TextSize, zIndex:Int = 0, text:String,
 	                ?fontStyle:$styleType, ?textLineStyle:peote.ui.style.TextLineStyle):peote.ui.layouted.LayoutedTextLine<$styleType>
-	                //fontStyle:$styleType):$layoutedTextLineType
+	                //:$layoutedTextLineType
 	{
 		return new peote.ui.layouted.LayoutedTextLine<$styleType>(xPosition, yPosition, textSize, zIndex, text, this, fontStyle, textLineStyle);
-		//return new $layoutedTextLinePath(xPosition, yPosition, textSize, zIndex, text, this, fontStyle);
+		//return new $layoutedTextLinePath(xPosition, yPosition, textSize, zIndex, text, this, fontStyle, textLineStyle);
 	}	
-	#end
+*/	#end
 	// ---------------------------
 	
 	public inline function getRange(charcode:Int):$rangeType
