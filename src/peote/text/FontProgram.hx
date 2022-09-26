@@ -2013,7 +2013,7 @@ class $className extends peote.view.Program
 	}
 					
 	/**
-		Returns the index of the nearest char at a given x pixel-value.
+		Returns the index of the nearest visible char at a given x pixel-value.
 		This function can be used to pick a char by mouse-position.
 		@param line the Line instance
 		@param xPosition x pixel-value at where to pick the nearest char
