@@ -33,15 +33,15 @@ class PageMacro
 
 class $className
 {
-	public var x:Float = 0.0;
-	public var y:Float = 0.0;
-	public var xOffset:Float = 0.0;
-	public var yOffset:Float = 0.0;
-	public var width:Float = 0xffff;
-	public var height:Float = 0xffff;
+	@:allow(peote.text) public var x(default, null):Float = 0.0;
+	@:allow(peote.text) public var y(default, null):Float = 0.0;
+	@:allow(peote.text) public var xOffset(default, null):Float = 0.0;
+	@:allow(peote.text) public var yOffset(default, null):Float = 0.0;
+	@:allow(peote.text) public var width(default, null):Float = 0xffff; // visible width of the page (in pixel)
+	@:allow(peote.text) public var height(default, null):Float = 0xffff; // visible height of the page (in pixel)
 	
-	@:allow(peote.text) public var textWidth(default, null):Float = 0.0; // size of longest line
-	@:allow(peote.text) public var textHeight(default, null):Float = 0.0;
+	@:allow(peote.text) public var textWidth(default, null):Float = 0.0; // pixel size of longest line
+	@:allow(peote.text) public var textHeight(default, null):Float = 0.0; // pixel size of all lines
 	
 	
 	// TODO: optimize for neko/hl/cpp
@@ -58,9 +58,12 @@ class $className
 		pageLines.splice(newLength, pageLines.length - newLength);
 	}
 	
-	@:allow(peote.text) public var visibleFrom(default, null):Int = 0;
-	@:allow(peote.text) public var visibleTo(default, null):Int = 0;
+	@:allow(peote.text) public var visibleLineFrom(default, null):Int = 0;
+	@:allow(peote.text) public var visibleLineTo(default, null):Int = 0;
 	
+	@:allow(peote.text) public var updateLineFrom(default, null):Int = 0;
+	@:allow(peote.text) public var updateLineTo(default, null):Int = 0;
+
 	public function new() {}
 }
 			
