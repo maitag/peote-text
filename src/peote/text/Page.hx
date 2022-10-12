@@ -50,7 +50,7 @@ class $className
 	public var length(get, never):Int; // number of lines
 	public inline function get_length():Int return pageLines.length;
 	
-	public inline function getLine(i:Int):$pageLineType return pageLines[i];
+	public inline function getPageLine(i:Int):$pageLineType return pageLines[i];
 	@:allow(peote.text) inline function setLine(i:Int, line:$pageLineType) pageLines[i] = line;
 	@:allow(peote.text) inline function pushLine(line:$pageLineType) pageLines.push(line);
 	@:allow(peote.text) inline function resize(newLength:Int) {

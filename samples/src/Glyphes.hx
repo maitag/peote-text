@@ -187,14 +187,14 @@ class Glyphes extends Application
 			trace( "baseline:", fontProgram.glyphGetBaseline(b1) );
 			
 			var b2 = fontProgram.createGlyph("g".charCodeAt(0), 30, 20, glyphStyle);
-			fontProgram.glyphSetPosition(b2, 30, 20, true); fontProgram.updateGlyph(b2);
+			fontProgram.glyphSetPosition(b2, 30, 20, true); fontProgram.glyphUpdate(b2);
 			
 			Timer.delay(function() {
 				fontProgram.glyphSetChar(a, "g".charCodeAt(0), true);
-				fontProgram.updateGlyph(a);
+				fontProgram.glyphUpdate(a);
 				
 				fontProgram.glyphSetStyle(b1, glyphStyle2, true);
-				fontProgram.updateGlyph(b1);
+				fontProgram.glyphUpdate(b1);
 			}, 1000);
 
 			var c = fontProgram.createGlyph("g".charCodeAt(0), 80, 0, glyphStyle, true);

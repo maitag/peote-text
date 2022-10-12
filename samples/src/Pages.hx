@@ -81,44 +81,42 @@ class Pages extends Application
 			Timer.delay(function() {
 				var text = "Um einen Feuerball rast eine Kotkugel,\nauf der Damenseidenstrümpfe verkauft und Gauguins geschätzt werden.\n\n"
 						 + "Ein fürwahr überaus betrüblicher Aspekt,\r\nder aber immerhin ein wenig unterschiedlich ist:\rSeidenstrümpfe können begriffen werden, Gauguins nicht.";
-				fontProgram.setPage(page, text, 10, 10, glyphStyle);
-				fontProgram.updatePage(page);
+				fontProgram.pageSet(page, text, 10, 10, glyphStyle);
+				//fontProgram.pageSet(page, text, 10, 10, glyphStyle);
+				fontProgram.pageUpdate(page);
+				// fontProgram.pageUpdate(page);
 			}, 1000);
 			
-			/*
-			Timer.delay(function() {
-				fontProgram.pageInsertLine(page, "(Bernheim als prestigieuser Biologe zu imaginieren.)", 2 , glyphStyle2);
+
+/*			Timer.delay(function() {//TODO
+				fontProgram.pageInsertLine(page, 2, "(Bernheim als prestigieuser Biologe zu imaginieren.)" , glyphStyle);
 			}, 2000);
 
-			Timer.delay(function() {
-				fontProgram.pageDeleteLine(page, 1);
+			Timer.delay(function() {//TODO
+				fontProgram.pageDeleteLine(page, 2);
 			}, 3000);
-
+*/						
 			Timer.delay(function() {
-				fontProgram.pageSetLine(page, 2, "TEST");
+				fontProgram.pageRemove(page);
 			}, 4000);
 			
 			Timer.delay(function() {
-				fontProgram.removePage(page);
+				fontProgram.pageAdd(page);
 			}, 5000);
 			
+			
+			// -- edit a pageLine inside --
+
 			Timer.delay(function() {
-				fontProgram.addPage(page);
+				var pageLine = page.getPageLine(0);
+				fontProgram.pageLineInsertChars(pageLine, page.x, page.width, page.xOffset, "Walther ", 3, glyphStyle);
+				fontProgram.pageLineInsertChar(pageLine, page.x, page.width, page.xOffset, ":".charCodeAt(0), 10 , glyphStyle);
+				fontProgram.pageLineUpdate(pageLine);
 			}, 6000);
 			
 			
-			// -- pageLine inside --
-
-			Timer.delay(function() {
-				var pageLine = page.getLine(0);
-				fontProgram.pageLineInsertChars(pageLine, "Walther " 0, 2, glyphStyle2);
-				fontProgram.pageLineInsertChar(pageLine, ":" , glyphStyle2);
-				fontProgram.updatePageLine(pageLine);
-			}, 7000);
 			
 			
-			
-			*/
 		});
 
 		

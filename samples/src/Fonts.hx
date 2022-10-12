@@ -71,7 +71,7 @@ class Fonts extends Application
 				glyphStyle.width = 56;// font.config.width * 2.0;
 				glyphStyle.height = 56;// font.config.height * 2.0;
 				fontProgram.lineSetStyle(line, glyphStyle, 2, 3);
-				fontProgram.updateLine(line);			
+				fontProgram.lineUpdate(line);			
 				
 				//var range = font.getRange("a".charCodeAt(0));trace(range);
 				
@@ -129,7 +129,7 @@ class Fonts extends Application
 				glyphStyle.height = font.config.height * 2.0;								
 												
 				fontProgram.lineSetStyle(line, glyphStyle, 2, 3);
-				fontProgram.updateLine(line);
+				fontProgram.lineUpdate(line);
 				
 				// helper lines via skin				
 				var helperLinesProgram = fontProgram.addSkin( new SimpleSkinProgram(), -1 );

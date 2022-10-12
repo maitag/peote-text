@@ -95,15 +95,15 @@ class Lines extends Application
 			tilted.color = 0xaabb22ff;
 			tilted.width = font.config.width;
 			tilted.height = font.config.height;
-			//fontProgram.setLine(new LineType(), "tilted", 0, 50, tilted);
-			fontProgram.setLine(font.createLine(), "tilted", 0, 50, tilted);
+			//fontProgram.lineSet(new LineType(), "tilted", 0, 50, tilted);
+			fontProgram.lineSet(font.createLine(), "tilted", 0, 50, tilted);
 			
 			//var thick = new GlyphStyleType();
 			var thick = font.createFontStyle();
 			thick.weight = 0.45; // TODO
 			thick.width = font.config.width;
 			thick.height = font.config.height;
-			fontProgram.setLine(font.createLine(), "bold", 150, 50, thick);
+			fontProgram.lineSet(font.createLine(), "bold", 150, 50, thick);
 			
 			var line = fontProgram.createLine("hello World :)", 0, 100, glyphStyle);
 			
@@ -113,50 +113,50 @@ class Lines extends Application
 			//TODO: line.getGlyph(2);
 			
 			Timer.delay(function() {
-				fontProgram.setLine(line, "hello World (^_^)", line.x, line.y, glyphStyle);
-				fontProgram.updateLine(line);
+				fontProgram.lineSet(line, "hello World (^_^)", line.x, line.y, glyphStyle);
+				fontProgram.lineUpdate(line);
 			}, 1000);
 			
 			Timer.delay(function() {
 				fontProgram.lineSetStyle(line, glyphStyle2, 1, 5);
 				fontProgram.lineSetStyle(line, glyphStyle1, 6, 12);
 				
-				//fontProgram.updateLine(line, 6);
+				//fontProgram.lineUpdate(line, 6);
 				//trace('visibleFrom: ${line.visibleFrom} visibleTo:${line.visibleTo} fullWidth:${line.fullWidth}');
 				//fontProgram.lineSetPosition(line, 0, 130);
 				
 				fontProgram.lineSetYPosition(line, 130);
-				fontProgram.updateLine(line);
+				fontProgram.lineUpdate(line);
 			}, 2000);
 			
 			Timer.delay(function() {
 				fontProgram.lineSetChar(line, "H".charCodeAt(0) , 0, glyphStyle2); // replace existing char into line
 				fontProgram.lineSetChars(line, "Planet", 6);  // replace existing chars into line
-				fontProgram.updateLine(line);
+				fontProgram.lineUpdate(line);
 			}, 3000);
 
 			Timer.delay(function() {
 				fontProgram.lineInsertChar(line, "~".charCodeAt(0) , 12, glyphStyle1);
 				fontProgram.lineInsertChars(line,  "Earth", 12, glyphStyle2);
-				fontProgram.updateLine(line);
+				fontProgram.lineUpdate(line);
 			}, 4000);
 							
 			Timer.delay(function() {
 				fontProgram.lineDeleteChar(line, 5);
-				fontProgram.updateLine(line);
+				fontProgram.lineUpdate(line);
 			}, 5000);
 			
 			Timer.delay(function() {
 				fontProgram.lineDeleteChars(line, 16);
-				fontProgram.updateLine(line);
+				fontProgram.lineUpdate(line);
 			}, 6000);
 			
 			Timer.delay(function() {
-				fontProgram.removeLine(line);
+				fontProgram.lineRemove(line);
 			}, 7000);
 			
 			Timer.delay(function() {
-				fontProgram.addLine(line);
+				fontProgram.lineAdd(line);
 			}, 8000);
 		
 			// TODO:
@@ -209,12 +209,12 @@ class Lines extends Application
 				helper.w += offset;
 				
 				buffer.updateElement(helper);
-				fontProgram.updateLine(line1);
+				fontProgram.lineUpdate(line1);
 			}, 1000);
 
 			Timer.delay(function() {
 				fontProgram.lineSetOffset(line1, 0);
-				fontProgram.updateLine(line1);
+				fontProgram.lineUpdate(line1);
 			}, 2000);
 			
 		}

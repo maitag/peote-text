@@ -230,7 +230,7 @@ class InputLine extends Application
 
 	public function setLine(s:String, size:Float, offset:Float)
 	{
-		fontProgram.setLine(line, s, line_x, line_y, size, offset, glyphStyle[actual_style]);
+		fontProgram.lineSet(line, s, line_x, line_y, size, offset, glyphStyle[actual_style]);
 	}
 	
 	public function lineInsertChar(charcode:Int)
@@ -363,7 +363,7 @@ class InputLine extends Application
 	
 	public function lineUpdate()
 	{
-		fontProgram.updateLine(line);
+		fontProgram.lineUpdate(line);
 		updateHelperLines(line_x, line.size, line.lineHeight);
 	}
 	
