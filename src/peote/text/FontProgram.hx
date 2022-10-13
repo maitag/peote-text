@@ -858,7 +858,7 @@ class $className extends peote.view.Program
 		for (i in pageLine.visibleFrom...pageLine.visibleTo) glyphRemove(pageLine.getGlyph(i));
 	}
 
-	public inline function pageLineSet(pageLine:$pageLineType, size:Float, offset:Float, chars:String, x:Float = 0.0, y:Float = 0.0, ?glyphStyle:Null<$styleType>, ?defaultFontRange:Null<Int>, addRemoveGlyphes:Bool = true):Bool
+	public function pageLineSet(pageLine:$pageLineType, size:Float, offset:Float, chars:String, x:Float = 0.0, y:Float = 0.0, ?glyphStyle:Null<$styleType>, ?defaultFontRange:Null<Int>, addRemoveGlyphes:Bool = true):Bool
 	{
 		var line_max = x + size;
 		pageLine.y = y;
@@ -1058,8 +1058,7 @@ class $className extends peote.view.Program
 	
 	// ----------- change Line Style ----------------
 	
-	public inline function pageLineSetStyle(pageLine:$pageLineType, x:Float, size:Float, offset:Float, glyphStyle:$styleType, from:Int = 0, ?to:Null<Int>, addRemoveGlyphes:Bool = true):Float
-	{
+	public function pageLineSetStyle(pageLine:$pageLineType, x:Float, size:Float, offset:Float, glyphStyle:$styleType, from:Int = 0, ?to:Null<Int>, addRemoveGlyphes:Bool = true):Float {
 		if (to == null || to > pageLine.length) to = pageLine.length;
 		
 		// swapping
@@ -1126,7 +1125,7 @@ class $className extends peote.view.Program
 	
 	// ----------- change Line Position, Size and Offset ----------------
 
-	public inline function pageLineSetPosition(pageLine:$pageLineType, x:Float, size:Float, offset:Float, xNew:Float, yNew:Float, ?offsetNew:Null<Float>, addRemoveGlyphes:Bool = true)
+	public function pageLineSetPosition(pageLine:$pageLineType, x:Float, size:Float, offset:Float, xNew:Float, yNew:Float, ?offsetNew:Null<Float>, addRemoveGlyphes:Bool = true)
 	{
 		pageLine.updateFrom = 0;
 		pageLine.updateTo = pageLine.length;		
@@ -1139,7 +1138,7 @@ class $className extends peote.view.Program
 		pageLine.y = yNew;
 	}
 	
-	public inline function pageLineSetXPosition(pageLine:$pageLineType, x:Float, size:Float, offset:Float, xNew:Float, ?offsetNew:Null<Float>, addRemoveGlyphes:Bool = true)
+	public function pageLineSetXPosition(pageLine:$pageLineType, x:Float, size:Float, offset:Float, xNew:Float, ?offsetNew:Null<Float>, addRemoveGlyphes:Bool = true)
 	{
 		pageLine.updateFrom = 0;
 		pageLine.updateTo = pageLine.length;		
@@ -1147,7 +1146,7 @@ class $className extends peote.view.Program
 		else for (i in 0...pageLine.updateTo) pageLine.getGlyph(i).x += xNew - x;
 	}
 	
-	public inline function pageLineSetYPosition(pageLine:$pageLineType, x:Float, size:Float, offset:Float, yNew:Float, ?offsetNew:Null<Float>, addRemoveGlyphes:Bool = true)
+	public function pageLineSetYPosition(pageLine:$pageLineType, x:Float, size:Float, offset:Float, yNew:Float, ?offsetNew:Null<Float>, addRemoveGlyphes:Bool = true)
 	{
 		pageLine.updateFrom = 0;
 		pageLine.updateTo = pageLine.length;		
@@ -1156,7 +1155,7 @@ class $className extends peote.view.Program
 		pageLine.y = yNew;
 	}	
 	
-	public inline function pageLineSetPositionSize(pageLine:$pageLineType, x:Float, size:Float, offset:Float, xNew:Float, yNew:Float, ?offsetNew:Null<Float>, addRemoveGlyphes:Bool = true)
+	public function pageLineSetPositionSize(pageLine:$pageLineType, x:Float, size:Float, offset:Float, xNew:Float, yNew:Float, ?offsetNew:Null<Float>, addRemoveGlyphes:Bool = true)
 	{
 		pageLine.updateFrom = 0;
 		pageLine.updateTo = pageLine.length;		
@@ -1165,7 +1164,7 @@ class $className extends peote.view.Program
 		pageLine.y = yNew;
 	}
 
-	public inline function pageLineSetSize(pageLine:$pageLineType, x:Float, size:Float, offset:Float, ?offsetNew:Null<Float>, addRemoveGlyphes:Bool = true)
+	public function pageLineSetSize(pageLine:$pageLineType, x:Float, size:Float, offset:Float, ?offsetNew:Null<Float>, addRemoveGlyphes:Bool = true)
 	{
 		pageLine.updateFrom = 0;
 		pageLine.updateTo = pageLine.length;		
@@ -1173,7 +1172,7 @@ class $className extends peote.view.Program
 		else _setLinePositionOffsetFull(pageLine, x, size, null, null, addRemoveGlyphes);
 	}
 
-	public inline function pageLineSetOffset(pageLine:$pageLineType, x:Float, size:Float, offset:Float, offsetNew:Float, addRemoveGlyphes:Bool = true)
+	public function pageLineSetOffset(pageLine:$pageLineType, x:Float, size:Float, offset:Float, offsetNew:Float, addRemoveGlyphes:Bool = true)
 	{
 		pageLine.updateFrom = 0;
 		pageLine.updateTo = pageLine.length;
@@ -1257,7 +1256,7 @@ class $className extends peote.view.Program
 	
 	// ------------ set chars  ---------------
 	
-	public inline function pageLineSetChar(pageLine:$pageLineType, x:Float, size:Float, offset:Float, charcode:Int, position:Int = 0, ?glyphStyle:$styleType, addRemoveGlyphes:Bool = true):Float
+	public function pageLineSetChar(pageLine:$pageLineType, x:Float, size:Float, offset:Float, charcode:Int, position:Int = 0, ?glyphStyle:$styleType, addRemoveGlyphes:Bool = true):Float
 	{
 		if (position >= pageLine.length) position = pageLine.length - 1;
 		
@@ -1312,7 +1311,7 @@ class $className extends peote.view.Program
 		else return 0;					
 	}
 	
-	public inline function pageLineSetChars(pageLine:$pageLineType, x:Float, size:Float, offset:Float, chars:String, position:Int = 0, ?glyphStyle:$styleType, addRemoveGlyphes:Bool = true):Float
+	public function pageLineSetChars(pageLine:$pageLineType, x:Float, size:Float, offset:Float, chars:String, position:Int = 0, ?glyphStyle:$styleType, addRemoveGlyphes:Bool = true):Float
 	{
 		if (position + chars.length > pageLine.length) {
 			position = pageLine.length - chars.length;
@@ -1395,7 +1394,7 @@ class $className extends peote.view.Program
 		
 	// ------------- inserting chars ---------------------
 	
-	public inline function pageLineInsertChar(pageLine:$pageLineType, x:Float, size:Float, offset:Float, charcode:Int, position:Int = 0, ?glyphStyle:$styleType, addRemoveGlyphes:Bool = true):Float
+	public function pageLineInsertChar(pageLine:$pageLineType, x:Float, size:Float, offset:Float, charcode:Int, position:Int = 0, ?glyphStyle:$styleType, addRemoveGlyphes:Bool = true):Float
 	{
 		var charData = getCharData(charcode);
 		if (charData != null)
@@ -1453,7 +1452,7 @@ class $className extends peote.view.Program
 		else return 0;
 	}
 		
-	public inline function pageLineInsertChars(pageLine:$pageLineType, x:Float, size:Float, offset:Float, chars:String, position:Int = 0, ?glyphStyle:$styleType, addRemoveGlyphes:Bool = true):Float
+	public function pageLineInsertChars(pageLine:$pageLineType, x:Float, size:Float, offset:Float, chars:String, position:Int = 0, ?glyphStyle:$styleType, addRemoveGlyphes:Bool = true):Float
 	{					
 		var prev_glyph:$glyphType = null;
 		var line_x = x;
@@ -1526,6 +1525,15 @@ class $className extends peote.view.Program
 
 	// ------------- appending chars ---------------------
 	
+	public function pageLineAppendChars(pageLine:$pageLineType, x:Float, size:Float, offset:Float, chars:String, ?glyphStyle:$styleType, addRemoveGlyphes:Bool = true):Float
+	{
+		if (pageLine.length > 0) {
+			var prev_glyph = pageLine.getGlyph(pageLine.length - 1);
+			return _lineAppend(pageLine, size, 0, chars, rightGlyphPos(prev_glyph, getCharData(prev_glyph.char)), pageLine.y, prev_glyph, glyphStyle, addRemoveGlyphes);
+		}
+		else return _lineAppend(pageLine, size, offset, chars, x, pageLine.y, null, glyphStyle, addRemoveGlyphes);
+	}
+	
 	inline function _lineAppend(pageLine:$pageLineType, size:Float, offset:Float, chars:String, x:Float, y:Float, prev_glyph:peote.text.Glyph<$styleType>, glyphStyle:$styleType, addRemoveGlyphes:Bool = true):Float
 	{
 		var first = true;
@@ -1584,7 +1592,7 @@ class $className extends peote.view.Program
 	
 	// ------------- deleting chars ---------------------	
 
-	public inline function pageLineDeleteChar(pageLine:$pageLineType, x:Float, size:Float, offset:Float, position:Int = 0, addRemoveGlyphes:Bool = true):Float
+	public function pageLineDeleteChar(pageLine:$pageLineType, x:Float, size:Float, offset:Float, position:Int = 0, addRemoveGlyphes:Bool = true):Float
 	{	
 		if (addRemoveGlyphes && position >= pageLine.visibleFrom && position < pageLine.visibleTo) {
 			_buffer.removeElement(pageLine.getGlyph(position));
@@ -1604,7 +1612,7 @@ class $className extends peote.view.Program
 		return _offset;
 	}
 	
-	public inline function pageLineDeleteChars(pageLine:$pageLineType, x:Float, size:Float, offset:Float, from:Int = 0, ?to:Null<Int>, addRemoveGlyphes:Bool = true):Float
+	public function pageLineDeleteChars(pageLine:$pageLineType, x:Float, size:Float, offset:Float, from:Int = 0, ?to:Null<Int>, addRemoveGlyphes:Bool = true):Float
 	{
 		if (to == null) to = pageLine.length;
 		for (i in ((from < pageLine.visibleFrom) ? pageLine.visibleFrom : from)...((to < pageLine.visibleTo) ? to : pageLine.visibleTo)) {
@@ -1613,7 +1621,7 @@ class $className extends peote.view.Program
 		return _pageLineDeleteChars(pageLine, x, size, offset, from, to, addRemoveGlyphes);
 	}
 	
-	public inline function pageLineCutChars(pageLine:$pageLineType, x:Float, size:Float, offset:Float, from:Int = 0, ?to:Null<Int>, addRemoveGlyphes:Bool = true):String
+	public function pageLineCutChars(pageLine:$pageLineType, x:Float, size:Float, offset:Float, from:Int = 0, ?to:Null<Int>, addRemoveGlyphes:Bool = true):String
 	{
 		if (to == null) to = pageLine.length;
 		var cut = "";
@@ -1625,7 +1633,7 @@ class $className extends peote.view.Program
 		return cut;
 	}
 	
-	public inline function pageLineGetChars(pageLine:$pageLineType, from:Int = 0, ?to:Null<Int>):String
+	public function pageLineGetChars(pageLine:$pageLineType, from:Int = 0, ?to:Null<Int>):String
 	{
 		if (to == null) to = pageLine.length;
 		var chars:String = "";
@@ -1692,7 +1700,7 @@ class $className extends peote.view.Program
 	}
 	
 	
-	public inline function pageLineUpdate(pageLine:$pageLineType, ?from:Null<Int>, ?to:Null<Int>)
+	public function pageLineUpdate(pageLine:$pageLineType, ?from:Null<Int>, ?to:Null<Int>)
 	{
 		if (from != null) pageLine.updateFrom = from;
 		if (to != null) pageLine.updateTo = to;
@@ -1713,7 +1721,46 @@ class $className extends peote.view.Program
 		} //else trace("nothing to update");
 	}
 	
+	public function pageLineGetPositionAtChar(pageLine:$pageLineType, x:Float, offset:Float, position:Int):Float
+	{
+		if (position == 0) return x + offset;
+		else if (position < pageLine.length) {
+			var right_glyph = pageLine.getGlyph(position);
+			var chardata = getCharData(right_glyph.char);
+			return (rightGlyphPos(pageLine.getGlyph(position - 1), chardata) + leftGlyphPos(right_glyph, chardata)) / 2;
+		} else {
+			var last_glyph = pageLine.getGlyph(pageLine.length-1);
+			return rightGlyphPos(last_glyph, getCharData(last_glyph.char));
+		}
+	}
 	
+	public function pageLineGetCharAtPosition(pageLine:$pageLineType, x:Float, size:Float, offset:Float, xPosition:Float):Int
+	{
+		//if (xPosition <= x) return 0;
+		if (xPosition <= x) return pageLine.visibleFrom;
+		else if (xPosition >= x + size) return pageLine.visibleTo;
+		else 
+		{
+			${switch (glyphStyleHasMeta.packed || glyphStyleHasField.local_width || glyphStyleHasField.local_letterSpace)
+			{
+				case true: macro
+				{
+					// TODO: binary search to optimze
+					var i:Int = pageLine.visibleFrom;
+					while (i < pageLine.visibleTo && xPosition > pageLine.getGlyph(i).x) i++;
+					if (i == 0) return 0;
+					var left_glyph = pageLine.getGlyph(i - 1);
+					var chardata = getCharData(left_glyph.char);
+					if ( xPosition < (leftGlyphPos(left_glyph, chardata) + rightGlyphPos(left_glyph, chardata)) / 2) return i-1;
+					else return i;
+				}
+				default: switch (glyphStyleHasField.width) {
+					case true: macro return Math.round((xPosition - x - offset + letterSpace(null)/2)/(fontStyle.width + letterSpace(null)));
+					default: macro return Math.round((xPosition - x - offset + letterSpace(null)/2)/(font.config.width + letterSpace(null)));
+				}
+			}}
+		}
+	}
 	
 	// -----------------------------------------
 	// ---------------- Lines ------------------
@@ -1934,10 +1981,8 @@ class $className extends peote.view.Program
 		@param addRemoveGlyphes (optional) set this to false if the line is not added to prevent also adding/removing of glyphes
 	**/
 	public inline function lineAppendChars(line:$lineType, chars:String, ?glyphStyle:$styleType, addRemoveGlyphes:Bool = true):Float 
-	{		
-		if (line.length > 0)
-			return _lineAppend(line.pageLine, line.size, 0, chars, rightGlyphPos(line.getGlyph(line.length - 1), getCharData(line.getGlyph(line.length - 1).char)), line.y, line.getGlyph(line.length - 1), glyphStyle, addRemoveGlyphes);
-		else return _lineAppend(line.pageLine, line.size, line.offset, chars, line.x, line.y, null, glyphStyle, addRemoveGlyphes);
+	{
+		return pageLineAppendChars(line.pageLine, line.x, line.size, line.offset, chars, glyphStyle, addRemoveGlyphes);
 	}
 	
 	/**
@@ -1995,9 +2040,7 @@ class $className extends peote.view.Program
 		@param line the Line instance
 		@param from position of the first char into range, by default this is set by the functions that was changing the line
 		@param to position after the last char into range, by default this is set by the functions that was changing the line
-	**/
-		
-// TODO: rename into lineUpdate
+	**/		
 	public inline function lineUpdate(line:$lineType, ?from:Null<Int>, ?to:Null<Int>):Void pageLineUpdate(line.pageLine, from, to);
 	
 	/**
@@ -2008,11 +2051,7 @@ class $className extends peote.view.Program
 	**/
 	public inline function lineGetPositionAtChar(line:$lineType, position:Int):Float
 	{
-		if (position == 0) return line.x + line.offset;
-		else if (position < line.length) {
-			var chardata = getCharData(line.getGlyph(position).char);
-			return (rightGlyphPos(line.getGlyph(position - 1), chardata) + leftGlyphPos(line.getGlyph(position), chardata)) / 2;
-		} else return rightGlyphPos(line.getGlyph(line.length-1), getCharData(line.getGlyph(line.length-1).char));
+		return pageLineGetPositionAtChar(line.pageLine, line.x, line.offset, position);
 	}
 					
 	/**
@@ -2023,30 +2062,7 @@ class $className extends peote.view.Program
 	**/
 	public inline function lineGetCharAtPosition(line:$lineType, xPosition:Float):Int
 	{
-		//if (xPosition <= line.x) return 0;
-		if (xPosition <= line.x) return line.visibleFrom;
-		else if (xPosition >= line.x + line.size) return line.visibleTo;
-		else 
-		{
-			${switch (glyphStyleHasMeta.packed || glyphStyleHasField.local_width || glyphStyleHasField.local_letterSpace)
-			{
-				case true: macro
-				{
-					// TODO: binary search to optimze
-					var i:Int = line.visibleFrom;
-					while (i < line.visibleTo && xPosition > line.getGlyph(i).x) i++;
-					if (i == 0) return 0;
-					var chardata = getCharData(line.getGlyph(i - 1).char);
-					if ( xPosition < (leftGlyphPos(line.getGlyph(i - 1), chardata) + rightGlyphPos(line.getGlyph(i - 1), chardata)) / 2)
-						return i-1;
-					else return i;
-				}
-				default: switch (glyphStyleHasField.width) {
-					case true: macro return Math.round((xPosition - line.x - line.offset + letterSpace(null)/2)/(fontStyle.width + letterSpace(null)));
-					default: macro return Math.round((xPosition - line.x - line.offset + letterSpace(null)/2)/(font.config.width + letterSpace(null)));
-				}
-			}}
-		}
+		return pageLineGetCharAtPosition(line.pageLine, line.x, line.size, line.offset, xPosition);
 	}
 		
 

@@ -148,6 +148,9 @@ class Lines extends Application
 			
 			Timer.delay(function() {
 				fontProgram.lineDeleteChars(line, 16);
+				//fontProgram.lineDeleteChars(line, 0);
+				//fontProgram.lineSetOffset(line, -10);
+				//fontProgram.lineAppendChars(line, "test append");
 				fontProgram.lineUpdate(line);
 			}, 6000);
 			
