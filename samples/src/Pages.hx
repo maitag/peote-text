@@ -76,6 +76,14 @@ class Pages extends Application
 							
 			// -------- Pages --------
 			
+			var numberOfUnrecognizedChars = 0;
+			var unrecognizedChars:String = "";
+			var onUnrecognizedChar = (charcode:Int, lineNumber:Int, position:Int)->{
+				trace('unrecognized Char:$charcode at lineNumber:$lineNumber and position:$position');
+				numberOfUnrecognizedChars++;
+				unrecognizedChars += " " + StringTools.hex(charcode);
+			}
+
 			var page = fontProgram.createPage("hello\nworld\n\ntest", 10, 10, glyphStyle);
 			
 			Timer.delay(function() {

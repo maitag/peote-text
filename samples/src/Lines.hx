@@ -95,7 +95,6 @@ class Lines extends Application
 			tilted.color = 0xaabb22ff;
 			tilted.width = font.config.width;
 			tilted.height = font.config.height;
-			//fontProgram.lineSet(new LineType(), "tilted", 0, 50, tilted);
 			fontProgram.lineSet(font.createLine(), "tilted", 0, 50, tilted);
 			
 			//var thick = new GlyphStyleType();
@@ -219,6 +218,42 @@ class Lines extends Application
 				fontProgram.lineSetOffset(line1, 0);
 				fontProgram.lineUpdate(line1);
 			}, 2000);
+			
+			// -------- testing if chars is not inside of Font ----------
+			
+			var numberOfUnrecognizedChars = 0;
+			var unrecognizedChars:String = "";
+			// callback to detect chars that not is inside of font
+			var onUnrecognizedChar = (charcode:Int, position:Int)->{
+				trace('unrecognized Char:$charcode at position:$position');
+				numberOfUnrecognizedChars++;
+				unrecognizedChars += " " + StringTools.hex(charcode);
+			}
+			// TODO: bug into 
+			// 500 -> neko ok, hashlink don't show character
+			// 
+			var line2 = fontProgram.createLine(""
+				
+				+ String.fromCharCode(0x1F) // <- unrecognized char
+				
+				+ String.fromCharCode(0x20) // first one (space)
+				
+				+"ö" 
+				//+ String.fromCharCode(246) // <- should be "ö" also ( encoding not work on neko!)
+				
+				+"⸥"
+				//+ String.fromCharCode(0x2e25) // <- should be "⸥" also ( encoding not work on neko!)
+				
+				//+ String.fromCharCode(0x1F4) // <- unrecognized char ( encoding stops on neko!)
+				
+				// + String.fromCharCode(0x2e26) // <- unrecognized char (but not on neko, there it gives wron encoded char!)
+				// + "test"
+				
+				, 0, 300, glyphStyle2, onUnrecognizedChar);
+				
+			trace("--------------------");
+			
+			if (numberOfUnrecognizedChars != 0) fontProgram.createLine("unrecognized charcodes:"+unrecognizedChars, 0, 350, glyphStyle1);
 			
 		}
 		, true // debug

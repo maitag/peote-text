@@ -836,15 +836,18 @@ class $className extends peote.view.Program
 	
 	public inline function numberOfGlyphes():Int return _buffer.length();
 
+	// ------- Handler for unrecognized chars ----------
+	//public var onUnrecognizedChar:Int->Int->Int->Void = null;
 	
 	
 	// ---------------------------------------------
 	// ---------------- PageLines ------------------
 	// ---------------------------------------------
-	public inline function createPageLine(chars:String, x:Float = 0.0, y:Float = 0.0, ?size:Null<Float>, ?offset:Null<Float>, ?glyphStyle:Null<$styleType>, ?defaultFontRange:Null<Int>):$pageLineType
+	public inline function createPageLine(chars:String, x:Float = 0.0, y:Float = 0.0, ?size:Null<Float>, ?offset:Null<Float>,
+		?glyphStyle:Null<$styleType>, ?defaultFontRange:Null<Int>, ?onUnrecognizedChar:Int->Int->Void):$pageLineType
 	{
 		var pageLine = new peote.text.PageLine<$styleType>();
-		pageLineSet(pageLine, size, offset, chars, x, y, glyphStyle, defaultFontRange);
+		pageLineSet(pageLine, size, offset, chars, x, y, glyphStyle, defaultFontRange, onUnrecognizedChar);
 		return pageLine;
 	}
 	
@@ -858,7 +861,8 @@ class $className extends peote.view.Program
 		for (i in pageLine.visibleFrom...pageLine.visibleTo) glyphRemove(pageLine.getGlyph(i));
 	}
 
-	public function pageLineSet(pageLine:$pageLineType, size:Float, offset:Float, chars:String, x:Float = 0.0, y:Float = 0.0, ?glyphStyle:Null<$styleType>, ?defaultFontRange:Null<Int>, addRemoveGlyphes:Bool = true):Bool
+	public function pageLineSet(pageLine:$pageLineType, size:Float, offset:Float, chars:String, x:Float = 0.0, y:Float = 0.0,
+		?glyphStyle:Null<$styleType>, ?defaultFontRange:Null<Int>, addRemoveGlyphes:Bool = true, ?onUnrecognizedChar:Int->Int->Void)
 	{
 		var line_max = x + size;
 		pageLine.y = y;
@@ -869,7 +873,6 @@ class $className extends peote.view.Program
 		var glyph:$glyphType;
 		var prev_glyph:$glyphType = null;
 		var i = 0;
-		var ret = true;
 		var charData:$charDataType = null;
 		
 		var visibleFrom:Int = 0;
@@ -945,7 +948,7 @@ class $className extends peote.view.Program
 				prev_glyph = glyph;
 				i++;
 			}
-			else ret = false;
+			else if (onUnrecognizedChar != null) onUnrecognizedChar(charcode, i);
 		});
 								
 		if (i < old_length) {
@@ -958,8 +961,7 @@ class $className extends peote.view.Program
 		
 		// for an empty line set line metric to a default fontrange or to the first range into font
 		if (i == 0) _setDefaultMetric(pageLine, (defaultFontRange == null) ? 0 : defaultFontRange, glyphStyle);
-		
-		
+				
 		pageLine.updateFrom = 0;
 		pageLine.updateTo = i;
 		
@@ -967,8 +969,6 @@ class $className extends peote.view.Program
 		pageLine.visibleTo = visibleTo;
 		
 		pageLine.textSize = x - x_start - offset;
-
-		return ret;		
 	}	
 	
 	inline function _setDefaultMetric(pageLine:$pageLineType, defaultFontRange:Int, glyphStyle:Null<$styleType>) {
@@ -1256,7 +1256,8 @@ class $className extends peote.view.Program
 	
 	// ------------ set chars  ---------------
 	
-	public function pageLineSetChar(pageLine:$pageLineType, x:Float, size:Float, offset:Float, charcode:Int, position:Int = 0, ?glyphStyle:$styleType, addRemoveGlyphes:Bool = true):Float
+	public function pageLineSetChar(pageLine:$pageLineType, x:Float, size:Float, offset:Float, charcode:Int, position:Int = 0,
+		?glyphStyle:$styleType, addRemoveGlyphes:Bool = true, ?onUnrecognizedChar:Int->Int->Void):Float
 	{
 		if (position >= pageLine.length) position = pageLine.length - 1;
 		
@@ -1308,10 +1309,14 @@ class $className extends peote.view.Program
 				return _offset;
 			}
 		} 
-		else return 0;					
+		else {
+			if (onUnrecognizedChar != null) onUnrecognizedChar(charcode, position);
+			return 0;					
+		}
 	}
 	
-	public function pageLineSetChars(pageLine:$pageLineType, x:Float, size:Float, offset:Float, chars:String, position:Int = 0, ?glyphStyle:$styleType, addRemoveGlyphes:Bool = true):Float
+	public function pageLineSetChars(pageLine:$pageLineType, x:Float, size:Float, offset:Float, chars:String, position:Int = 0,
+		?glyphStyle:$styleType, addRemoveGlyphes:Bool = true, ?onUnrecognizedChar:Int->Int->Void):Float
 	{
 		if (position + chars.length > pageLine.length) {
 			position = pageLine.length - chars.length;
@@ -1359,9 +1364,11 @@ class $className extends peote.view.Program
 					prev_glyph = pageLine.getGlyph(i);
 					i++;
 				}
+				else if (onUnrecognizedChar != null) onUnrecognizedChar(charcode, i);
 			}
 			else {
-				var _offset = pageLineInsertChar(pageLine, line_x, size, offset, charcode, i, glyphStyle, addRemoveGlyphes); // TODO: use append
+				// TODO: better using append here ?
+				var _offset = pageLineInsertChar(pageLine, line_x, size, offset, charcode, i, glyphStyle, addRemoveGlyphes, onUnrecognizedChar);
 				if (_offset > 0) {
 					x += _offset;
 					i++;
@@ -1394,7 +1401,8 @@ class $className extends peote.view.Program
 		
 	// ------------- inserting chars ---------------------
 	
-	public function pageLineInsertChar(pageLine:$pageLineType, x:Float, size:Float, offset:Float, charcode:Int, position:Int = 0, ?glyphStyle:$styleType, addRemoveGlyphes:Bool = true):Float
+	public function pageLineInsertChar(pageLine:$pageLineType, x:Float, size:Float, offset:Float, charcode:Int, position:Int = 0,
+		?glyphStyle:$styleType, addRemoveGlyphes:Bool = true, ?onUnrecognizedChar:Int->Int->Void):Float
 	{
 		var charData = getCharData(charcode);
 		if (charData != null)
@@ -1449,10 +1457,14 @@ class $className extends peote.view.Program
 			}			
 			return x - x_start;
 		}
-		else return 0;
+		else {
+			if (onUnrecognizedChar != null) onUnrecognizedChar(charcode, position);
+			return 0;
+		}
 	}
 		
-	public function pageLineInsertChars(pageLine:$pageLineType, x:Float, size:Float, offset:Float, chars:String, position:Int = 0, ?glyphStyle:$styleType, addRemoveGlyphes:Bool = true):Float
+	public function pageLineInsertChars(pageLine:$pageLineType, x:Float, size:Float, offset:Float, chars:String, position:Int = 0,
+		?glyphStyle:$styleType, addRemoveGlyphes:Bool = true, ?onUnrecognizedChar:Int->Int->Void):Float
 	{					
 		var prev_glyph:$glyphType = null;
 		var line_x = x;
@@ -1472,7 +1484,7 @@ class $className extends peote.view.Program
 			if (pageLine.visibleFrom > pageLine.length) pageLine.visibleFrom = pageLine.length;
 			if (pageLine.visibleTo > pageLine.length) pageLine.visibleTo = pageLine.length;
 
-			var deltaX = _lineAppend(pageLine, size, offset, chars, x, y, prev_glyph, glyphStyle, addRemoveGlyphes);
+			var deltaX = _lineAppend(pageLine, size, offset, chars, x, y, prev_glyph, glyphStyle, addRemoveGlyphes, onUnrecognizedChar);
 
 			if (position == 0) {
 				var kerningSpace = kerningSpaceOffset(pageLine.getGlyph(pageLine.length-1), rest[0], getCharData(rest[0].char));
@@ -1519,22 +1531,24 @@ class $className extends peote.view.Program
 			}
 			return deltaX;
 		}
-		else return _lineAppend(pageLine, size, offset, chars, x, y, prev_glyph, glyphStyle, addRemoveGlyphes);
+		else return _lineAppend(pageLine, size, offset, chars, x, y, prev_glyph, glyphStyle, addRemoveGlyphes, onUnrecognizedChar);
 	}
 		
 
 	// ------------- appending chars ---------------------
 	
-	public function pageLineAppendChars(pageLine:$pageLineType, x:Float, size:Float, offset:Float, chars:String, ?glyphStyle:$styleType, addRemoveGlyphes:Bool = true):Float
+	public function pageLineAppendChars(pageLine:$pageLineType, x:Float, size:Float, offset:Float, chars:String,
+		?glyphStyle:$styleType, addRemoveGlyphes:Bool = true, ?onUnrecognizedChar:Int->Int->Void):Float
 	{
 		if (pageLine.length > 0) {
 			var prev_glyph = pageLine.getGlyph(pageLine.length - 1);
-			return _lineAppend(pageLine, size, 0, chars, rightGlyphPos(prev_glyph, getCharData(prev_glyph.char)), pageLine.y, prev_glyph, glyphStyle, addRemoveGlyphes);
+			return _lineAppend(pageLine, size, 0, chars, rightGlyphPos(prev_glyph, getCharData(prev_glyph.char)), pageLine.y, prev_glyph, glyphStyle, addRemoveGlyphes, onUnrecognizedChar);
 		}
-		else return _lineAppend(pageLine, size, offset, chars, x, pageLine.y, null, glyphStyle, addRemoveGlyphes);
+		else return _lineAppend(pageLine, size, offset, chars, x, pageLine.y, null, glyphStyle, addRemoveGlyphes, onUnrecognizedChar);
 	}
 	
-	inline function _lineAppend(pageLine:$pageLineType, size:Float, offset:Float, chars:String, x:Float, y:Float, prev_glyph:peote.text.Glyph<$styleType>, glyphStyle:$styleType, addRemoveGlyphes:Bool = true):Float
+	inline function _lineAppend(pageLine:$pageLineType, size:Float, offset:Float, chars:String, x:Float, y:Float, prev_glyph:peote.text.Glyph<$styleType>,
+		glyphStyle:$styleType, addRemoveGlyphes:Bool = true, ?onUnrecognizedChar:Int->Int->Void):Float
 	{
 		var first = true;
 		var glyph:$glyphType = null;
@@ -1546,6 +1560,8 @@ class $className extends peote.view.Program
 		var x_start = x;
 				
 		var line_max = line_x + size;		
+		
+		var i = pageLine.length - 1; // only for onUnrecognizedChar
 		
 		peote.text.util.StringUtils.iter(chars, function(charcode)
 		{
@@ -1581,7 +1597,10 @@ class $className extends peote.view.Program
 				x += nextGlyphOffset(glyph, charData);
 
 				prev_glyph = glyph;
-			}
+				
+				i++; // only for onUnrecognizedChar
+			} 
+			else if (onUnrecognizedChar != null) onUnrecognizedChar(charcode, i);
 		});
 
 		pageLine.textSize += x - x_start;
@@ -1764,12 +1783,7 @@ class $className extends peote.view.Program
 	
 	// -----------------------------------------
 	// ---------------- Lines ------------------
-	// -----------------------------------------
-	
-	// TODO: storing all chars thats not includet into the font by editing line
-	public var unrecognizedChars:String = "";
-	
-	
+	// -----------------------------------------	
 	/**
 		Creates a new Line and returns it. The new created Line is displayed automatically.
 		@param chars String that contains the chars (newlines have no effect)
@@ -1779,11 +1793,13 @@ class $className extends peote.view.Program
 		@param offset (optional) how much pixels the line is shifted inside it's visible range
 		@param glyphStyle (optional) GlyphStyle of the line, by default it is using the default FontStyle of the FontProgram 
 		@param defaultFontRange (optional) unicode range of the Font where to fetch the line-metric from (by default it's using the metric from the range of the first letter)
+		@param onUnrecognizedChar (optional) the function that is called whenever the font does not contain a char
 	**/
-	public inline function createLine(chars:String, x:Float = 0.0, y:Float = 0.0, ?size:Null<Float>, ?offset:Null<Float>, ?glyphStyle:Null<$styleType>, ?defaultFontRange:Null<Int>):$lineType
+	public inline function createLine(chars:String, x:Float = 0.0, y:Float = 0.0, ?size:Null<Float>, ?offset:Null<Float>,
+		?glyphStyle:Null<$styleType>, ?defaultFontRange:Null<Int>, ?onUnrecognizedChar:Int->Int->Void):$lineType
 	{
 		var line = new peote.text.Line<$styleType>();
-		lineSet(line, chars, x, y, size, offset, glyphStyle, defaultFontRange);
+		lineSet(line, chars, x, y, size, offset, glyphStyle, defaultFontRange, onUnrecognizedChar);
 		return line;
 	}
 	
@@ -1811,13 +1827,15 @@ class $className extends peote.view.Program
 		@param glyphStyle (optional) GlyphStyle of the line, by default it is using the default FontStyle of the FontProgram 
 		@param defaultFontRange (optional) unicode range of the Font where to fetch the line-metric from (by default it's using the metric from the range of the first letter)
 		@param addRemoveGlyphes (optional) set this to false if the line is not added to prevent also adding/removing of glyphes
+		@param onUnrecognizedChar (optional) the function that is called whenever the font does not contain a char
 	**/
-	public inline function lineSet(line:$lineType, chars:String, x:Float = 0, y:Float = 0, ?size:Null<Float>, ?offset:Null<Float>, ?glyphStyle:Null<$styleType>, ?defaultFontRange:Null<Int>, addRemoveGlyphes:Bool = true):Bool
+	public inline function lineSet(line:$lineType, chars:String, x:Float = 0, y:Float = 0, ?size:Null<Float>, ?offset:Null<Float>,
+		?glyphStyle:Null<$styleType>, ?defaultFontRange:Null<Int>, addRemoveGlyphes:Bool = true, ?onUnrecognizedChar:Int->Int->Void)
 	{
 		line.x = x;
 		if (size != null) line.size = size;
 		if (offset != null) line.offset = offset;		
-		return pageLineSet(line.pageLine, line.size, line.offset, chars, x, y, glyphStyle, defaultFontRange, addRemoveGlyphes);
+		pageLineSet(line.pageLine, line.size, line.offset, chars, x, y, glyphStyle, defaultFontRange, addRemoveGlyphes, onUnrecognizedChar);
 	}
 	
 	/**
@@ -1926,10 +1944,12 @@ class $className extends peote.view.Program
 		@param position where to change the char, is 0 by default (first char into line)
 		@param glyphStyle (optional) GlyphStyle of the new chars, by default it is using the default FontStyle of the FontProgram 
 		@param addRemoveGlyphes (optional) set this to false if the line is not added to prevent also adding/removing of glyphes
+		@param onUnrecognizedChar (optional) the function that is called whenever the font does not contain a char
 	**/
-	public inline function lineSetChar(line:$lineType, charcode:Int, position:Int = 0, ?glyphStyle:$styleType, addRemoveGlyphes:Bool = true):Float
+	public inline function lineSetChar(line:$lineType, charcode:Int, position:Int = 0,
+		?glyphStyle:$styleType, addRemoveGlyphes:Bool = true, ?onUnrecognizedChar:Int->Int->Void):Float
 	{
-		return pageLineSetChar(line.pageLine, line.x, line.size, line.offset, charcode, position, glyphStyle, addRemoveGlyphes);
+		return pageLineSetChar(line.pageLine, line.x, line.size, line.offset, charcode, position, glyphStyle, addRemoveGlyphes, onUnrecognizedChar);
 	}
 	
 	/**
@@ -1939,10 +1959,12 @@ class $className extends peote.view.Program
 		@param position where to change, is 0 by default (first char into line)
 		@param glyphStyle (optional) GlyphStyle of the new chars, by default it is using the default FontStyle of the FontProgram 
 		@param addRemoveGlyphes (optional) set this to false if the line is not added to prevent also adding/removing of glyphes
+		@param onUnrecognizedChar (optional) the function that is called whenever the font does not contain a char
 	**/
-	public inline function lineSetChars(line:$lineType, chars:String, position:Int = 0, ?glyphStyle:$styleType, addRemoveGlyphes:Bool = true):Float
+	public inline function lineSetChars(line:$lineType, chars:String, position:Int = 0,
+		?glyphStyle:$styleType, addRemoveGlyphes:Bool = true, ?onUnrecognizedChar:Int->Int->Void):Float
 	{
-		return pageLineSetChars(line.pageLine, line.x, line.size, line.offset, chars, position, glyphStyle, addRemoveGlyphes);		
+		return pageLineSetChars(line.pageLine, line.x, line.size, line.offset, chars, position, glyphStyle, addRemoveGlyphes, onUnrecognizedChar);		
 	}
 	
 	/**
@@ -1953,10 +1975,12 @@ class $className extends peote.view.Program
 		@param position where to insert, is 0 by default (before first char into line)
 		@param glyphStyle (optional) GlyphStyle of the new chars, by default it is using the default FontStyle of the FontProgram 
 		@param addRemoveGlyphes (optional) set this to false if the line is not added to prevent also adding/removing of glyphes
+		@param onUnrecognizedChar (optional) the function that is called whenever the font does not contain a char
 	**/
-	public inline function lineInsertChar(line:$lineType, charcode:Int, position:Int = 0, ?glyphStyle:$styleType, addRemoveGlyphes:Bool = true):Float
+	public inline function lineInsertChar(line:$lineType, charcode:Int, position:Int = 0,
+		?glyphStyle:$styleType, addRemoveGlyphes:Bool = true, ?onUnrecognizedChar:Int->Int->Void):Float
 	{		
-		return pageLineInsertChar(line.pageLine, line.x, line.size, line.offset, charcode, position, glyphStyle, addRemoveGlyphes);
+		return pageLineInsertChar(line.pageLine, line.x, line.size, line.offset, charcode, position, glyphStyle, addRemoveGlyphes, onUnrecognizedChar);
 	}
 	
 	/**
@@ -1967,10 +1991,12 @@ class $className extends peote.view.Program
 		@param position where to insert, is 0 by default (before first char into line)
 		@param glyphStyle (optional) GlyphStyle of the new chars, by default it is using the default FontStyle of the FontProgram 
 		@param addRemoveGlyphes (optional) set this to false if the line is not added to prevent also adding/removing of glyphes
+		@param onUnrecognizedChar (optional) the function that is called whenever the font does not contain a char
 	**/
-	public inline function lineInsertChars(line:$lineType, chars:String, position:Int = 0, ?glyphStyle:$styleType, addRemoveGlyphes:Bool = true):Float
+	public inline function lineInsertChars(line:$lineType, chars:String, position:Int = 0,
+		?glyphStyle:$styleType, addRemoveGlyphes:Bool = true, ?onUnrecognizedChar:Int->Int->Void):Float
 	{		
-		return pageLineInsertChars(line.pageLine, line.x, line.size, line.offset, chars, position, glyphStyle, addRemoveGlyphes);
+		return pageLineInsertChars(line.pageLine, line.x, line.size, line.offset, chars, position, glyphStyle, addRemoveGlyphes, onUnrecognizedChar);
 	}
 	
 	/**
@@ -1979,10 +2005,12 @@ class $className extends peote.view.Program
 		@param chars String that contains the new chars (newlines have no effect)
 		@param glyphStyle (optional) GlyphStyle of the new chars, by default it is using the default FontStyle of the FontProgram 
 		@param addRemoveGlyphes (optional) set this to false if the line is not added to prevent also adding/removing of glyphes
+		@param onUnrecognizedChar (optional) the function that is called whenever the font does not contain a char
 	**/
-	public inline function lineAppendChars(line:$lineType, chars:String, ?glyphStyle:$styleType, addRemoveGlyphes:Bool = true):Float 
+	public inline function lineAppendChars(line:$lineType, chars:String,
+		?glyphStyle:$styleType, addRemoveGlyphes:Bool = true, ?onUnrecognizedChar:Int->Int->Void):Float 
 	{
-		return pageLineAppendChars(line.pageLine, line.x, line.size, line.offset, chars, glyphStyle, addRemoveGlyphes);
+		return pageLineAppendChars(line.pageLine, line.x, line.size, line.offset, chars, glyphStyle, addRemoveGlyphes, onUnrecognizedChar);
 	}
 	
 	/**
@@ -2072,7 +2100,8 @@ class $className extends peote.view.Program
 	// ---------------- Pages ------------------
 	// -----------------------------------------
 
-	public inline function createPage(chars:String, x:Float=0, y:Float=0, glyphStyle:Null<$styleType> = null):peote.text.Page<$styleType>
+	public inline function createPage(chars:String, x:Float = 0, y:Float = 0,
+		glyphStyle:Null<$styleType> = null, ?onUnrecognizedChar:Int->Int->Int->Void):peote.text.Page<$styleType>
 	{
 		var page = new peote.text.Page<$styleType>();
 		if (pageSet(page, chars, x, y, glyphStyle)) return page else return null;
@@ -2112,7 +2141,8 @@ class $className extends peote.view.Program
 
 	// TODO: change linecreation to have tabs (alternatively into creation of a tab-char into font!)
 	// TODO: wrap and wordwrap
-	public inline function pageSet(page:Page<$styleType>, chars:String, x:Float = 0.0, y:Float = 0.0, width:Null<Float> = null, ?height:Null<Float>, ?xOffset:Null<Float>, ?yOffset:Null<Float>, ?glyphStyle:$styleType, ?defaultFontRange:Null<Int>, addRemoveGlyphes:Bool = true):Bool
+	public inline function pageSet(page:Page<$styleType>, chars:String, x:Float = 0.0, y:Float = 0.0, width:Null<Float> = null, ?height:Null<Float>, ?xOffset:Null<Float>, ?yOffset:Null<Float>,
+		?glyphStyle:$styleType, ?defaultFontRange:Null<Int>, addRemoveGlyphes:Bool = true, ?onUnrecognizedChar:Int->Int->Int->Void):Bool
 	{
 		trace("setPage", chars);
 		
