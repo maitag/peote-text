@@ -1395,13 +1395,13 @@ class $className extends peote.view.Program
 				_setLinePositionOffset(pageLine, line_x, size, _offset, position, i, pageLine.length, addRemoveGlyphes);
 			}
 			else _setLinePositionOffset(pageLine, line_x, size, _offset, position, i, i, addRemoveGlyphes);
-			if (restChars != null) return pageLineAppendChars(pageLine, line_x, size, offset, restChars, glyphStyle, addRemoveGlyphes, onUnrecognizedChar);
+			if (restChars != null) return _offset + pageLineAppendChars(pageLine, line_x, size, offset, restChars, glyphStyle, addRemoveGlyphes, onUnrecognizedChar);
 			else return _offset;
 		}
 		else {
 			var _offset = x - line_x - offset - pageLine.textSize;
 			_setLinePositionOffset(pageLine, line_x, size, _offset, position, i, i, addRemoveGlyphes);
-			if (restChars != null) return pageLineAppendChars(pageLine, line_x, size, offset, restChars, glyphStyle, addRemoveGlyphes, onUnrecognizedChar);
+			if (restChars != null) return _offset + pageLineAppendChars(pageLine, line_x, size, offset, restChars, glyphStyle, addRemoveGlyphes, onUnrecognizedChar);
 			else return _offset;
 		}
 	}
@@ -2115,11 +2115,12 @@ class $className extends peote.view.Program
 	// ---------------- Pages ------------------
 	// -----------------------------------------
 
-	public inline function createPage(chars:String, x:Float = 0, y:Float = 0,
+	public inline function createPage(chars:String, x:Float = 0.0, y:Float = 0.0,
 		glyphStyle:Null<$styleType> = null, ?onUnrecognizedChar:Int->Int->Int->Void):peote.text.Page<$styleType>
 	{
 		var page = new peote.text.Page<$styleType>();
-		if (pageSet(page, chars, x, y, glyphStyle)) return page else return null;
+		pageSet(page, chars, x, y, glyphStyle, onUnrecognizedChar);
+		return page;
 	}
 	
 	public inline function pageAdd(page:Page<$styleType>)
@@ -2132,32 +2133,13 @@ class $className extends peote.view.Program
 		for (i in page.updateLineFrom...page.updateLineTo) pageLineRemove(page.getPageLine(i));
 	}
 	
-	public inline function pageUpdate(page:Page<$styleType>, from:Null<Int> = null, to:Null<Int> = null)
-	{
-		for (i in page.updateLineFrom...page.updateLineTo) pageLineUpdate(page.getPageLine(i));
-	}
-	
-	public inline function pageInsertLine(page:Page<$styleType>, lineNumber:Int, chars:String, glyphStyle:$styleType = null)
-	{
-		
-	}
-
-	public inline function pageDeleteLine(page:Page<$styleType>, lineNumber:Int)
-	{
-		
-	}
-
-	public inline function pageSetLine(page:Page<$styleType>, lineNumber:Int, chars:String, glyphStyle:$styleType = null)
-	{
-		
-	}
 
 	var regLinesplit:EReg = ~/^(.*?)(\n|\r\n|\r)/; // TODO: optimize without regexp
 
 	// TODO: change linecreation to have tabs (alternatively into creation of a tab-char into font!)
 	// TODO: wrap and wordwrap
 	public inline function pageSet(page:Page<$styleType>, chars:String, x:Float = 0.0, y:Float = 0.0, width:Null<Float> = null, ?height:Null<Float>, ?xOffset:Null<Float>, ?yOffset:Null<Float>,
-		?glyphStyle:$styleType, ?defaultFontRange:Null<Int>, addRemoveGlyphes:Bool = true, ?onUnrecognizedChar:Int->Int->Int->Void):Bool
+		?glyphStyle:$styleType, ?defaultFontRange:Null<Int>, addRemoveGlyphes:Bool = true, ?onUnrecognizedChar:Int->Int->Int->Void)
 	{
 		trace("setPage", chars);
 		
@@ -2210,7 +2192,26 @@ class $className extends peote.view.Program
 		
 		trace("new length:", page.length);
 		
-		return true;
+	}
+	
+	public inline function pageInsertLine(page:Page<$styleType>, lineNumber:Int, chars:String, glyphStyle:$styleType = null)
+	{
+		
+	}
+
+	public inline function pageDeleteLine(page:Page<$styleType>, lineNumber:Int)
+	{
+		
+	}
+
+	public inline function pageSetLine(page:Page<$styleType>, lineNumber:Int, chars:String, glyphStyle:$styleType = null)
+	{
+		
+	}
+	
+	public inline function pageUpdate(page:Page<$styleType>, from:Null<Int> = null, to:Null<Int> = null)
+	{
+		for (i in page.updateLineFrom...page.updateLineTo) pageLineUpdate(page.getPageLine(i));
 	}
 	
 	

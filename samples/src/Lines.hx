@@ -179,7 +179,7 @@ class Lines extends Application
 				//var offset = fontProgram.lineSetStyle(line1, glyphStyle2, 0, 4);
 				//var offset = fontProgram.lineSetStyle(line1, glyphStyle2, 1, 4);
 				//var offset = fontProgram.lineSetStyle(line1, glyphStyle2, 12, 13);
-				var offset = fontProgram.lineSetStyle(line1, glyphStyle2);
+				//var offset = fontProgram.lineSetStyle(line1, glyphStyle2);
 				
 				//var offset = fontProgram.lineSetChar(line1, "A".charCodeAt(0) , 0, glyphStyle2); 
 				//var offset = fontProgram.lineSetChar(line1, "A".charCodeAt(0) , 1, glyphStyle2); 
@@ -187,8 +187,10 @@ class Lines extends Application
 				
 				//var offset = fontProgram.lineSetChars(line1, "AB" , 0, glyphStyle2);
 				//var offset = fontProgram.lineSetChars(line1, "AB" , 1, glyphStyle2);
-				//var offset = fontProgram.lineSetChars(line1, "TEST TEXTSIZE", 0, glyphStyle2);
+				var offset = fontProgram.lineSetChars(line1, "TEST TEXTSIZE 123", 0, glyphStyle2);
 				//var offset = fontProgram.lineSetChars(line1, "AB", 11, glyphStyle2);
+				
+				//var offset = fontProgram.lineAppendChars(line1, "123", glyphStyle2);
 				
 				//var offset = fontProgram.lineDeleteChar(line1, 0);
 				//var offset = fontProgram.lineDeleteChar(line1, 1);
