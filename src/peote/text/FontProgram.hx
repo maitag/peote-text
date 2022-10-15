@@ -1260,6 +1260,7 @@ class $className extends peote.view.Program
 		?glyphStyle:$styleType, addRemoveGlyphes:Bool = true, ?onUnrecognizedChar:Int->Int->Void):Float
 	{
 		if (position >= pageLine.length) position = pageLine.length - 1;
+		else if (position < 0) position = 0;
 		
 		var charData = getCharData(charcode);
 		if (charData != null)
@@ -1318,12 +1319,17 @@ class $className extends peote.view.Program
 	public function pageLineSetChars(pageLine:$pageLineType, x:Float, size:Float, offset:Float, chars:String, position:Int = 0,
 		?glyphStyle:$styleType, addRemoveGlyphes:Bool = true, ?onUnrecognizedChar:Int->Int->Void):Float
 	{
+		var restChars:String = null;
+		
+		if (position >= pageLine.length) {
+			position = pageLine.length;
+			return pageLineAppendChars(pageLine, x, size, offset, chars, glyphStyle, addRemoveGlyphes, onUnrecognizedChar);
+		}
+		else if (position < 0) position = 0;
+		
 		if (position + chars.length > pageLine.length) {
-			position = pageLine.length - chars.length;
-			if (position < 0) {
-				chars = chars.substring(0, chars.length + position);
-				position = 0;
-			}
+			restChars = chars.substr(chars.length -(position + chars.length - pageLine.length));
+			chars = chars.substring(0, chars.length -(position + chars.length - pageLine.length));
 		}
 		
 		var prev_glyph:$glyphType = null;
@@ -1389,12 +1395,14 @@ class $className extends peote.view.Program
 				_setLinePositionOffset(pageLine, line_x, size, _offset, position, i, pageLine.length, addRemoveGlyphes);
 			}
 			else _setLinePositionOffset(pageLine, line_x, size, _offset, position, i, i, addRemoveGlyphes);
-			return _offset;
+			if (restChars != null) return pageLineAppendChars(pageLine, line_x, size, offset, restChars, glyphStyle, addRemoveGlyphes, onUnrecognizedChar);
+			else return _offset;
 		}
 		else {
 			var _offset = x - line_x - offset - pageLine.textSize;
 			_setLinePositionOffset(pageLine, line_x, size, _offset, position, i, i, addRemoveGlyphes);
-			return _offset;
+			if (restChars != null) return pageLineAppendChars(pageLine, line_x, size, offset, restChars, glyphStyle, addRemoveGlyphes, onUnrecognizedChar);
+			else return _offset;
 		}
 	}
 	
@@ -1414,9 +1422,12 @@ class $className extends peote.view.Program
 			var y = pageLine.y;
 			
 			if (position > 0) {
+				if (position >= pageLine.length) position = pageLine.length;
 				x = rightGlyphPos(pageLine.getGlyph(position - 1), getCharData(pageLine.getGlyph(position - 1).char));
 				prev_glyph = pageLine.getGlyph(position - 1);
-			}
+			} 
+			else if (position < 0) position = 0;
+			
 			var x_start = x;
 			
 			var glyph = new peote.text.Glyph<$styleType>();
@@ -1458,7 +1469,11 @@ class $className extends peote.view.Program
 			return x - x_start;
 		}
 		else {
-			if (onUnrecognizedChar != null) onUnrecognizedChar(charcode, position);
+			if (onUnrecognizedChar != null) {
+				if (position >= pageLine.length) position = pageLine.length;
+				else if (position < 0) position = 0;
+				onUnrecognizedChar(charcode, position);
+			}
 			return 0;
 		}
 	}

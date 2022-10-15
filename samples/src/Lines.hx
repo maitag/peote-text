@@ -225,7 +225,7 @@ class Lines extends Application
 			var unrecognizedChars:String = "";
 			// callback to detect chars that not is inside of font
 			var onUnrecognizedChar = (charcode:Int, position:Int)->{
-				trace('unrecognized Char:$charcode at position:$position');
+				trace('unrecognized Char:$charcode after position:$position');
 				numberOfUnrecognizedChars++;
 				unrecognizedChars += " " + StringTools.hex(charcode);
 			}
@@ -234,7 +234,7 @@ class Lines extends Application
 			// 
 			var line2 = fontProgram.createLine(""
 				
-				+ String.fromCharCode(0x1F) // <- unrecognized char
+				//+ String.fromCharCode(0x1F) // <- unrecognized char
 				
 				+ String.fromCharCode(0x20) // first one (space)
 				
@@ -252,6 +252,17 @@ class Lines extends Application
 				, 0, 300, glyphStyle2, onUnrecognizedChar);
 				
 			trace("--------------------");
+			
+			//fontProgram.lineSetChar(line2, 0x1F, 2, onUnrecognizedChar);
+			
+			//fontProgram.lineSetChars(line2, "abc"+ String.fromCharCode(0x1F), 1, onUnrecognizedChar);
+			
+			//fontProgram.lineInsertChar(line2, 0x1F, 2, onUnrecognizedChar);
+			//fontProgram.lineInsertChars(line2, "a"+ String.fromCharCode(0x1F), 2, onUnrecognizedChar);
+			
+			//fontProgram.lineAppendChars(line2, "a"+ String.fromCharCode(0x1F), onUnrecognizedChar);
+			
+			//fontProgram.lineUpdate(line2);
 			
 			if (numberOfUnrecognizedChars != 0) fontProgram.createLine("unrecognized charcodes:"+unrecognizedChars, 0, 350, glyphStyle1);
 			
