@@ -315,9 +315,9 @@ class InputLine extends Application
 			var from = select_from;
 			var to = select_to;
 			if (to < from) {to = select_from; from = select_to; }
+			selectionSetTo(select_from);
 			cut = fontProgram.lineCutChars(line, from, to);
 			lineUpdate();
-			selectionSetTo(select_from);
 			cursorSet(from);
 		}
 		return cut;
