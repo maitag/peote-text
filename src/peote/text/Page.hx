@@ -61,7 +61,7 @@ class $className
 	@:allow(peote.text) public var visibleLineFrom(default, null):Int = 0;
 	@:allow(peote.text) public var visibleLineTo(default, null):Int = 0;
 	
-	@:allow(peote.text) public var updateLineFrom(default, null):Int = 0;
+	@:allow(peote.text) public var updateLineFrom(default, null):Int = 0x1000000;
 	@:allow(peote.text) public var updateLineTo(default, null):Int = 0;
 
 	public function new() {}

@@ -2154,39 +2154,46 @@ class $className extends peote.view.Program
 		
 		var i:Int = 0;
 		
+		page.updateLineFrom = 0;
 		page.updateLineTo = 0;
-		while (regLinesplit.match(chars) && i < page.length) { // overwrite old lines
+		
+		while (regLinesplit.match(chars) && i < page.length) // overwrite old lines
+		{
 			trace("setLine", i, regLinesplit.matched(1));
-			var pageLine = page.getPageLine(i); // TODO: empty lines have no height !
+			
+			var pageLine = page.getPageLine(i);
 			pageLineSet( pageLine, page.width, page.xOffset, regLinesplit.matched(1), x, y, glyphStyle, defaultFontRange, addRemoveGlyphes);
 			
-			page.updateLineFrom = 0;// TODO
-			page.updateLineTo++;
-			//page.updateLineTo = regLinesplit.matched(1).length; // <- let pageLineSet return how much was set up
-			
-			//pageLineUpdate(pageLine);
+			y += pageLine.lineHeight;
 			
 			chars = regLinesplit.matchedRight();
-			y += pageLine.lineHeight;
 			i++;
 		}
-		if (i < page.length) { // delete rest of old line
-			var new_length:Int = i;
+		
+		page.updateLineTo = i;
+		
+		if (i < page.length) // delete rest of old line
+		{
 			while (i < page.length) {
 				trace("removeLine", i);
 				pageLineRemove(page.getPageLine(i));
 				i++;
 			}
-			page.resize(new_length); // TODO: caching
+			page.resize(page.updateLineTo);
 		}
-		else { // create new lines and push them to page
-			while (regLinesplit.match(chars)) {
+		else // create new lines and push them to page
+		{
+			while (regLinesplit.match(chars)) 
+			{
 				trace("pushLine", regLinesplit.matched(1));
+				
 				var pageLine = createPageLine(regLinesplit.matched(1), x, y, page.width, page.xOffset, glyphStyle); // TODO: empty lines have no height !
 				page.pushLine( pageLine );
-				chars = regLinesplit.matchedRight();
-				y += pageLine.lineHeight;
+				
 				page.updateLineTo++;
+				y += pageLine.lineHeight;
+				
+				chars = regLinesplit.matchedRight();
 			}
 		}
 		
@@ -2194,10 +2201,23 @@ class $className extends peote.view.Program
 		
 	}
 	
+//TODO:
+	//public inline function pageSetStyle
+	//public inline function pageSetPosition
+	//public inline function pageSetXPosition
+	//public inline function pageSetYPosition
+	//public inline function pageSetPositionSize
+	//public inline function pageSetSize
+	//public inline function pageSetOffset
+	//public inline function pageSetXOffset
+	//public inline function pageSetYOffset
+
 	public inline function pageInsertLine(page:Page<$styleType>, lineNumber:Int, chars:String, glyphStyle:$styleType = null)
 	{
 		
 	}
+//TODO:
+	//public inline function pageAppendLine
 
 	public inline function pageDeleteLine(page:Page<$styleType>, lineNumber:Int)
 	{
