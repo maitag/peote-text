@@ -44,7 +44,7 @@ class $className
 	@:allow(peote.text) public var textHeight(default, null):Float = 0.0; // pixel size of all lines
 	
 	
-	// TODO: optimize for neko/hl/cpp
+	// TODO: optimize for neko/hl/cpp ... alternatively also per vector and ringbuffer
 	var pageLines = new Array<$pageLineType>();
 	
 	public var length(get, never):Int; // number of lines

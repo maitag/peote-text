@@ -59,9 +59,9 @@ class $className extends peote.view.Program
 	
 	var _buffer:peote.view.Buffer<$glyphType>;
 	
-	public inline function new(font:peote.text.Font<$styleType>, fontStyle:$styleType, isMasked:Bool = false)
+	public inline function new(font:peote.text.Font<$styleType>, fontStyle:$styleType, isMasked:Bool = false, bufferMinSize:Int = 1024, bufferGrowSize:Int = 1024, bufferAutoShrink:Bool = true)
 	{
-		_buffer = new peote.view.Buffer<$glyphType>(1024,1024,true);
+		_buffer = new peote.view.Buffer<$glyphType>(bufferMinSize, bufferGrowSize, bufferAutoShrink);
 		super(_buffer);
 		
 		if (isMasked) enableMasking();

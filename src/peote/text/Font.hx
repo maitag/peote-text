@@ -137,10 +137,10 @@ class $className
 	}
 	
 	//public function createFontProgram(fontStyle:$styleType, isMasked:Bool = false):$fontProgramType
-	@:keep public function createFontProgram(fontStyle:$styleType, isMasked:Bool = false):peote.text.FontProgram<$styleType>
+	@:keep public function createFontProgram(fontStyle:$styleType, isMasked:Bool = false, bufferMinSize:Int = 1024, bufferGrowSize:Int = 1024, bufferAutoShrink:Bool = true):peote.text.FontProgram<$styleType>
 	{
-		return new peote.text.FontProgram<$styleType>(this, fontStyle, isMasked);
-		//return new $fontProgramPath(this, fontStyle, isMasked);
+		return new peote.text.FontProgram<$styleType>(this, fontStyle, isMasked, bufferMinSize, bufferGrowSize, bufferAutoShrink);
+		//return new $fontProgramPath(this, fontStyle, isMasked, bufferMinSize, bufferGrowSize, bufferAutoShrink);
 	}
 	
 	@:keep public function createFontStyle():$styleType return new $stylePath();		
@@ -206,7 +206,7 @@ class $className
 			
 			// TODO: shift all from single range into ranges to write also without ranges-array
 			
-			var rangeSize = config.rangeSplitSize;
+			rangeSize = config.rangeSplitSize; // TODO: check!
 			
 			if (config.line != null) {
 				// if (config.line.height == null) config.line.height = //TODO: set to same as tile-height
