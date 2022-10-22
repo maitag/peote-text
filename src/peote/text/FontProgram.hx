@@ -1180,7 +1180,7 @@ class $className extends peote.view.Program
 		_setLinePositionOffsetFull(pageLine, x, size, offsetNew - offset, null, addRemoveGlyphes);
 	}
 
-	inline function _setLinePositionOffsetFull(pageLine:$pageLineType, x:Float, size:Float, deltaX:Null<Float>, deltaY:Null<Float>, addRemoveGlyphes:Bool = true) 
+	inline function _setLinePositionOffsetFull(pageLine:$pageLineType, x:Float, size:Float, deltaX:Null<Float>, deltaY:Null<Float>, addRemoveGlyphes:Bool) 
 	{
 		var line_max = x + size;
 		
@@ -1217,7 +1217,7 @@ class $className extends peote.view.Program
 		pageLine.visibleTo = visibleTo;		
 	}
 
-	inline function _setLinePositionOffset(pageLine:$pageLineType, x:Float, size:Float, deltaX:Float, from:Int, withDelta:Int, to:Int, addRemoveGlyphes:Bool = true)
+	inline function _setLinePositionOffset(pageLine:$pageLineType, x:Float, size:Float, deltaX:Float, from:Int, withDelta:Int, to:Int, addRemoveGlyphes:Bool)
 	{
 		var line_max = x + size;
 		var visibleFrom = pageLine.visibleFrom;
@@ -1564,7 +1564,7 @@ class $className extends peote.view.Program
 	}
 	
 	inline function _lineAppend(pageLine:$pageLineType, size:Float, offset:Float, chars:String, x:Float, y:Float, prev_glyph:peote.text.Glyph<$styleType>,
-		glyphStyle:$styleType, addRemoveGlyphes:Bool = true, ?onUnrecognizedChar:Int->Int->Void):Float
+		glyphStyle:$styleType, addRemoveGlyphes:Bool, ?onUnrecognizedChar:Int->Int->Void):Float
 	{
 		var first = true;
 		var glyph:$glyphType = null;
@@ -1678,7 +1678,7 @@ class $className extends peote.view.Program
 		return chars;
 	}
 	
-	inline function _pageLineDeleteChars(pageLine:$pageLineType, x:Float, size:Float, offset:Float, from:Int, to:Int, addRemoveGlyphes:Bool = true):Float
+	inline function _pageLineDeleteChars(pageLine:$pageLineType, x:Float, size:Float, offset:Float, from:Int, to:Int, addRemoveGlyphes:Bool):Float
 	{
 		var _offset = _pageLineDeleteCharsOffset(pageLine, x, size, offset, from, to, addRemoveGlyphes);
 		
@@ -1695,7 +1695,7 @@ class $className extends peote.view.Program
 		return _offset;
 	}
 	
-	inline function _pageLineDeleteCharsOffset(pageLine:$pageLineType, x:Float, size:Float, offset:Float, from:Int, to:Int, addRemoveGlyphes:Bool = true):Float
+	inline function _pageLineDeleteCharsOffset(pageLine:$pageLineType, x:Float, size:Float, offset:Float, from:Int, to:Int, addRemoveGlyphes:Bool):Float
 	{
 		var _offset:Float = 0.0; 
 		if (to < pageLine.length) 
@@ -2258,9 +2258,68 @@ class $className extends peote.view.Program
 	}
 
 //TODO:
-	//public inline function pageSetStyle
-	//public inline function pageSetPosition
-	//public inline function pageSetXPosition
+	public inline function pageSetStyle(page:Page<$styleType>, glyphStyle:$styleType, fromLine:Int = 0, ?toLine:Null<Int>, addRemoveGlyphes:Bool = true):Float {
+		return 0;
+	}
+	
+	
+	public function pageSetPosition(page:Page<$styleType>, x:Float, y:Float, ?xOffset:Null<Float>, ?yOffset:Null<Float>, addRemoveGlyphes:Bool = true) 
+	{
+		page.updateLineFrom = 0;
+		page.updateLineTo = page.length;		
+		if (yOffset != null) _setPagePositionYOffsetFull(page, x, y, xOffset, yOffset, addRemoveGlyphes);
+		else
+			for (i in 0...page.length) {
+				var pageLine = page.getPageLine(i);
+				pageLineSetPosition(pageLine, page.x, page.width, page.xOffset, x, pageLine.y + y - page.y, xOffset, addRemoveGlyphes && (page.visibleLineFrom <= i && i < page.visibleLineTo));
+			}
+		page.x = x;
+		page.y = y;
+		if (xOffset != null) page.xOffset = xOffset;
+		if (yOffset != null) page.yOffset = yOffset;
+	}
+	
+	inline function _setPagePositionYOffsetFull(page:Page<$styleType>, x:Null<Float>, y:Null<Float>, ?xOffset:Null<Float>, yOffset:Float, addRemoveGlyphes:Bool)
+	{
+		var visibleLineFrom = page.visibleLineFrom;
+		var visibleLineTo = page.visibleLineTo;
+		
+		for (i in 0...page.length) 
+		{
+			var pageLine = page.getPageLine(i);
+			
+			if (x != null)
+			     pageLineSetPosition( pageLine, page.x, page.width, page.xOffset, x, yOffset + pageLine.y + y - page.y, xOffset, addRemoveGlyphes && (page.visibleLineFrom <= i && i < page.visibleLineTo));
+			else pageLineSetYPosition(pageLine, page.x, page.width, page.xOffset,    yOffset + pageLine.y + y - page.y, xOffset, addRemoveGlyphes && (page.visibleLineFrom <= i && i < page.visibleLineTo));
+				
+			// add or remove if inside vidible area
+			if (pageLine.y + pageLine.lineHeight >= page.y)
+			{	
+				if (pageLine.y < page.y + page.height) {
+					if (i < page.visibleLineFrom || i >= page.visibleLineTo) {
+						if (addRemoveGlyphes) pageLineAdd(pageLine);
+						if (visibleLineFrom > i) visibleLineFrom = i;
+						if (visibleLineTo < i + 1) visibleLineTo = i + 1;
+					}
+				} 
+				else {
+					if (addRemoveGlyphes && i >= page.visibleLineFrom && i < page.visibleLineTo) pageLineRemove(pageLine);
+					if (visibleLineTo > i) visibleLineTo = i;
+				}
+			}
+			else {
+				if (addRemoveGlyphes && i >= page.visibleLineFrom && i < page.visibleLineTo) pageLineRemove(pageLine);
+				visibleLineFrom = i + 1;
+			}	
+		}
+		
+		page.visibleLineFrom = visibleLineFrom;
+		page.visibleLineTo = visibleLineTo;
+	}
+	
+	public inline function pageSetXPosition(page:Page<$styleType>, x:Float, ?xOffset:Null<Float>, ?yOffset:Null<Float>, addRemoveGlyphes:Bool = true) {
+		
+	}
 	//public inline function pageSetYPosition
 	//public inline function pageSetPositionSize
 	//public inline function pageSetSize
