@@ -2142,7 +2142,7 @@ class $className extends peote.view.Program
 	public function pageSet(page:Page<$styleType>, chars:String, ?x:Null<Float>, ?y:Null<Float>, ?width:Null<Float>, ?height:Null<Float>, ?xOffset:Null<Float>, ?yOffset:Null<Float>,
 		?glyphStyle:$styleType, ?defaultFontRange:Null<Int>, addRemoveGlyphes:Bool = true, ?onUnrecognizedChar:Int->Int->Int->Void)
 	{
-		trace("setPage", chars);
+		trace("setPage --------", addRemoveGlyphes);
 		
 		if (x != null) page.x = x;
 		if (y != null) page.y = y; else y = page.y;
@@ -2165,9 +2165,8 @@ class $className extends peote.view.Program
 			
 			var pageLine = page.getPageLine(i);
 			
-			if (i > visibleLineFrom)
-			{
-				pageLineSet( pageLine, regLinesplit.matched(1), page.x, y, page.width, page.xOffset, glyphStyle, defaultFontRange, (page.visibleLineFrom <= i && i < page.visibleLineTo) );
+			if (i > visibleLineFrom) {
+				pageLineSet( pageLine, regLinesplit.matched(1), page.x, y, page.width, page.xOffset, glyphStyle, defaultFontRange, addRemoveGlyphes && (page.visibleLineFrom <= i && i < page.visibleLineTo) );
 				if (y <= page.y + page.height) {
 					// add it if it was NOT visible before
 					if (  addRemoveGlyphes && ( !(page.visibleLineFrom <= i && i < page.visibleLineTo) )  ) pageLineAdd(pageLine);
@@ -2177,10 +2176,9 @@ class $className extends peote.view.Program
 					if (addRemoveGlyphes && page.visibleLineFrom <= i && i < page.visibleLineTo) pageLineRemove(pageLine);	
 				}
 			}
-			else 
-			{
+			else {
 				// at first it is creating to fetch its line-height after
-				pageLineSet( pageLine, regLinesplit.matched(1), page.x, y, page.width, page.xOffset, glyphStyle, defaultFontRange, (page.visibleLineFrom <= i && i < page.visibleLineTo) );
+				pageLineSet( pageLine, regLinesplit.matched(1), page.x, y, page.width, page.xOffset, glyphStyle, defaultFontRange, addRemoveGlyphes && (page.visibleLineFrom <= i && i < page.visibleLineTo) );
 				if (y + pageLine.lineHeight < page.y) {
 					// remove it if it was visible before
 					if (addRemoveGlyphes && page.visibleLineFrom <= i && i < page.visibleLineTo) pageLineRemove(pageLine);	
@@ -2204,7 +2202,7 @@ class $className extends peote.view.Program
 		if (i < page.length)
 		{
 			// ----------- remove rest of old lines ------------
-			while (page.visibleLineFrom <= i && i < page.visibleLineTo) // && i < page.length
+			while (addRemoveGlyphes && page.visibleLineFrom <= i && i < page.visibleLineTo) // && i < page.length
 			{
 				trace("removeLine", i);
 				pageLineRemove(page.getPageLine(i));
