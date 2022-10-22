@@ -14,18 +14,27 @@ import peote.view.Display;
 import peote.view.Buffer;
 import peote.view.Program;
 import peote.view.Color;
-import elements.ElementSimple;
+import peote.view.Element;
 
 import peote.text.Font;
 
+class HelperElement implements Element
+{
+	@posX public var x:Float;
+	@posY public var y:Float;
+	@sizeX public var w:Float;
+	@sizeY public var h:Float;	
+	@color public var c:Color;	
+	public function new(x:Float, y:Float, w:Float, h:Float, c:Color) {
+		this.x = x; this.y = y; this.w = w; this.h = h; this.c = c;
+	}
+}
 
 class Pages extends Application
 {
 	var peoteView:PeoteView;
 	var display:Display;
 	var timer:Timer;
-	var helperLinesBuffer:Buffer<ElementSimple>;
-	var helperLinesProgram:Program;
 	
 	override function onWindowCreate():Void
 	{
@@ -43,9 +52,6 @@ class Pages extends Application
 		peoteView = new PeoteView(window);
 		display   = new Display(10,10, window.width-20, window.height-20, Color.GREY1);
 		peoteView.addDisplay(display);
-		helperLinesBuffer = new Buffer<ElementSimple>(100);
-		helperLinesProgram = new Program(helperLinesBuffer);
-		display.addProgram(helperLinesProgram);
 		
 		new Font<GlyphStylePacked>("assets/fonts/packed/hack/config.json")
 		//new Font<GlyphStylePacked>("assets/fonts/packed/unifont/config.json", [new peote.text.Range(0x0000,0x0fff)])
@@ -74,7 +80,7 @@ class Pages extends Application
 			//glyphStyle1.zIndex = 1;
 			//glyphStyle1.rotation = 22.5;
 							
-			// -------- Pages --------
+			// -------- Pages --------			
 			
 			var numberOfUnrecognizedChars = 0;
 			var unrecognizedChars:String = "";
@@ -84,12 +90,22 @@ class Pages extends Application
 				unrecognizedChars += " " + StringTools.hex(charcode);
 			}
 
-			var page = fontProgram.createPage("hello\nworld\n\ntest", 10, 10, glyphStyle);
+			var page = fontProgram.createPage("hello\nworld\ntest\na\nb\nc\nd", 30, 30, 500, 80, 0, -5, glyphStyle);
 			
+			// helper tp show visible area
+			var buffer = new Buffer<HelperElement>(1);
+			var helperProgram = new Program(buffer);
+			var helper = new HelperElement(page.x, page.y, page.width, page.height, Color.BLUE);
+			buffer.addElement(helper);
+			display.addProgram(helperProgram, true);
+
 			Timer.delay(function() {
-				var text = "Um einen Feuerball rast eine Kotkugel,\nauf der Damenseidenstrümpfe verkauft und Gauguins geschätzt werden.\n\n"
-						 + "Ein fürwahr überaus betrüblicher Aspekt,\r\nder aber immerhin ein wenig unterschiedlich ist:\rSeidenstrümpfe können begriffen werden, Gauguins nicht.";
-				fontProgram.pageSet(page, text, 10, 10, glyphStyle);
+				var text = "Um einen Feuerball rast eine Kotkugel,\n"
+						+"auf der Damenseidenstrümpfe verkauft und Gauguins geschätzt werden."
+						+"\n"
+						+ "Ein fürwahr überaus betrüblicher Aspekt,\r\nder aber immerhin ein wenig unterschiedlich ist:\rSeidenstrümpfe können begriffen werden, Gauguins nicht."
+						;
+				fontProgram.pageSet(page, text, glyphStyle);
 				//fontProgram.pageSet(page, text, 10, 10, glyphStyle);
 				fontProgram.pageUpdate(page);
 				// fontProgram.pageUpdate(page);
@@ -103,7 +119,7 @@ class Pages extends Application
 			Timer.delay(function() {//TODO
 				fontProgram.pageDeleteLine(page, 2);
 			}, 3000);
-*/						
+						
 			Timer.delay(function() {
 				fontProgram.pageRemove(page);
 			}, 4000);
@@ -111,17 +127,17 @@ class Pages extends Application
 			Timer.delay(function() {
 				fontProgram.pageAdd(page);
 			}, 5000);
-			
+*/			
 			
 			// -- edit a pageLine inside --
 
-			Timer.delay(function() {
+/*			Timer.delay(function() {
 				var pageLine = page.getPageLine(0);
 				fontProgram.pageLineInsertChars(pageLine, page.x, page.width, page.xOffset, "Walther ", 3, glyphStyle);
 				fontProgram.pageLineInsertChar(pageLine, page.x, page.width, page.xOffset, ":".charCodeAt(0), 10 , glyphStyle);
 				fontProgram.pageLineUpdate(pageLine);
 			}, 6000);
-			
+*/			
 			
 			
 			
@@ -134,18 +150,6 @@ class Pages extends Application
 			
 	}
 
-/*	public function addHelperLines(line:Line<GlyphStylePacked>) {
-		helperLinesBuffer.addElement(new ElementSimple(Std.int(line.x), Std.int(line.y), Std.int(line.maxX-line.x), Std.int(line.maxY-line.y), Color.GREY3));
-		// top line
-		helperLinesBuffer.addElement(new ElementSimple(Std.int(line.x), Std.int(line.y), Std.int(line.maxX-line.x), 1, Color.BLUE));				
-		// ascender line
-		helperLinesBuffer.addElement(new ElementSimple(Std.int(line.x), Std.int(line.y + line.asc), Std.int(line.maxX-line.x), 1, Color.YELLOW));
-		// baseline
-		helperLinesBuffer.addElement(new ElementSimple(Std.int(line.x), Std.int(line.y + line.base), Std.int(line.maxX-line.x), 1, Color.RED));
-		// descender line
-		helperLinesBuffer.addElement(new ElementSimple(Std.int(line.x), Std.int(line.maxY), Std.int(line.maxX-line.x), 1, Color.GREEN));
-	}
-*/	
 	var isZooming:Bool = false;
 	public function zoomIn() {
 		var fz:Float = 1.0;		
