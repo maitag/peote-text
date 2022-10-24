@@ -21,6 +21,9 @@ class LineMacro
 			Macro.debug(className, classPackage, stylePack, styleModule, styleName, styleSuperModule, styleSuperName, styleType, styleField);
 
 			var glyphType = Glyph.GlyphMacro.buildClass("Glyph", classPackage, stylePack, styleModule, styleName, styleSuperModule, styleSuperName, styleType, styleField);
+			//var pageLineType = 
+			PageLine.PageLineMacro.buildClass("PageLine", classPackage, stylePack, styleModule, styleName, styleSuperModule, styleSuperName, styleType, styleField);
+			
 			var pageLinePath:TypePath =  { pack:classPackage, name:"PageLine" + Macro.classNameExtension(styleName, styleModule), params:[] };
 			
 			var glyphStyleHasMeta = Macro.parseGlyphStyleMetas(styleModule+"."+styleName);

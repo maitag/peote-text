@@ -27,11 +27,8 @@ class FontMacro
 			PageLine.PageLineMacro.buildClass("PageLine", classPackage, stylePack, styleModule, styleName, styleSuperModule, styleSuperName, styleType, styleField);
 			
 			#if peote_ui
-			//var interactiveTextLineType = peote.ui.interactive.UITextLine.UITextLineMacro.buildClass("UITextLine", ["peote","ui","interactive"], stylePack, styleModule, styleName, styleSuperModule, styleSuperName, styleType, styleField);
-			//var layoutedTextLineType = peote.ui.layouted.LayoutedTextLine.LayoutedTextLineMacro.buildClass("LayoutedTextLine", ["peote","ui","layouted"], stylePack, styleModule, styleName, styleSuperModule, styleSuperName, styleType, styleField);
-
+			//var UITextLineType = peote.ui.interactive.UITextLine.UITextLineMacro.buildClass("UITextLine", ["peote","ui","interactive"], stylePack, styleModule, styleName, styleSuperModule, styleSuperName, styleType, styleField);
 			//var interactiveTextLinePath:TypePath =  { pack:["peote","ui","interactive"], name:"UITextLine" + Macro.classNameExtension(styleName, styleModule), params:[] };
-			//var layoutedTextLinePath:TypePath =  { pack:["peote","ui","layouted"], name:"LayoutedTextLine" + Macro.classNameExtension(styleName, styleModule), params:[] };
 			#end
 			
 			var styleModulName = styleModule.split(".").pop();
