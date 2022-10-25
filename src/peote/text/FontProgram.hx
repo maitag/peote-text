@@ -2367,14 +2367,14 @@ class $className extends peote.view.Program
 			var pageLine = page.getPageLine(i);
 			pageLineSetOffset(pageLine, page.x, page.width, page.xOffset, xOffset, addRemoveGlyphes && (page.visibleLineFrom <= i && i < page.visibleLineTo));
 		}
-		if (xOffset != null) page.xOffset = xOffset;
+		page.xOffset = xOffset;
 	}
 	
 	public function pageSetYOffset(page:Page<$styleType>, yOffset:Float, addRemoveGlyphes:Bool = true) {
 		page.updateLineFrom = 0;
 		page.updateLineTo = page.length;		
 		_setPagePosSizeOffset(page, _SET_POS, null, page.y, null, yOffset, addRemoveGlyphes);
-		if (yOffset != null) page.yOffset = yOffset;
+		page.yOffset = yOffset;
 	}
 	
 	static inline var _SET_POS = 0;
