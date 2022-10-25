@@ -1748,7 +1748,7 @@ class $className extends peote.view.Program
 		{
 			if (pageLine.visibleFrom > pageLine.updateFrom) pageLine.updateFrom = pageLine.visibleFrom;
 			if (pageLine.visibleTo < pageLine.updateTo) pageLine.updateTo = pageLine.visibleTo;
-			trace("--update from " + pageLine.updateFrom + " to " +pageLine.updateTo);
+			//trace("--update from " + pageLine.updateFrom + " to " +pageLine.updateTo);
 			
 			for (i in pageLine.updateFrom...pageLine.updateTo) glyphUpdate(pageLine.getGlyph(i));
 
@@ -2136,14 +2136,14 @@ class $className extends peote.view.Program
 	}
 	
 
-	var regLinesplit:EReg = ~/^(.*?)(\n|\r\n|\r)/; // TODO: optimize without regexp
+	var regLinesplit:EReg = ~/^(.*?)(\n|\r\n|\r)/;
 
 	// TODO: change linecreation to have tabs (alternatively into creation of a tab-char into font!)
 	// TODO: wrap and wordwrap
 	public function pageSet(page:Page<$styleType>, chars:String, ?x:Null<Float>, ?y:Null<Float>, ?width:Null<Float>, ?height:Null<Float>, ?xOffset:Null<Float>, ?yOffset:Null<Float>,
 		?glyphStyle:$styleType, ?defaultFontRange:Null<Int>, addRemoveGlyphes:Bool = true, ?onUnrecognizedChar:Int->Int->Int->Void)
 	{
-		trace("setPage --------", addRemoveGlyphes);
+		//trace("setPage --------", addRemoveGlyphes);
 		
 		if (x != null) page.x = x;
 		if (y != null) page.y = y; else y = page.y;
@@ -2162,8 +2162,7 @@ class $className extends peote.view.Program
 		
 		while (i < page.length && regLinesplit.match(chars)) // overwrite old lines
 		{
-			trace("setLine", i, regLinesplit.matched(1));
-			
+			//trace("setLine", i, regLinesplit.matched(1));			
 			var pageLine = page.getPageLine(i);
 			
 			if (i > visibleLineFrom) {
@@ -2198,6 +2197,7 @@ class $className extends peote.view.Program
 		}
 		
 		// --------------------------------
+		page.updateLineFrom = 0;		
 		page.updateLineTo = i;
 		
 		if (i < page.length)
@@ -2209,60 +2209,72 @@ class $className extends peote.view.Program
 				pageLineRemove(page.getPageLine(i));
 				i++;
 			}
-			page.resize(page.updateLineTo);
+			page.resize(page.updateLineTo); // TODO: optimize
+			
+			page.visibleLineFrom = visibleLineFrom;
+			page.visibleLineTo = visibleLineTo;
 		}
-		else // ----------- create new lines afterwards ------
+		else // ----------- appending the rest ------
 		{
-			while (regLinesplit.match(chars)) 
-			{
-				trace("push new PageLine", regLinesplit.matched(1));
-				
-				var pageLine = new peote.text.PageLine<$styleType>();
-				
-				if (i > visibleLineFrom) {
-					if (y <= page.y + page.height) {
-						pageLineSet( pageLine, regLinesplit.matched(1), page.x, y, page.width, page.xOffset, glyphStyle, defaultFontRange, addRemoveGlyphes);
-						visibleLineTo++;
-					}
-					else pageLineSet( pageLine, regLinesplit.matched(1), page.x, y, page.width, page.xOffset, glyphStyle, defaultFontRange, false);
+			_pageAppendChars(page, chars, i, y, visibleLineFrom, visibleLineTo, glyphStyle, defaultFontRange, addRemoveGlyphes);
+		}						
+		//trace("new length:", page.length);
+		//trace("visibleLineFrom:", page.visibleLineFrom, "visibleLineTo:", page.visibleLineTo);
+		//trace("updateLineFrom:", page.updateLineFrom, "updateLineTo:", page.updateLineTo);		
+	}
+	
+	// ------------ appending helper ----------	
+	inline function _pageAppendChars(page:Page<$styleType>, chars:String, i:Int, y:Float, visibleLineFrom:Int, visibleLineTo:Int, ?glyphStyle:$styleType, ?defaultFontRange:Null<Int>, addRemoveGlyphes:Bool = true, ?onUnrecognizedChar:Int->Int->Int->Void)
+	{
+		while (regLinesplit.match(chars)) 
+		{
+			//trace("append PageLine", regLinesplit.matched(1));			
+			var pageLine = new peote.text.PageLine<$styleType>();			
+			if (i > visibleLineFrom) {
+				if (y <= page.y + page.height) {
+					pageLineSet( pageLine, regLinesplit.matched(1), page.x, y, page.width, page.xOffset, glyphStyle, defaultFontRange, addRemoveGlyphes);
+					visibleLineTo++;
+				}
+				else pageLineSet( pageLine, regLinesplit.matched(1), page.x, y, page.width, page.xOffset, glyphStyle, defaultFontRange, false);
+			}
+			else {
+				// at first it is creating to fetch its line-height after
+				pageLineSet( pageLine, regLinesplit.matched(1), page.x, y, page.width, page.xOffset, glyphStyle, defaultFontRange, false);
+				if (y + pageLine.lineHeight < page.y) {
+					visibleLineFrom++;
+					visibleLineTo++;
 				}
 				else {
-					// at first it is creating to fetch its line-height after
-					pageLineSet( pageLine, regLinesplit.matched(1), page.x, y, page.width, page.xOffset, glyphStyle, defaultFontRange, false);
-					if (y + pageLine.lineHeight < page.y) {
-						visibleLineFrom++;
-						visibleLineTo++;
-					}
-					else {
-						if (addRemoveGlyphes) pageLineAdd(pageLine); // show it if line-height is inside
-						visibleLineTo++;
-					}
+					if (addRemoveGlyphes) pageLineAdd(pageLine); // show it if line-height is inside
+					visibleLineTo++;
 				}
-				
-				i++;
-				y += pageLine.lineHeight;				
-				page.pushLine( pageLine );
-				chars = regLinesplit.matchedRight();
-			}
-			page.updateLineTo = i;
+			}			
+			i++;
+			y += pageLine.lineHeight;				
+			page.pushLine( pageLine );
+			chars = regLinesplit.matchedRight();
 		}
-		
-		page.updateLineFrom = 0;
-		
 		page.visibleLineFrom = visibleLineFrom;
 		page.visibleLineTo = visibleLineTo;
-				
-		trace("new length:", page.length);
-		trace("visibleLineFrom:", page.visibleLineFrom, "visibleLineTo:", page.visibleLineTo);
-		trace("updateLineFrom:", page.updateLineFrom, "updateLineTo:", page.updateLineTo);		
 	}
-
-//TODO:
+	
+	public function pageAppendChars(page:Page<$styleType>, chars:String, ?glyphStyle:$styleType, ?defaultFontRange:Null<Int>, addRemoveGlyphes:Bool = true, ?onUnrecognizedChar:Int->Int->Int->Void)
+	{
+		if (page.length > 0 && regLinesplit.match(chars)) {
+			var pageLine = page.getPageLine(page.length - 1);
+			pageLineAppendChars( pageLine, page.x, page.width, page.xOffset, regLinesplit.matched(1), glyphStyle, addRemoveGlyphes);
+			_pageAppendChars(page, regLinesplit.matchedRight(), page.length, pageLine.y + pageLine.lineHeight, page.visibleLineFrom, page.visibleLineTo, glyphStyle, defaultFontRange, addRemoveGlyphes);
+		}
+		else _pageAppendChars(page, regLinesplit.matchedRight(), 0, page.y, 0, 0, glyphStyle, defaultFontRange, addRemoveGlyphes);
+	}
+		
+	//TODO:
 	//public function pageSetStyle(page:Page<$styleType>, glyphStyle:$styleType, fromLine:Int = 0, ?toLine:Null<Int>, addRemoveGlyphes:Bool = true):Float {
 		//return 0;
 	//}
+
 	
-	
+	// ------------ position, size and offset -------------------
 	public function pageSetPosition(page:Page<$styleType>, x:Float, y:Float, ?xOffset:Null<Float>, ?yOffset:Null<Float>, addRemoveGlyphes:Bool = true) {
 		page.updateLineFrom = 0;
 		page.updateLineTo = page.length;		
@@ -2433,21 +2445,21 @@ class $className extends peote.view.Program
 		if (fromLine != null) page.updateLineFrom = fromLine;
 		if (toLine != null) page.updateLineTo = toLine;
 		
-		trace("visibleLine: " + page.visibleLineFrom+ "-" +page.visibleLineTo);
-		trace("updateLine : " +  page.updateLineFrom + "-" +page.updateLineTo);
+		//trace("visibleLine: " + page.visibleLineFrom+ "-" +page.visibleLineTo);
+		//trace("updateLine : " +  page.updateLineFrom + "-" +page.updateLineTo);
 		
 		if (page.updateLineTo > 0 )
 		{
 			if (page.visibleLineFrom > page.updateLineFrom) page.updateLineFrom = page.visibleLineFrom;
 			if (page.visibleLineTo < page.updateLineTo) page.updateLineTo = page.visibleLineTo;
-			trace("update from Line " + page.updateLineFrom + " to " +page.updateLineTo);
+			//trace("update from Line " + page.updateLineFrom + " to " +page.updateLineTo);
 			
 			for (i in page.updateLineFrom...page.updateLineTo) pageLineUpdate(page.getPageLine(i));
 
 			page.updateLineFrom = 0x1000000;
 			page.updateLineTo = 0;
 		} 
-		else trace("nothing to update");
+		//else trace("nothing to update");
 
 	}
 	
