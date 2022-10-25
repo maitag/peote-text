@@ -123,10 +123,16 @@ class Pages extends Application
 			Timer.delay(function() {
 				//fontProgram.pageSetPosition(page, 30, 0, 0, 30);
 				//fontProgram.pageSetXPosition(page, 5, -5, -10);
-				fontProgram.pageSetYPosition(page, 5, -5, -10);
+				//fontProgram.pageSetYPosition(page, 5, -5, -10);
+				//fontProgram.pageSetPositionSize(page, 5, 5, 500, 100, -5, -10);
+				//fontProgram.pageSetSize(page, 500, 100, 10, -10);
+				//fontProgram.pageSetOffset(page, 10, -20);
+				fontProgram.pageSetXOffset(page, -20);
+				fontProgram.pageSetYOffset(page, -20);
 				
 				fontProgram.pageUpdate(page);
-				helper.x = page.x; helper.y = page.y; buffer.updateElement(helper);
+				helper.x = page.x; helper.y = page.y; helper.w = page.width; helper.h = page.height; 
+				buffer.updateElement(helper);
 			}, 2000);
 			
 /*			Timer.delay(function() {
