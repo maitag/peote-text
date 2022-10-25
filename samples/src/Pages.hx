@@ -75,8 +75,8 @@ class Pages extends Application
 			
 			var glyphStyle1 = font.createFontStyle();
 			glyphStyle1.color = Color.YELLOW;
-			glyphStyle1.width = font.config.width * 1.0;
-			glyphStyle1.height = font.config.height * 1.0;
+			glyphStyle1.width = font.config.width * 0.8;
+			glyphStyle1.height = font.config.height * 0.8;
 			//glyphStyle1.zIndex = 1;
 			//glyphStyle1.rotation = 22.5;
 							
@@ -90,7 +90,7 @@ class Pages extends Application
 				unrecognizedChars += " " + StringTools.hex(charcode);
 			}
 
-			var page = fontProgram.createPage("hello\nworld\ntest\na\nb\nc\nd", 30, 30, 500, 80, 0, -5, glyphStyle);
+			var page = fontProgram.createPage("hello\nworld\ntest\na\nb\nc\nd", 30, 30, 500, 50, 0, 0, glyphStyle);
 			
 			// helper tp show visible area
 			var buffer = new Buffer<HelperElement>(1);
@@ -103,12 +103,12 @@ class Pages extends Application
 				var text = "Um einen Feuerball rast eine Kotkugel,\n"
 						+"auf der Damenseidenstrümpfe verkauft und Gauguins geschätzt werden."
 						+"\n"
-						+ "Ein fürwahr überaus betrüblicher Aspekt,\r\nder aber immerhin ein wenig unterschiedlich ist:\rSeidenstrümpfe können begriffen werden, Gauguins nicht."
+						+ "Ein fürwahr überaus betrüblicher Aspekt,\r\nder aber immerhin ein wenig unterschiedlich ist:\rSeidenstrümpfe können begriffen werden, \nGauguins nicht."
 						;
-				fontProgram.pageSet(page, text, glyphStyle);
+				fontProgram.pageSet(page, text, glyphStyle1);
 				//fontProgram.pageSet(page, text, 10, 10, glyphStyle);
+				
 				fontProgram.pageUpdate(page);
-				// fontProgram.pageUpdate(page);
 			}, 1000);
 			
 
@@ -119,14 +119,23 @@ class Pages extends Application
 			Timer.delay(function() {//TODO
 				fontProgram.pageDeleteLine(page, 2);
 			}, 3000);
-						
+*/						
 			Timer.delay(function() {
+				//fontProgram.pageSetPosition(page, 30, 0, 0, 30);
+				//fontProgram.pageSetXPosition(page, 5, -5, -10);
+				fontProgram.pageSetYPosition(page, 5, -5, -10);
+				
+				fontProgram.pageUpdate(page);
+				helper.x = page.x; helper.y = page.y; buffer.updateElement(helper);
+			}, 2000);
+			
+/*			Timer.delay(function() {
 				fontProgram.pageRemove(page);
-			}, 4000);
+			}, 5000);
 			
 			Timer.delay(function() {
 				fontProgram.pageAdd(page);
-			}, 5000);
+			}, 6000);
 */			
 			
 			// -- edit a pageLine inside --
