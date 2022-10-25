@@ -170,8 +170,10 @@ class Lines extends Application
 			var buffer = new Buffer<HelperElement>(1);
 			var helperProgram = new Program(buffer);
 			
-			var line1 = fontProgram.createLine("test textsize", 100, 200, null, 30, glyphStyle);
-			var helper = new HelperElement(line1.x, line1.y, line1.textSize, line1.height, Color.BLUE);
+			var line1 = fontProgram.createLine("test textsize", 100, 200, 160, 0, glyphStyle);
+			var helper = new HelperElement(line1.x, line1.y, line1.size, line1.height, Color.BLUE);
+			//var line1 = fontProgram.createLine("test textsize", 100, 200, null, 20, glyphStyle);
+			//var helper = new HelperElement(line1.x, line1.y, line1.textSize, line1.height, Color.BLUE);
 			buffer.addElement(helper);
 			display.addProgram(helperProgram, true);
 						
@@ -185,12 +187,12 @@ class Lines extends Application
 				//var offset = fontProgram.lineSetChar(line1, "A".charCodeAt(0) , 1, glyphStyle2); 
 				//var offset = fontProgram.lineSetChar(line1, "A".charCodeAt(0) , 12, glyphStyle2); 
 				
-				//var offset = fontProgram.lineSetChars(line1, "AB" , 0, glyphStyle2);
-				//var offset = fontProgram.lineSetChars(line1, "AB" , 1, glyphStyle2);
-				var offset = fontProgram.lineSetChars(line1, "TEST TEXTSIZE 123", 0, glyphStyle2);
-				//var offset = fontProgram.lineSetChars(line1, "AB", 11, glyphStyle2);
+				//var offset = fontProgram.lineSetChars(line1, "ABC" , 0, glyphStyle2);
+				//var offset = fontProgram.lineSetChars(line1, "ABC" , 1, glyphStyle2);
+				//var offset = fontProgram.lineSetChars(line1, "TEST TEXTSIZE 123", 0, glyphStyle2);
+				//var offset = fontProgram.lineSetChars(line1, "ABC", 11, glyphStyle2);
 				
-				//var offset = fontProgram.lineAppendChars(line1, "123", glyphStyle2);
+				var offset = fontProgram.lineAppendChars(line1, "123", glyphStyle2);
 				
 				//var offset = fontProgram.lineDeleteChar(line1, 0);
 				//var offset = fontProgram.lineDeleteChar(line1, 1);
@@ -205,19 +207,20 @@ class Lines extends Application
 				//var offset = fontProgram.lineInsertChar(line1, "A".charCodeAt(0), 1, glyphStyle2);
 				//var offset = fontProgram.lineInsertChar(line1, "A".charCodeAt(0), 13, glyphStyle2);
 				
-				//var offset = fontProgram.lineInsertChars(line1, "AB", 0, glyphStyle2);
-				//var offset = fontProgram.lineInsertChars(line1, "AB", 1, glyphStyle2);
-				//var offset = fontProgram.lineInsertChars(line1, "AB", 13, glyphStyle2);
+				//var offset = fontProgram.lineInsertChars(line1, "ABC", 0, glyphStyle2);
+				//var offset = fontProgram.lineInsertChars(line1, "ABC", 1, glyphStyle2);
+				//var offset = fontProgram.lineInsertChars(line1, "ABC", 12, glyphStyle2);
+				//var offset = fontProgram.lineInsertChars(line1, "ABC", 13, glyphStyle2);
 				
 				//helper.w = line1.textSize;
-				helper.w += offset;
+				//helper.w += offset;
 				
 				buffer.updateElement(helper);
 				fontProgram.lineUpdate(line1);
 			}, 1000);
 
 			Timer.delay(function() {
-				fontProgram.lineSetOffset(line1, 0);
+				fontProgram.lineSetOffset(line1, -20);
 				fontProgram.lineUpdate(line1);
 			}, 2000);
 			

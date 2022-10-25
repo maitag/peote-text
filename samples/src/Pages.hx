@@ -90,7 +90,7 @@ class Pages extends Application
 				unrecognizedChars += " " + StringTools.hex(charcode);
 			}
 
-			var page = fontProgram.createPage("hello\nworld\ntest\na\nb\nc\nd", 30, 30, 500, 50, 0, 0, glyphStyle);
+			var page = fontProgram.createPage("hello world", 30, 30, 500, 50, 0, 0, glyphStyle);
 			
 			// helper tp show visible area
 			var buffer = new Buffer<HelperElement>(1);
@@ -112,36 +112,41 @@ class Pages extends Application
 			}, 1000);
 			
 
-/*			Timer.delay(function() {//TODO
-				fontProgram.pageInsertLine(page, 2, "(Bernheim als prestigieuser Biologe zu imaginieren.)" , glyphStyle);
-			}, 2000);
-
-			Timer.delay(function() {//TODO
-				fontProgram.pageDeleteLine(page, 2);
-			}, 3000);
-*/						
 			Timer.delay(function() {
 				//fontProgram.pageSetPosition(page, 30, 0, 0, 30);
 				//fontProgram.pageSetXPosition(page, 5, -5, -10);
 				//fontProgram.pageSetYPosition(page, 5, -5, -10);
 				//fontProgram.pageSetPositionSize(page, 5, 5, 500, 100, -5, -10);
-				//fontProgram.pageSetSize(page, 500, 100, 10, -10);
+				fontProgram.pageSetSize(page, 500, 300, -20, 10);
 				//fontProgram.pageSetOffset(page, 10, -20);
-				fontProgram.pageSetXOffset(page, -20);
-				fontProgram.pageSetYOffset(page, -20);
+				//fontProgram.pageSetXOffset(page, -20);
+				//fontProgram.pageSetYOffset(page, -20);
 				
 				fontProgram.pageUpdate(page);
 				helper.x = page.x; helper.y = page.y; helper.w = page.width; helper.h = page.height; 
 				buffer.updateElement(helper);
 			}, 2000);
 			
+			Timer.delay(function() {//TODO
+				fontProgram.pageAppendChars(page, "(Bernheim als prestigieuser Biologe zu imaginieren.)\nTESTA\nTESTB 123456789" , glyphStyle);
+			}, 3000);
+
+/*			Timer.delay(function() {//TODO
+				fontProgram.pageInsertLine(page, 2, "(Bernheim als prestigieuser Biologe zu imaginieren.)" , glyphStyle);
+			}, 4000);
+
+			Timer.delay(function() {//TODO
+				fontProgram.pageDeleteLine(page, 2);
+			}, 5000);
+*/						
+
 /*			Timer.delay(function() {
 				fontProgram.pageRemove(page);
-			}, 5000);
+			}, 6000);
 			
 			Timer.delay(function() {
 				fontProgram.pageAdd(page);
-			}, 6000);
+			}, 7000);
 */			
 			
 			// -- edit a pageLine inside --

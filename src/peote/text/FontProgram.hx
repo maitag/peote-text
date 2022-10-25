@@ -837,9 +837,6 @@ class $className extends peote.view.Program
 	
 	public inline function numberOfGlyphes():Int return _buffer.length();
 
-	// ------- Handler for unrecognized chars ----------
-	//public var onUnrecognizedChar:Int->Int->Int->Void = null;
-	
 	
 	// ---------------------------------------------
 	// ---------------- PageLines ------------------
@@ -1501,7 +1498,7 @@ class $className extends peote.view.Program
 			if (pageLine.visibleFrom > pageLine.length) pageLine.visibleFrom = pageLine.length;
 			if (pageLine.visibleTo > pageLine.length) pageLine.visibleTo = pageLine.length;
 
-			var deltaX = _lineAppend(pageLine, size, offset, chars, x, y, prev_glyph, glyphStyle, addRemoveGlyphes, onUnrecognizedChar);
+			var deltaX = _lineAppend(pageLine, line_x, size, offset, chars, x, y, prev_glyph, glyphStyle, addRemoveGlyphes, onUnrecognizedChar);
 
 			if (position == 0) {
 				var kerningSpace = kerningSpaceOffset(pageLine.getGlyph(pageLine.length-1), rest[0], getCharData(rest[0].char));
@@ -1548,7 +1545,7 @@ class $className extends peote.view.Program
 			}
 			return deltaX;
 		}
-		else return _lineAppend(pageLine, size, offset, chars, x, y, prev_glyph, glyphStyle, addRemoveGlyphes, onUnrecognizedChar);
+		else return _lineAppend(pageLine, line_x, size, offset, chars, x, y, prev_glyph, glyphStyle, addRemoveGlyphes, onUnrecognizedChar);
 	}
 		
 
@@ -1559,24 +1556,23 @@ class $className extends peote.view.Program
 	{
 		if (pageLine.length > 0) {
 			var prev_glyph = pageLine.getGlyph(pageLine.length - 1);
-			return _lineAppend(pageLine, size, 0, chars, rightGlyphPos(prev_glyph, getCharData(prev_glyph.char)), pageLine.y, prev_glyph, glyphStyle, addRemoveGlyphes, onUnrecognizedChar);
+			var fromX = rightGlyphPos(prev_glyph, getCharData(prev_glyph.char));
+			return _lineAppend(pageLine, x, size, 0, chars, fromX, pageLine.y, prev_glyph, glyphStyle, addRemoveGlyphes, onUnrecognizedChar);
 		}
-		else return _lineAppend(pageLine, size, offset, chars, x, pageLine.y, null, glyphStyle, addRemoveGlyphes, onUnrecognizedChar);
+		else return _lineAppend(pageLine, x, size, offset, chars, x, pageLine.y, null, glyphStyle, addRemoveGlyphes, onUnrecognizedChar);
 	}
 	
-	inline function _lineAppend(pageLine:$pageLineType, size:Float, offset:Float, chars:String, x:Float, y:Float, prev_glyph:peote.text.Glyph<$styleType>,
+	inline function _lineAppend(pageLine:$pageLineType, line_x:Float, size:Float, offset:Float, chars:String, x:Float, y:Float, prev_glyph:peote.text.Glyph<$styleType>,
 		glyphStyle:$styleType, addRemoveGlyphes:Bool, ?onUnrecognizedChar:Int->Int->Void):Float
 	{
 		var first = true;
 		var glyph:$glyphType = null;
 		var charData:$charDataType = null;
 		
-		var line_x = x;
-		
 		x += offset;
 		var x_start = x;
 				
-		var line_max = line_x + size;		
+		var line_max = line_x + size;		trace(size, offset, line_x, line_max);
 		
 		var i = pageLine.length - 1; // only for onUnrecognizedChar
 		
@@ -1602,7 +1598,7 @@ class $className extends peote.view.Program
 				
 				if (glyph.x + ${switch(glyphStyleHasMeta.packed) {case true: macro glyph.w; default: macro glyph.width;}} >= line_x)  {
 					if (glyph.x < line_max)	{
-						if (addRemoveGlyphes) _buffer.addElement(glyph);
+						if (addRemoveGlyphes) _buffer.addElement(glyph); trace("ADD", line_x, glyph.x, line_max);
 						pageLine.visibleTo ++;
 					}
 				}
@@ -2136,7 +2132,7 @@ class $className extends peote.view.Program
 	}
 	
 
-	var regLinesplit:EReg = ~/^(.*?)(\n|\r\n|\r)/;
+	static var regLinesplit:EReg = ~/^(.*?)(\n|\r\n|\r)/;
 
 	// TODO: change linecreation to have tabs (alternatively into creation of a tab-char into font!)
 	// TODO: wrap and wordwrap
@@ -2260,12 +2256,15 @@ class $className extends peote.view.Program
 	
 	public function pageAppendChars(page:Page<$styleType>, chars:String, ?glyphStyle:$styleType, ?defaultFontRange:Null<Int>, addRemoveGlyphes:Bool = true, ?onUnrecognizedChar:Int->Int->Int->Void)
 	{
+		chars += "\n";
 		if (page.length > 0 && regLinesplit.match(chars)) {
-			var pageLine = page.getPageLine(page.length - 1);
-			pageLineAppendChars( pageLine, page.x, page.width, page.xOffset, regLinesplit.matched(1), glyphStyle, addRemoveGlyphes);
-			_pageAppendChars(page, regLinesplit.matchedRight(), page.length, pageLine.y + pageLine.lineHeight, page.visibleLineFrom, page.visibleLineTo, glyphStyle, defaultFontRange, addRemoveGlyphes);
+			var i:Int = page.length-1;
+			var pageLine = page.getPageLine(i); trace(pageLine.visibleFrom, pageLine.visibleTo );
+			pageLineAppendChars( pageLine, page.x, page.width, page.xOffset, regLinesplit.matched(1), glyphStyle, addRemoveGlyphes && (page.visibleLineFrom <= i && i < page.visibleLineTo), onUnrecognizedChar.bind(page.length - 1));
+			trace(pageLine.visibleFrom, pageLine.visibleTo );
+			_pageAppendChars(page, regLinesplit.matchedRight(), ++i, pageLine.y + pageLine.lineHeight, page.visibleLineFrom, page.visibleLineTo, glyphStyle, defaultFontRange, addRemoveGlyphes, onUnrecognizedChar);
 		}
-		else _pageAppendChars(page, regLinesplit.matchedRight(), 0, page.y, 0, 0, glyphStyle, defaultFontRange, addRemoveGlyphes);
+		else _pageAppendChars(page, regLinesplit.matchedRight(), 0, page.y, 0, 0, glyphStyle, defaultFontRange, addRemoveGlyphes, onUnrecognizedChar);
 	}
 		
 	//TODO:
