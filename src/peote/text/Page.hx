@@ -40,7 +40,7 @@ class $className
 	@:allow(peote.text) public var width(default, null):Float = 0xffff; // visible width of the page (in pixel)
 	@:allow(peote.text) public var height(default, null):Float = 0xffff; // visible height of the page (in pixel)
 	
-	@:allow(peote.text) public var textWidth(default, null):Float = 0.0; // pixel size of longest line
+	@:allow(peote.text) public var textWidth(default, null):Float = 0.0; // pixel size of longest line ->TODO: needs a function what is recalculating if some of the pagelines was shrinked
 	@:allow(peote.text) public var textHeight(default, null):Float = 0.0; // pixel size of all lines
 	
 	

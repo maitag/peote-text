@@ -90,12 +90,13 @@ class Pages extends Application
 				unrecognizedChars += " " + StringTools.hex(charcode);
 			}
 
-			var page = fontProgram.createPage("hello world", 30, 30, 500, 50, 0, 0, glyphStyle);
+			var page = fontProgram.createPage("hello world", 30, 30, 500, null, 0, 0, glyphStyle);
+			//var page = fontProgram.createPage("hello world", 30, 30, 500, 100, 0, 0, glyphStyle);
 			
 			// helper tp show visible area
 			var buffer = new Buffer<HelperElement>(1);
 			var helperProgram = new Program(buffer);
-			var helper = new HelperElement(page.x, page.y, page.width, page.height, Color.BLUE);
+			var helper = new HelperElement(page.x, page.y, page.width, page.textHeight, Color.BLUE);
 			buffer.addElement(helper);
 			display.addProgram(helperProgram, true);
 
@@ -109,6 +110,8 @@ class Pages extends Application
 				//fontProgram.pageSet(page, text, 10, 10, glyphStyle);
 				
 				fontProgram.pageUpdate(page);
+				
+				helper.h = page.textHeight; buffer.updateElement(helper);
 			}, 1000);
 			
 
@@ -117,18 +120,20 @@ class Pages extends Application
 				//fontProgram.pageSetXPosition(page, 5, -5, -10);
 				//fontProgram.pageSetYPosition(page, 5, -5, -10);
 				//fontProgram.pageSetPositionSize(page, 5, 5, 500, 100, -5, -10);
-				fontProgram.pageSetSize(page, 500, 300, -20, 10);
+				//fontProgram.pageSetSize(page, 500, 235, -20, 0);
 				//fontProgram.pageSetOffset(page, 10, -20);
 				//fontProgram.pageSetXOffset(page, -20);
 				//fontProgram.pageSetYOffset(page, -20);
 				
-				fontProgram.pageUpdate(page);
-				helper.x = page.x; helper.y = page.y; helper.w = page.width; helper.h = page.height; 
-				buffer.updateElement(helper);
+				//fontProgram.pageUpdate(page);
+				//helper.x = page.x; helper.y = page.y; helper.w = page.width; helper.h = page.height; buffer.updateElement(helper);
 			}, 2000);
 			
 			Timer.delay(function() {//TODO
-				fontProgram.pageAppendChars(page, "(Bernheim als prestigieuser Biologe zu imaginieren.)\nTESTA\nTESTB 123456789" , glyphStyle);
+				fontProgram.pageAppendChars(page, "(Bernheim als prestigieuser Biologe zu imaginieren.)\nTESTA\nTESTB 123456789\nTESTC\n" , glyphStyle);
+				fontProgram.pageAppendChars(page, "TESTD" , glyphStyle);
+				
+				helper.h = page.textHeight; buffer.updateElement(helper);
 			}, 3000);
 
 /*			Timer.delay(function() {//TODO
