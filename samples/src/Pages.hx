@@ -115,8 +115,8 @@ class Pages extends Application
 			}, 1000);
 			
 
-			Timer.delay(function() {
-				//fontProgram.pageSetPosition(page, 30, 0, 0, 30);
+/*			Timer.delay(function() {
+				fontProgram.pageSetPosition(page, 50, 50, 0, 0);
 				//fontProgram.pageSetXPosition(page, 5, -5, -10);
 				//fontProgram.pageSetYPosition(page, 5, -5, -10);
 				//fontProgram.pageSetPositionSize(page, 5, 5, 500, 100, -5, -10);
@@ -125,8 +125,11 @@ class Pages extends Application
 				//fontProgram.pageSetXOffset(page, -20);
 				//fontProgram.pageSetYOffset(page, -20);
 				
-				//fontProgram.pageUpdate(page);
-				//helper.x = page.x; helper.y = page.y; helper.w = page.width; helper.h = page.height; buffer.updateElement(helper);
+				fontProgram.pageUpdate(page);
+				helper.x = page.x; helper.y = page.y; helper.w = page.width;
+				//helper.h = page.height;
+				helper.h = page.textHeight;
+				buffer.updateElement(helper);
 			}, 2000);
 			
 			Timer.delay(function() {//TODO
@@ -135,6 +138,14 @@ class Pages extends Application
 				
 				helper.h = page.textHeight; buffer.updateElement(helper);
 			}, 3000);
+
+*/			Timer.delay(function() {//TODO
+				fontProgram.pageInsertChars(page, "INSERTED\n123", 5, 14 , glyphStyle);
+				
+				fontProgram.pageUpdate(page);
+				
+				helper.h = page.textHeight; buffer.updateElement(helper);
+			}, 2000);
 
 /*			Timer.delay(function() {//TODO
 				fontProgram.pageInsertLine(page, 2, "(Bernheim als prestigieuser Biologe zu imaginieren.)" , glyphStyle);

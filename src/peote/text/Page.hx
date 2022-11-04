@@ -53,10 +53,23 @@ class $className
 	public inline function getPageLine(i:Int):$pageLineType return pageLines[i];
 	@:allow(peote.text) inline function setLine(i:Int, line:$pageLineType) pageLines[i] = line;
 	@:allow(peote.text) inline function pushLine(line:$pageLineType) pageLines.push(line);
+
 	@:allow(peote.text) inline function resize(newLength:Int) {
 		//TODO HAXE 4 lines.resize(newLength);
 		pageLines.splice(newLength, pageLines.length - newLength);
 	}
+	
+	//@:allow(peote.text) inline function insertLines(newPageLines:Array<$pageLineType>, pos:Int) {
+		////TODO: optimize
+		//pageLines = pageLines.slice(0, pos).concat(newPageLines).concat(pageLines.slice(pos));
+	//}
+	
+	@:allow(peote.text) inline function spliceLines(pos:Int, len:Int):Array<$pageLineType> {
+		//TODO: optimize
+		return pageLines.splice(pos, len);
+	}
+	
+	
 	
 	@:allow(peote.text) public var visibleLineFrom(default, null):Int = 0;
 	@:allow(peote.text) public var visibleLineTo(default, null):Int = 0;
