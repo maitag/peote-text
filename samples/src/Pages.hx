@@ -109,6 +109,7 @@ class Pages extends Application
 				fontProgram.pageSet(page, text, glyphStyle1);
 				//fontProgram.pageSet(page, text, 10, 10, glyphStyle);
 				
+				trace("after pageSet:",page.updateLineFrom, page.updateLineTo);
 				fontProgram.pageUpdate(page);
 				
 				helper.h = page.textHeight; buffer.updateElement(helper);
@@ -140,7 +141,8 @@ class Pages extends Application
 			}, 3000);
 
 */			Timer.delay(function() {//TODO
-				fontProgram.pageInsertChars(page, "INSERTED\n123", 5, 14 , glyphStyle);
+				fontProgram.pageInsertChars(page, "INSERTED\n123", 5, 9 , glyphStyle);
+				trace("after pageInsertChars:",page.updateLineFrom, page.updateLineTo);
 				
 				fontProgram.pageUpdate(page);
 				

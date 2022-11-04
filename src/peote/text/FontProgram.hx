@@ -2284,9 +2284,6 @@ class $className extends peote.view.Program
 
 	public function pageInsertChars(page:Page<$styleType>, chars:String, lineNumber:Int = 0, position:Int = 0, ?glyphStyle:$styleType, ?defaultFontRange:Null<Int>, addRemoveGlyphes:Bool = true, ?onUnrecognizedChar:Int->Int->Int->Void):Float
 	{
-		// TODO:
-		page.updateLineFrom = 0; page.updateLineTo = 100;
-
 		chars += "\n";
 		var offset:Float = 0;
 		if (page.length > 0 && lineNumber < page.length) {
@@ -2294,16 +2291,37 @@ class $className extends peote.view.Program
 				var pageLine = page.getPageLine(lineNumber);
 				if (regLinesplit.matchedRight().length == 0) { // no more chars, only a single line to insert
 					trace("single line to insert");
+					// TODO: only if page was not empty before
+					if (lineNumber < page.updateLineFrom) page.updateLineFrom = lineNumber;
+					if (lineNumber >= page.updateLineTo) page.updateLineTo = lineNumber+1;
+
 					pageLineInsertChars( pageLine, page.x, page.width, page.xOffset, regLinesplit.matched(1), position, glyphStyle, addRemoveGlyphes && (page.visibleLineFrom <= lineNumber && lineNumber < page.visibleLineTo), onUnrecognizedChar.bind(lineNumber));
 				}
 				else { // multiple lines to insert
 					trace("multiple lines to insert");
 					
-					// TODO: cutting only glyph-array
-					var restChars = pageLineCutChars(pageLine, page.x, page.width, page.xOffset, position, null, addRemoveGlyphes && (page.visibleLineFrom <= lineNumber && lineNumber < page.visibleLineTo));
-					trace(restChars);
+					// cutting only glyph-array
+					var restChars = pageLine.splice(position, pageLine.length - position);
+					var oldFrom:Int = 0;
+					var oldTo:Int = 0;
+										
+					if (restChars.length > 0) { //trace(pageLine.visibleFrom, pageLine.visibleTo,  pageLine.length);
+						
+						
+						if (lineNumber < page.updateLineFrom) page.updateLineFrom = lineNumber;
+						if (lineNumber >= page.updateLineTo) page.updateLineTo = lineNumber + 1;
+						
+						oldFrom = pageLine.visibleFrom - pageLine.length;
+						oldTo = pageLine.visibleTo - pageLine.length;
+						if (pageLine.visibleFrom > pageLine.length) pageLine.visibleFrom = pageLine.length;
+						if (pageLine.visibleTo > pageLine.length) pageLine.visibleTo = pageLine.length;
+					}
+					
+					trace(pageLine.textSize, pageLine.visibleFrom, pageLine.visibleTo, pageLine.updateFrom, pageLine.updateTo);
+					
 					
 					pageLineAppendChars( pageLine, page.x, page.width, page.xOffset, regLinesplit.matched(1), glyphStyle, addRemoveGlyphes && (page.visibleLineFrom <= lineNumber && lineNumber < page.visibleLineTo), onUnrecognizedChar.bind(lineNumber));
+					trace(pageLine.textSize, pageLine.visibleFrom, pageLine.visibleTo, pageLine.updateFrom, pageLine.updateTo);
 					
 					// cutting off all after lineNumber
 					var restLines:Array<PageLine<$styleType>> = page.spliceLines(lineNumber+1, page.length - (lineNumber+1));
@@ -2311,16 +2329,58 @@ class $className extends peote.view.Program
 					// recalculate visibleLineFrom and visibleLineTo
 					
 					// and then appending all the new chars: 
-					var restLinesOffset = _pageAppendChars(page, regLinesplit.matchedRight(), page.length, pageLine.y + pageLine.lineHeight, page.visibleLineFrom, page.visibleLineTo, glyphStyle, defaultFontRange, addRemoveGlyphes, onUnrecognizedChar);
+					_pageAppendChars(page, regLinesplit.matchedRight(), page.length, pageLine.y + pageLine.lineHeight, page.visibleLineFrom, page.visibleLineTo, glyphStyle, defaultFontRange, addRemoveGlyphes, onUnrecognizedChar);
 					
-					// TODO: different Glyphstyle then! -> better cut at first and then append here the whole glyphe-array!
-					var i= page.length-1;
-					if (restChars.length != 0) 
-						pageLineAppendChars( page.getPageLine(i), page.x, page.width, page.xOffset, restChars, glyphStyle, addRemoveGlyphes && (page.visibleLineFrom <= i && i < page.visibleLineTo), onUnrecognizedChar.bind(lineNumber));
-					
+					// append the rest glyphes to last appended pageLine!
+					if (restChars.length > 0) {
+						
+						var pageLine = page.getPageLine(page.length-1);
+						if (pageLine.length < pageLine.updateFrom) pageLine.updateFrom = pageLine.length;
+						
+						trace(pageLine.updateFrom, pageLine.updateTo);
+						
+						var line_max =  page.x + page.width;
+						var addRemoveRest = addRemoveGlyphes && (page.visibleLineFrom <= page.length-1 && page.length-1 < page.visibleLineTo);
+						
+						// TODO: needs to ADD the gap after last char here!
+						var restLinesOffset = restChars[0].x - page.x;
+						
+						for (i in 0...restChars.length)
+						{
+							// TODO: 
+							restChars[i].x += pageLine.textSize - restLinesOffset;
+							restChars[i].y += 21;
+							
+							if (restChars[i].x + ${switch(glyphStyleHasMeta.packed) {case true: macro restChars[i].w; default: macro restChars[i].width; }} >= page.x)
+							{	
+								if (restChars[i].x < line_max) {
+									if (addRemoveRest && (i < oldFrom || i >= oldTo)) {
+										_buffer.addElement(restChars[i]);
+									}
+									pageLine.visibleTo++;
+								} else if (addRemoveRest && i >= oldFrom && i < oldTo) {
+									_buffer.removeElement(restChars[i]);
+								}
+							}
+							else {
+								if (addRemoveRest && i >= oldFrom && i < oldTo) {
+									_buffer.removeElement(restChars[i]);
+								}
+								pageLine.visibleFrom++;
+								pageLine.visibleTo++;
+							}
+						}
+						
+						pageLine.append(restChars);
+						pageLine.updateTo = pageLine.length;
+						trace(pageLine.updateFrom, pageLine.updateTo);
+						
+						if (page.length > page.updateLineTo) page.updateLineTo = page.length;
+					}
+						
 					
 					// concat the restLines to page again
-					//page.concatLines(restLines)
+					//page.append(restLines)
 					
 					// after all set offset of the rest of lines:
 					// _setPagePosSizeOffset(page, i+1, _SET_POS, null, page.y, null, restLinesOffset, addRemoveGlyphes);
