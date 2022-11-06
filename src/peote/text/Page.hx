@@ -69,6 +69,10 @@ class $className
 		return pageLines.splice(pos, len);
 	}
 	
+	@:allow(peote.text) inline function append(a:Array<$pageLineType>) {
+		pageLines = pageLines.concat(a);
+	}
+	
 	
 	
 	@:allow(peote.text) public var visibleLineFrom(default, null):Int = 0;

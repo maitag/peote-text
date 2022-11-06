@@ -2317,19 +2317,19 @@ class $className extends peote.view.Program
 						if (pageLine.visibleTo > pageLine.length) pageLine.visibleTo = pageLine.length;
 					}
 					
-					trace(pageLine.textSize, pageLine.visibleFrom, pageLine.visibleTo, pageLine.updateFrom, pageLine.updateTo);
+					//trace(pageLine.textSize, pageLine.visibleFrom, pageLine.visibleTo, pageLine.updateFrom, pageLine.updateTo);
 					
 					
 					pageLineAppendChars( pageLine, page.x, page.width, page.xOffset, regLinesplit.matched(1), glyphStyle, addRemoveGlyphes && (page.visibleLineFrom <= lineNumber && lineNumber < page.visibleLineTo), onUnrecognizedChar.bind(lineNumber));
-					trace(pageLine.textSize, pageLine.visibleFrom, pageLine.visibleTo, pageLine.updateFrom, pageLine.updateTo);
+					//trace(pageLine.textSize, pageLine.visibleFrom, pageLine.visibleTo, pageLine.updateFrom, pageLine.updateTo);
 					
 					// cutting off all after lineNumber
 					var restLines:Array<PageLine<$styleType>> = page.spliceLines(lineNumber+1, page.length - (lineNumber+1));
 					
 					// recalculate visibleLineFrom and visibleLineTo
 					
-					// and then appending all the new chars: 
-					_pageAppendChars(page, regLinesplit.matchedRight(), page.length, pageLine.y + pageLine.lineHeight, page.visibleLineFrom, page.visibleLineTo, glyphStyle, defaultFontRange, addRemoveGlyphes, onUnrecognizedChar);
+					// and then appending all the new chars:
+					var restLinesOffset = _pageAppendChars(page, regLinesplit.matchedRight(), page.length, pageLine.y + pageLine.lineHeight, page.visibleLineFrom, page.visibleLineTo, glyphStyle, defaultFontRange, addRemoveGlyphes, onUnrecognizedChar);
 					
 					// append the rest glyphes to last appended pageLine!
 					if (restChars.length > 0) {
@@ -2337,19 +2337,31 @@ class $className extends peote.view.Program
 						var pageLine = page.getPageLine(page.length-1);
 						if (pageLine.length < pageLine.updateFrom) pageLine.updateFrom = pageLine.length;
 						
-						trace(pageLine.updateFrom, pageLine.updateTo);
+						//trace(pageLine.updateFrom, pageLine.updateTo);
 						
 						var line_max =  page.x + page.width;
 						var addRemoveRest = addRemoveGlyphes && (page.visibleLineFrom <= page.length-1 && page.length-1 < page.visibleLineTo);
 						
 						// TODO: needs to ADD the gap after last char here!
-						var restLinesOffset = restChars[0].x - page.x;
+						//var deltaX = pageLine.textSize - restChars[0].x + page.x;
+						//trace( leftGlyphPos( restChars[0], getCharData(restChars[0].char)), restChars[0].x  );
+						var deltaX = pageLine.textSize - leftGlyphPos( restChars[0], getCharData(restChars[0].char)) + page.x;
+						//var deltaX = 0 - leftGlyphPos( restChars[0], getCharData(restChars[0].char)) + page.x;
+						
+						if (pageLine.length > 0) {
+							//var fromX = rightGlyphPos(pageLine.getGlyph(pageLine.length - 1), getCharData(pageLine.getGlyph(pageLine.length - 1).char)); // OPTIMIZE: pageLine.getGlyph()
+							//trace(page.x + pageLine.textSize, fromX);
+							//deltaX += fromX - page.x;
+							deltaX += kerningSpaceOffset(pageLine.getGlyph(pageLine.length - 1), restChars[0], getCharData(restChars[0].char));
+						}
+						 // TODO
+						//trace("Y",glyphGetYPositionAtBase(restChars[0]) ,  pageLine.y + pageLine.base );
+						var deltaY = pageLine.y + pageLine.base - glyphGetYPositionAtBase(restChars[0]);
 						
 						for (i in 0...restChars.length)
 						{
-							// TODO: 
-							restChars[i].x += pageLine.textSize - restLinesOffset;
-							restChars[i].y += 21;
+							restChars[i].x += deltaX;
+							restChars[i].y += deltaY;
 							
 							if (restChars[i].x + ${switch(glyphStyleHasMeta.packed) {case true: macro restChars[i].w; default: macro restChars[i].width; }} >= page.x)
 							{	
@@ -2373,19 +2385,25 @@ class $className extends peote.view.Program
 						
 						pageLine.append(restChars);
 						pageLine.updateTo = pageLine.length;
-						trace(pageLine.updateFrom, pageLine.updateTo);
+						//trace(pageLine.updateFrom, pageLine.updateTo);
 						
 						if (page.length > page.updateLineTo) page.updateLineTo = page.length;
 					}
 						
+					if (restLines.length > 0) {
+						// concat the restLines to page again
+						var i = page.length;
+						page.append(restLines);
+						
+						// after all set offset of the rest of lines:
+						//trace(restLinesOffset);
+						_setPagePosSizeOffset(page, i, _SET_POS, null, page.y, null, restLinesOffset, addRemoveGlyphes);
+						// TODO: updateLineFrom also ?
+						if (page.length > page.updateLineTo) page.updateLineTo = page.length;
+					}
 					
-					// concat the restLines to page again
-					//page.append(restLines)
-					
-					// after all set offset of the rest of lines:
-					// _setPagePosSizeOffset(page, i+1, _SET_POS, null, page.y, null, restLinesOffset, addRemoveGlyphes);
-					
-					
+					page.textHeight += restLinesOffset;
+
 				}
 			}
 		}
