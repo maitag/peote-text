@@ -90,13 +90,14 @@ class Pages extends Application
 				unrecognizedChars += " " + StringTools.hex(charcode);
 			}
 
-			var page = fontProgram.createPage("hello world", 30, 30, 500, null, 0, 0, glyphStyle);
-			//var page = fontProgram.createPage("hello world", 30, 30, 500, 100, 0, 0, glyphStyle);
+			//var page = fontProgram.createPage("hello world", 30, 30, 500, null, 0, 0, glyphStyle);
+			var page = fontProgram.createPage("hello world", 30, 30, 500, 100, 0, 0, glyphStyle);
 			
 			// helper tp show visible area
 			var buffer = new Buffer<HelperElement>(1);
 			var helperProgram = new Program(buffer);
-			var helper = new HelperElement(page.x, page.y, page.width, page.textHeight, Color.BLUE);
+			//var helper = new HelperElement(page.x, page.y, page.width, page.textHeight, Color.BLUE);
+			var helper = new HelperElement(page.x, page.y, page.width, page.height, Color.BLUE);
 			buffer.addElement(helper);
 			display.addProgram(helperProgram, true);
 
@@ -112,7 +113,7 @@ class Pages extends Application
 				trace("after pageSet:",page.updateLineFrom, page.updateLineTo);
 				fontProgram.pageUpdate(page);
 				
-				helper.h = page.textHeight; buffer.updateElement(helper);
+				//helper.h = page.textHeight; buffer.updateElement(helper);
 			}, 1000);
 			
 
@@ -141,12 +142,12 @@ class Pages extends Application
 			}, 3000);
 
 */			Timer.delay(function() {//TODO
-				fontProgram.pageInsertChars(page, "INSERTION over MANY LINES\nis on a good   \\o/\nWAY ", 4, 9 , glyphStyle);
-				trace("after pageInsertChars:",page.updateLineFrom, page.updateLineTo);
+				fontProgram.pageInsertChars(page, "INSERTION over MANY LINES\nis on a good   \\o/\nWAY ", 0, 9 , glyphStyle);
+				trace("after pageInsertChars:",page.updateLineFrom, page.updateLineTo,page.visibleLineFrom, page.visibleLineTo);
 				
 				fontProgram.pageUpdate(page);
 				
-				helper.h = page.textHeight; buffer.updateElement(helper);
+				//helper.h = page.textHeight; buffer.updateElement(helper);
 			}, 2000);
 
 /*			Timer.delay(function() {//TODO

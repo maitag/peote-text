@@ -58,12 +58,7 @@ class $className
 		//TODO HAXE 4 lines.resize(newLength);
 		pageLines.splice(newLength, pageLines.length - newLength);
 	}
-	
-	//@:allow(peote.text) inline function insertLines(newPageLines:Array<$pageLineType>, pos:Int) {
-		////TODO: optimize
-		//pageLines = pageLines.slice(0, pos).concat(newPageLines).concat(pageLines.slice(pos));
-	//}
-	
+		
 	@:allow(peote.text) inline function spliceLines(pos:Int, len:Int):Array<$pageLineType> {
 		//TODO: optimize
 		return pageLines.splice(pos, len);
