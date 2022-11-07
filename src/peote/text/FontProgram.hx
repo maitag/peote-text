@@ -2258,7 +2258,7 @@ class $className extends peote.view.Program
 	
 	public function pageAppendChars(page:Page<$styleType>, chars:String, ?glyphStyle:$styleType, ?defaultFontRange:Null<Int>, addRemoveGlyphes:Bool = true, ?onUnrecognizedChar:Int->Int->Int->Void):Float
 	{
-		if (page.length < page.updateLineFrom) page.updateLineFrom = page.length;
+		//if (page.length < page.updateLineFrom) page.updateLineFrom = page.length;
 
 		chars += "\n";
 		var offset:Float = 0;
@@ -2272,7 +2272,7 @@ class $className extends peote.view.Program
 		}
 		else offset = _pageAppendChars(page, chars, 0, page.y, 0, 0, glyphStyle, defaultFontRange, addRemoveGlyphes, onUnrecognizedChar);
 		
-		if (page.length > page.updateLineTo) page.updateLineTo = page.length;
+		//if (page.length > page.updateLineTo) page.updateLineTo = page.length;
 
 		page.textHeight += offset;		
 		return offset;
@@ -2311,8 +2311,8 @@ class $className extends peote.view.Program
 										
 					if (restChars.length > 0) 
 					{ 	//trace(pageLine.visibleFrom, pageLine.visibleTo,  pageLine.length);
-						if (lineNumber < page.updateLineFrom) page.updateLineFrom = lineNumber;
-						if (lineNumber >= page.updateLineTo) page.updateLineTo = lineNumber + 1;
+						//if (lineNumber < page.updateLineFrom) page.updateLineFrom = lineNumber;
+						//if (lineNumber >= page.updateLineTo) page.updateLineTo = lineNumber + 1;
 						
 						oldFrom = pageLine.visibleFrom - pageLine.length;
 						oldTo = pageLine.visibleTo - pageLine.length;
@@ -2327,7 +2327,7 @@ class $className extends peote.view.Program
 					
 					// cutting off all after lineNumber
 					var restLines:Array<PageLine<$styleType>> = page.spliceLines(lineNumber+1, page.length - (lineNumber+1));
-					var restLineFrom = page.length - 1;
+					var restLineFrom = page.length;
 					var addRemoveRest:Bool = addRemoveGlyphes && (page.visibleLineFrom <= restLineFrom && restLineFrom < page.visibleLineTo);
 					
 					// and then appending all the new chars:
@@ -2393,12 +2393,14 @@ class $className extends peote.view.Program
 						pageLine.updateTo = pageLine.length;
 						//trace(pageLine.updateFrom, pageLine.updateTo);
 						
+						if (page.length-1 < page.updateLineFrom) page.updateLineFrom = page.length-1;
 						if (page.length > page.updateLineTo) page.updateLineTo = page.length;
 					}
 						
 					if (restLines.length > 0) 
 					{
-						if (pageLine.length < pageLine.updateFrom) pageLine.updateFrom = pageLine.length;
+						//if (pageLine.length < pageLine.updateFrom) pageLine.updateFrom = pageLine.length;
+						if (page.length < page.updateLineFrom) page.updateLineFrom = page.length;
 						
 						// concat the restLines to page again
 						page.append(restLines);
@@ -2408,6 +2410,9 @@ class $className extends peote.view.Program
 						var visibleLineFrom = page.visibleLineFrom;
 						var visibleLineTo = page.visibleLineTo;
 						var fromLine = page.length - restLines.length;
+						
+						trace("restLineFrom:",restLineFrom, "oldLineFrom:", oldLineFrom, "oldLineTo:", oldLineTo, pageLineGetChars(pageLine) );
+						
 						for (i in fromLine...page.length)
 						{
 							var pageLine = page.getPageLine(i);
