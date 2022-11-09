@@ -91,7 +91,7 @@ class Pages extends Application
 			}
 
 			//var page = fontProgram.createPage("hello world", 30, 30, 500, null, 0, 0, glyphStyle);
-			var page = fontProgram.createPage("hello world", 30, 30, 500, 100, 0, 0, glyphStyle);
+			var page = fontProgram.createPage("hello world", 30, 30, 500, 160, 0, 0, glyphStyle);
 			
 			// helper tp show visible area
 			var buffer = new Buffer<HelperElement>(1);
@@ -117,8 +117,8 @@ class Pages extends Application
 			}, 1000);
 			
 
-/*			Timer.delay(function() {
-				fontProgram.pageSetPosition(page, 50, 50, 0, 0);
+			Timer.delay(function() {
+				fontProgram.pageSetPosition(page, 50, 50, -10, -20);
 				//fontProgram.pageSetXPosition(page, 5, -5, -10);
 				//fontProgram.pageSetYPosition(page, 5, -5, -10);
 				//fontProgram.pageSetPositionSize(page, 5, 5, 500, 100, -5, -10);
@@ -130,25 +130,25 @@ class Pages extends Application
 				fontProgram.pageUpdate(page);
 				helper.x = page.x; helper.y = page.y; helper.w = page.width;
 				//helper.h = page.height;
-				helper.h = page.textHeight;
+				//helper.h = page.textHeight;
 				buffer.updateElement(helper);
 			}, 2000);
 			
 			Timer.delay(function() {//TODO
-				fontProgram.pageAppendChars(page, "(Bernheim als prestigieuser Biologe zu imaginieren.)\nTESTA\nTESTB 123456789\nTESTC\n" , glyphStyle);
-				fontProgram.pageAppendChars(page, "TESTD" , glyphStyle);
-				
-				helper.h = page.textHeight; buffer.updateElement(helper);
-			}, 3000);
+				fontProgram.pageAppendChars(page, "(Bernheim als prestigieuser Biologe zu imaginieren.)\nTESTA\nTESTB 123456789\nTESTC\n" , glyphStyle1);
+				fontProgram.pageAppendChars(page, "TESTD" , glyphStyle1);
+				trace("after pageAppendChars:",page.updateLineFrom, page.updateLineTo,page.visibleLineFrom, page.visibleLineTo);
+				//helper.h = page.textHeight; buffer.updateElement(helper);
+			}, 2000);
 
-*/			Timer.delay(function() {//TODO
-				fontProgram.pageInsertChars(page, "INSERTION over MANY LINES\nis on a good   \\o/\nWAY ", 0, 9 , glyphStyle);
+			Timer.delay(function() {//TODO
+				fontProgram.pageInsertChars(page, "INSERTION over MANY LINES\nis on a good   \\o/\nWAY", 1, 4, glyphStyle);
 				trace("after pageInsertChars:",page.updateLineFrom, page.updateLineTo,page.visibleLineFrom, page.visibleLineTo);
 				
 				fontProgram.pageUpdate(page);
 				
 				//helper.h = page.textHeight; buffer.updateElement(helper);
-			}, 2000);
+			}, 3000);
 
 /*			Timer.delay(function() {//TODO
 				fontProgram.pageInsertLine(page, 2, "(Bernheim als prestigieuser Biologe zu imaginieren.)" , glyphStyle);

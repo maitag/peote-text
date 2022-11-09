@@ -2328,7 +2328,8 @@ class $className extends peote.view.Program
 					// cutting off all after lineNumber
 					var restLines:Array<PageLine<$styleType>> = page.spliceLines(lineNumber+1, page.length - (lineNumber+1));
 					var restLineFrom = page.length;
-					var addRemoveRest:Bool = addRemoveGlyphes && (page.visibleLineFrom <= restLineFrom && restLineFrom < page.visibleLineTo);
+					
+					var restLineWasVisible:Bool = (page.visibleLineFrom <= lineNumber && lineNumber < page.visibleLineTo);
 					
 					// and then appending all the new chars:
 					offset = _pageAppendChars(page, regLinesplit.matchedRight(), page.length, pageLine.y + pageLine.lineHeight,
@@ -2346,7 +2347,7 @@ class $className extends peote.view.Program
 						
 						// xOffset of the last char into last line from what was append
 						//var deltaX = pageLine.textSize - restChars[0].x + page.x; //trace( leftGlyphPos( restChars[0], getCharData(restChars[0].char)), restChars[0].x  );
-						var deltaX = pageLine.textSize - leftGlyphPos( restChars[0], getCharData(restChars[0].char)) + page.x;
+						var deltaX = pageLine.textSize - leftGlyphPos( restChars[0], getCharData(restChars[0].char)) + page.x + page.xOffset;
 						//var deltaX = 0 - leftGlyphPos( restChars[0], getCharData(restChars[0].char)) + page.x;
 						
 						if (pageLine.length > 0) {
@@ -2358,40 +2359,47 @@ class $className extends peote.view.Program
 						 // TODO
 						//trace("Y",glyphGetYPositionAtBase(restChars[0]) ,  pageLine.y + pageLine.base );
 						var deltaY = pageLine.y + pageLine.base - glyphGetYPositionAtBase(restChars[0]);
-						var lineNotVisibleAnymore:Bool = (restChars[0].y + deltaY > page.y + page.height);
 						
-						for (i in 0...restChars.length)
-						{
+						var restLineIsVisible:Bool = (page.visibleLineFrom <= page.length-1 && page.length-1 < page.visibleLineTo);
+						
+						//trace("restLineWasVisible", restLineWasVisible," restLineIsVisible", restLineIsVisible);
+						
+						for (i in 0...restChars.length) {
 							restChars[i].x += deltaX;
 							restChars[i].y += deltaY;
 							
-							// TODO: remove also from buffer if line is not visible anymore after offset
-							if (lineNotVisibleAnymore) {
-								if (addRemoveRest && i >= oldFrom && i < oldTo) _buffer.removeElement(restChars[i]);
-							}
-							else if (restChars[i].x + ${switch(glyphStyleHasMeta.packed) {case true: macro restChars[i].w; default: macro restChars[i].width; }} >= page.x)
-							{	
-								if (restChars[i].x < line_max) {
-									if (addRemoveRest && (i < oldFrom || i >= oldTo)) {
-										_buffer.addElement(restChars[i]);
-									}
-									pageLine.visibleTo++;
-								} else if (addRemoveRest && i >= oldFrom && i < oldTo) {
-									_buffer.removeElement(restChars[i]);
+							if (restLineWasVisible) {
+								if (restChars[i].x + ${switch(glyphStyleHasMeta.packed) {case true: macro restChars[i].w; default: macro restChars[i].width; }} >= page.x) {	
+									if (restChars[i].x < line_max) {
+										if (restLineIsVisible && addRemoveGlyphes && (i < oldFrom || i >= oldTo)) _buffer.addElement(restChars[i]);
+										pageLine.visibleTo++;
+									} 
+									else if (restLineIsVisible && addRemoveGlyphes && i >= oldFrom && i < oldTo) _buffer.removeElement(restChars[i]);
 								}
+								else {
+									if (restLineIsVisible && addRemoveGlyphes && i >= oldFrom && i < oldTo) _buffer.removeElement(restChars[i]);
+									pageLine.visibleFrom++;
+									pageLine.visibleTo++;
+								}
+									
+								if (!restLineIsVisible && addRemoveGlyphes && i >= oldFrom && i < oldTo) _buffer.removeElement(restChars[i]);
 							}
 							else {
-								if (addRemoveRest && i >= oldFrom && i < oldTo) {
-									_buffer.removeElement(restChars[i]);
+								if (restChars[i].x + ${switch(glyphStyleHasMeta.packed) {case true: macro restChars[i].w; default: macro restChars[i].width; }} >= page.x) {	
+									if (restChars[i].x < line_max) {
+										if (addRemoveGlyphes && restLineIsVisible) _buffer.addElement(restChars[i]);
+										pageLine.visibleTo++;
+									} 
 								}
-								pageLine.visibleFrom++;
-								pageLine.visibleTo++;
-							}
+								else {
+									pageLine.visibleFrom++;
+									pageLine.visibleTo++;
+								}
+							}							
 						}
 						
 						pageLine.append(restChars);
 						pageLine.updateTo = pageLine.length;
-						//trace(pageLine.updateFrom, pageLine.updateTo);
 						
 						if (page.length-1 < page.updateLineFrom) page.updateLineFrom = page.length-1;
 						if (page.length > page.updateLineTo) page.updateLineTo = page.length;
@@ -2411,7 +2419,7 @@ class $className extends peote.view.Program
 						var visibleLineTo = page.visibleLineTo;
 						var fromLine = page.length - restLines.length;
 						
-						trace("restLineFrom:",restLineFrom, "oldLineFrom:", oldLineFrom, "oldLineTo:", oldLineTo, pageLineGetChars(pageLine) );
+						//trace("restLineFrom:",restLineFrom, "oldLineFrom:", oldLineFrom, "oldLineTo:", oldLineTo, pageLineGetChars(pageLine) );
 						
 						for (i in fromLine...page.length)
 						{
