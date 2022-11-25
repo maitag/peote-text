@@ -27,8 +27,8 @@ class FontMacro
 			PageLine.PageLineMacro.buildClass("PageLine", classPackage, stylePack, styleModule, styleName, styleSuperModule, styleSuperName, styleType, styleField);
 			
 			#if peote_ui
-			//var UITextLineType = peote.ui.interactive.UITextLine.UITextLineMacro.buildClass("UITextLine", ["peote","ui","interactive"], stylePack, styleModule, styleName, styleSuperModule, styleSuperName, styleType, styleField);
-			//var interactiveTextLinePath:TypePath =  { pack:["peote","ui","interactive"], name:"UITextLine" + Macro.classNameExtension(styleName, styleModule), params:[] };
+			var uiTextLineType = peote.ui.interactive.UITextLine.UITextLineMacro.buildClass("UITextLine", ["peote","ui","interactive"], stylePack, styleModule, styleName, styleSuperModule, styleSuperName, styleType, styleField);
+			//var uiTextLinePath:TypePath =  { pack:["peote","ui","interactive"], name:"UITextLine" + Macro.classNameExtension(styleName, styleModule), params:[] };
 			#end
 			
 			var styleModulName = styleModule.split(".").pop();
@@ -149,10 +149,10 @@ class $className
 	#if peote_ui
 	@:keep public function createUITextLine(xPosition:Int, yPosition:Int, ?textSize:peote.ui.util.TextSize, zIndex:Int = 0, text:String,
 	                ?fontStyle:$styleType, ?textLineStyle:peote.ui.style.TextLineStyle):peote.ui.interactive.UITextLine<$styleType>
-	                //:$interactiveTextLineType
+	                //:$uiTextLineType
 	{
 		return new peote.ui.interactive.UITextLine<$styleType>(xPosition, yPosition, textSize, zIndex, text, this, fontStyle, textLineStyle);
-		//return new $interactiveTextLinePath(xPosition, yPosition, textSize, zIndex, text, this, fontStyle, textLineStyle);
+		//return new $uiTextLinePath(xPosition, yPosition, textSize, zIndex, text, this, fontStyle, textLineStyle);
 	}
 	#end
 	

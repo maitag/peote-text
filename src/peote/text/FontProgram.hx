@@ -835,7 +835,7 @@ class $className extends peote.view.Program
 	
 	public inline function updateAllGlyphes():Void _buffer.update();
 	
-	public inline function numberOfGlyphes():Int return _buffer.length();
+	public inline function numberOfGlyphes():Int return _buffer.length;
 
 	
 	// ---------------------------------------------
@@ -2298,22 +2298,16 @@ class $className extends peote.view.Program
 					// TODO: only if page was not empty before
 					if (lineNumber < page.updateLineFrom) page.updateLineFrom = lineNumber;
 					if (lineNumber >= page.updateLineTo) page.updateLineTo = lineNumber+1;
-
 					pageLineInsertChars( pageLine, page.x, page.width, page.xOffset, regLinesplit.matched(1), position, glyphStyle, addRemoveGlyphes && (page.visibleLineFrom <= lineNumber && lineNumber < page.visibleLineTo), onUnrecognizedChar.bind(lineNumber));
 				}
 				else 
-				{	// trace("multiple lines to insert");
-					
+				{	// trace("multiple lines to insert");					
 					// cutting only glyph-array
 					var restChars = pageLine.splice(position, pageLine.length - position);
 					var oldFrom:Int = 0;
 					var oldTo:Int = 0;
 										
-					if (restChars.length > 0) 
-					{ 	//trace(pageLine.visibleFrom, pageLine.visibleTo,  pageLine.length);
-						//if (lineNumber < page.updateLineFrom) page.updateLineFrom = lineNumber;
-						//if (lineNumber >= page.updateLineTo) page.updateLineTo = lineNumber + 1;
-						
+					if (restChars.length > 0) {
 						oldFrom = pageLine.visibleFrom - pageLine.length;
 						oldTo = pageLine.visibleTo - pageLine.length;
 						if (pageLine.visibleFrom > pageLine.length) pageLine.visibleFrom = pageLine.length;
@@ -2327,19 +2321,18 @@ class $className extends peote.view.Program
 					
 					// cutting off all after lineNumber
 					var restLines:Array<PageLine<$styleType>> = page.spliceLines(lineNumber+1, page.length - (lineNumber+1));
-					var restLineFrom = page.length;
-					
+					var restLineFrom = page.length;					
 					var restLineWasVisible:Bool = (page.visibleLineFrom <= lineNumber && lineNumber < page.visibleLineTo);
 					
-					// and then appending all the new chars:
+					// appending all the new chars to that line:
 					offset = _pageAppendChars(page, regLinesplit.matchedRight(), page.length, pageLine.y + pageLine.lineHeight,
 						(page.visibleLineFrom > page.length) ? page.length : page.visibleLineFrom, 
 						(page.visibleLineTo > page.length) ? page.length : page.visibleLineTo, 
 						glyphStyle, defaultFontRange, addRemoveGlyphes, onUnrecognizedChar);
 					
 					// append the rest glyphes to last appended pageLine!
-					if (restChars.length > 0) {
-						
+					if (restChars.length > 0)
+					{
 						var pageLine = page.getPageLine(page.length-1);
 						if (pageLine.length < pageLine.updateFrom) pageLine.updateFrom = pageLine.length;
 						
@@ -2356,12 +2349,11 @@ class $className extends peote.view.Program
 							//deltaX += fromX - page.x;
 							deltaX += kerningSpaceOffset(pageLine.getGlyph(pageLine.length - 1), restChars[0], getCharData(restChars[0].char));
 						}
-						 // TODO
+						
 						//trace("Y",glyphGetYPositionAtBase(restChars[0]) ,  pageLine.y + pageLine.base );
 						var deltaY = pageLine.y + pageLine.base - glyphGetYPositionAtBase(restChars[0]);
 						
-						var restLineIsVisible:Bool = (page.visibleLineFrom <= page.length-1 && page.length-1 < page.visibleLineTo);
-						
+						var restLineIsVisible:Bool = (page.visibleLineFrom <= page.length-1 && page.length-1 < page.visibleLineTo);						
 						//trace("restLineWasVisible", restLineWasVisible," restLineIsVisible", restLineIsVisible);
 						
 						for (i in 0...restChars.length) {
@@ -2407,7 +2399,6 @@ class $className extends peote.view.Program
 						
 					if (restLines.length > 0) 
 					{
-						//if (pageLine.length < pageLine.updateFrom) pageLine.updateFrom = pageLine.length;
 						if (page.length < page.updateLineFrom) page.updateLineFrom = page.length;
 						
 						// concat the restLines to page again
@@ -2417,8 +2408,7 @@ class $className extends peote.view.Program
 						//_setPagePosSizeOffset(page, page.length - restLines.length, _SET_POS, null, page.y, null, offset, addRemoveGlyphes);
 						var visibleLineFrom = page.visibleLineFrom;
 						var visibleLineTo = page.visibleLineTo;
-						var fromLine = page.length - restLines.length;
-						
+						var fromLine = page.length - restLines.length;						
 						//trace("restLineFrom:",restLineFrom, "oldLineFrom:", oldLineFrom, "oldLineTo:", oldLineTo, pageLineGetChars(pageLine) );
 						
 						for (i in fromLine...page.length)
@@ -2472,6 +2462,11 @@ class $className extends peote.view.Program
 	}
 
 	
+	public inline function pageGetChars(page:Page<$styleType>, fromLine:Int = 0, fromChar:Int = 0, ?toLine:Null<Int>, ?toChar:Null<Int>):String
+	{
+		//pageLineGetChars(pageLine, from, to);
+		return "";
+	}
 	
 	
 	

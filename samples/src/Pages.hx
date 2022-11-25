@@ -142,7 +142,7 @@ class Pages extends Application
 			}, 2000);
 
 			Timer.delay(function() {//TODO
-				fontProgram.pageInsertChars(page, "INSERTION over MANY LINES\nis on a good   \\o/\nWAY", 1, 4, glyphStyle);
+				fontProgram.pageInsertChars(page, "INSERTION over MANY LINES\nis on a good   \\o/\nWAY", 0, 4, glyphStyle);
 				trace("after pageInsertChars:",page.updateLineFrom, page.updateLineTo,page.visibleLineFrom, page.visibleLineTo);
 				
 				fontProgram.pageUpdate(page);
