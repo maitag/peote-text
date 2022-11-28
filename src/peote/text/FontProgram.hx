@@ -2154,7 +2154,8 @@ class $className extends peote.view.Program
 		var visibleLineFrom:Int = 0;
 		var visibleLineTo:Int = 0;
 		var i:Int = 0;
-				
+		var textWidth:Float = 0.0;
+		var longestLines:Int = 0;
 		y += page.yOffset;
 		
 		while (i < page.length && regLinesplit.match(chars)) // overwrite old lines
@@ -2188,10 +2189,17 @@ class $className extends peote.view.Program
 				}
 			}
 						
-			i++;			
-			y += pageLine.lineHeight;			
+			i++;
+			y += pageLine.lineHeight;
+			if (pageLine.textSize >= textWidth) {
+				if (pageLine.textSize == textWidth) longestLines++;
+				else { longestLines = 0; textWidth = pageLine.textSize; }
+			}
 			chars = regLinesplit.matchedRight();
 		}
+		
+		page.textWidth = textWidth;
+		page.longestLines = longestLines;
 		
 		// --------------------------------
 		page.updateLineFrom = 0;		
@@ -2222,6 +2230,9 @@ class $className extends peote.view.Program
 	// ------------ appending helper ----------	
 	inline function _pageAppendChars(page:Page<$styleType>, chars:String, i:Int, y:Float, visibleLineFrom:Int, visibleLineTo:Int, ?glyphStyle:$styleType, defaultFontRange:Null<Int>, addRemoveGlyphes:Bool, onUnrecognizedChar:Int->Int->Int->Void):Float
 	{
+		var textWidth = page.textWidth;
+		var longestLines = page.longestLines;
+
 		var y_start = y;
 		while (regLinesplit.match(chars)) 
 		{
@@ -2249,10 +2260,16 @@ class $className extends peote.view.Program
 			i++;
 			y += pageLine.lineHeight;				
 			page.pushLine( pageLine );
+			if (pageLine.textSize >= textWidth) {
+				if (pageLine.textSize == textWidth) longestLines++;
+				else { longestLines = 0; textWidth = pageLine.textSize; }
+			}
 			chars = regLinesplit.matchedRight();
 		}
 		page.visibleLineFrom = visibleLineFrom;
 		page.visibleLineTo = visibleLineTo;
+		page.textWidth = textWidth;
+		page.longestLines = longestLines;
 		return y - y_start;
 	}
 	
@@ -2267,6 +2284,7 @@ class $className extends peote.view.Program
 				var i:Int = page.length-1;
 				var pageLine = page.getPageLine(i);
 				pageLineAppendChars( pageLine, page.x, page.width, page.xOffset, regLinesplit.matched(1), glyphStyle, addRemoveGlyphes && (page.visibleLineFrom <= i && i < page.visibleLineTo), onUnrecognizedChar.bind(i));
+				pageTextWidthAfterExpand(page, pageLine);
 				offset = _pageAppendChars(page, regLinesplit.matchedRight(), ++i, pageLine.y + pageLine.lineHeight, page.visibleLineFrom, page.visibleLineTo, glyphStyle, defaultFontRange, addRemoveGlyphes, onUnrecognizedChar);
 			}
 		}
@@ -2299,6 +2317,7 @@ class $className extends peote.view.Program
 					if (lineNumber < page.updateLineFrom) page.updateLineFrom = lineNumber;
 					if (lineNumber >= page.updateLineTo) page.updateLineTo = lineNumber+1;
 					pageLineInsertChars( pageLine, page.x, page.width, page.xOffset, regLinesplit.matched(1), position, glyphStyle, addRemoveGlyphes && (page.visibleLineFrom <= lineNumber && lineNumber < page.visibleLineTo), onUnrecognizedChar.bind(lineNumber));
+					pageTextWidthAfterExpand(page, pageLine);
 				}
 				else 
 				{	// trace("multiple lines to insert");					
@@ -2318,13 +2337,14 @@ class $className extends peote.view.Program
 					var oldLineTo = page.visibleLineTo;
 					
 					pageLineAppendChars( pageLine, page.x, page.width, page.xOffset, regLinesplit.matched(1), glyphStyle, addRemoveGlyphes && (page.visibleLineFrom <= lineNumber && lineNumber < page.visibleLineTo), onUnrecognizedChar.bind(lineNumber));
+					pageTextWidthAfterExpand(page, pageLine);
 					
 					// cutting off all after lineNumber
 					var restLines:Array<PageLine<$styleType>> = page.spliceLines(lineNumber+1, page.length - (lineNumber+1));
 					var restLineFrom = page.length;					
 					var restLineWasVisible:Bool = (page.visibleLineFrom <= lineNumber && lineNumber < page.visibleLineTo);
 					
-					// appending all the new chars to that line:
+					// appending rest of text to that line:
 					offset = _pageAppendChars(page, regLinesplit.matchedRight(), page.length, pageLine.y + pageLine.lineHeight,
 						(page.visibleLineFrom > page.length) ? page.length : page.visibleLineFrom, 
 						(page.visibleLineTo > page.length) ? page.length : page.visibleLineTo, 
@@ -2395,6 +2415,7 @@ class $className extends peote.view.Program
 						
 						if (page.length-1 < page.updateLineFrom) page.updateLineFrom = page.length-1;
 						if (page.length > page.updateLineTo) page.updateLineTo = page.length;
+						pageTextWidthAfterExpand(page, pageLine);
 					}
 						
 					if (restLines.length > 0) 
@@ -2461,6 +2482,44 @@ class $className extends peote.view.Program
 		return offset;
 	}
 
+	// recalculate textSize if a new added pageLine is greater
+	public inline function pageTextWidthAfterExpand(page:Page<$styleType>, pageLine:PageLine<$styleType>)
+	{
+		if (pageLine.textSize >= page.textWidth) {
+			if (pageLine.textSize == page.textWidth) page.longestLines++;
+			else { page.longestLines = 0; page.textWidth = pageLine.textSize; }
+		}
+	}
+	
+	// check if a pageLine is one of the greatest lines inside a page
+	public inline function pageIsLongestLine(page:Page<$styleType>, pageLine:PageLine<$styleType>):Bool
+	{
+		return (pageLine.textSize == page.textWidth);
+	}
+	
+	// recalculate pages textSize if one of the longest pageLine was getting shrinked
+	public inline function pageTextWidthAfterShrink(page:Page<$styleType>, pageLine:PageLine<$styleType>)
+	{
+		if (pageLine.textSize < page.textWidth) pageTextWidthAfterDelete(page);
+	}
+	
+	// recalculate pages textSize if one of the longest pageLines was deleted
+	public inline function pageTextWidthAfterDelete(page:Page<$styleType>)
+	{
+		if (page.longestLines > 0) page.longestLines--;
+		else {
+			var textWidth:Float = 0.0;
+			var longestLines:Int = 0;
+			for (pageLine in page.pageLines) {
+				if (pageLine.textSize >= textWidth) {
+					if (pageLine.textSize == textWidth) longestLines++;
+					else { longestLines = 0; textWidth = pageLine.textSize; }
+				}
+			}
+			page.textWidth = textWidth; 
+			page.longestLines = longestLines; 
+		}
+	}
 	
 	public inline function pageGetChars(page:Page<$styleType>, fromLine:Int = 0, fromChar:Int = 0, ?toLine:Null<Int>, ?toChar:Null<Int>):String
 	{

@@ -40,12 +40,13 @@ class $className
 	@:allow(peote.text) public var width(default, null):Float = 0xffff; // visible width of the page (in pixel)
 	@:allow(peote.text) public var height(default, null):Float = 0xffff; // visible height of the page (in pixel)
 	
-	@:allow(peote.text) public var textWidth(default, null):Float = 0.0; // pixel size of longest line ->TODO: needs a function what is recalculating if some of the pagelines was shrinked
+	@:allow(peote.text) public var textWidth(default, null):Float = 0.0; // pixel size of longest line
+	@:allow(peote.text) public var longestLines(default, null):Int = 0;  // how many longest lines
 	@:allow(peote.text) public var textHeight(default, null):Float = 0.0; // pixel size of all lines
 	
 	
 	// TODO: optimize for neko/hl/cpp ... alternatively also per vector and ringbuffer
-	var pageLines = new Array<$pageLineType>();
+	@:allow(peote.text) var pageLines = new Array<$pageLineType>();
 	
 	public var length(get, never):Int; // number of lines
 	public inline function get_length():Int return pageLines.length;

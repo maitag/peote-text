@@ -92,6 +92,7 @@ class Pages extends Application
 
 			//var page = fontProgram.createPage("hello world", 30, 30, 500, null, 0, 0, glyphStyle);
 			var page = fontProgram.createPage("hello world", 30, 30, 500, 160, 0, 0, glyphStyle);
+			trace('textWidth=${page.textWidth}\nlongestLines=${page.longestLines}');
 			
 			// helper tp show visible area
 			var buffer = new Buffer<HelperElement>(1);
@@ -108,6 +109,7 @@ class Pages extends Application
 						+ "Ein fürwahr überaus betrüblicher Aspekt,\r\nder aber immerhin ein wenig unterschiedlich ist:\rSeidenstrümpfe können begriffen werden, \nGauguins nicht."
 						;
 				fontProgram.pageSet(page, text, glyphStyle1);
+				trace('textWidth=${page.textWidth}\nlongestLines=${page.longestLines}');
 				//fontProgram.pageSet(page, text, 10, 10, glyphStyle);
 				
 				trace("after pageSet:",page.updateLineFrom, page.updateLineTo);
@@ -139,6 +141,7 @@ class Pages extends Application
 				fontProgram.pageAppendChars(page, "TESTD" , glyphStyle1);
 				trace("after pageAppendChars:",page.updateLineFrom, page.updateLineTo,page.visibleLineFrom, page.visibleLineTo);
 				//helper.h = page.textHeight; buffer.updateElement(helper);
+				trace('textWidth=${page.textWidth}\nlongestLines=${page.longestLines}');
 			}, 2000);
 
 			Timer.delay(function() {//TODO
@@ -147,6 +150,7 @@ class Pages extends Application
 				
 				fontProgram.pageUpdate(page);
 				
+				trace('textWidth=${page.textWidth}\nlongestLines=${page.longestLines}');
 				//helper.h = page.textHeight; buffer.updateElement(helper);
 			}, 3000);
 
