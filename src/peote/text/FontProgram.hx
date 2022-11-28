@@ -2644,15 +2644,17 @@ class $className extends peote.view.Program
 		var visibleLineFrom = page.visibleLineFrom;
 		var visibleLineTo = page.visibleLineTo;
 		
+		yOffset += y - page.y - page.yOffset;
+				
 		for (i in 0...page.length)
 		{
 			var pageLine = page.getPageLine(i);
 			
-			if (howToSet == _SET_POS_SIZE) pageLineSetPositionSize( pageLine, page.x, page.width, page.xOffset, x, yOffset + pageLine.y + y - page.y, xOffset, addRemoveGlyphes && (page.visibleLineFrom <= i && i < page.visibleLineTo));
+			if (howToSet == _SET_POS_SIZE) pageLineSetPositionSize( pageLine, page.x, page.width, page.xOffset, x, yOffset + pageLine.y, xOffset, addRemoveGlyphes && (page.visibleLineFrom <= i && i < page.visibleLineTo));
 			else if (howToSet == _SET_SIZE) pageLineSetSize( pageLine, page.x, page.width, page.xOffset, xOffset, addRemoveGlyphes && (page.visibleLineFrom <= i && i < page.visibleLineTo));
 			else if (howToSet == _SET_POS) {
-				if (x != null) pageLineSetPosition( pageLine, page.x, page.width, page.xOffset, x, yOffset + pageLine.y + y - page.y, xOffset, addRemoveGlyphes && (page.visibleLineFrom <= i && i < page.visibleLineTo));
-				else pageLineSetYPosition(pageLine, page.x, page.width, page.xOffset, yOffset + pageLine.y + y - page.y, xOffset, addRemoveGlyphes && (page.visibleLineFrom <= i && i < page.visibleLineTo));
+				if (x != null) pageLineSetPosition( pageLine, page.x, page.width, page.xOffset, x, yOffset + pageLine.y, xOffset, addRemoveGlyphes && (page.visibleLineFrom <= i && i < page.visibleLineTo));
+				else pageLineSetYPosition(pageLine, page.x, page.width, page.xOffset, yOffset + pageLine.y, xOffset, addRemoveGlyphes && (page.visibleLineFrom <= i && i < page.visibleLineTo));
 			}
 			
 			// add or remove if inside visible area
