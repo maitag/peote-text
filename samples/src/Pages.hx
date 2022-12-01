@@ -75,8 +75,8 @@ class Pages extends Application
 			
 			var glyphStyle1 = font.createFontStyle();
 			glyphStyle1.color = Color.YELLOW;
-			glyphStyle1.width = font.config.width * 0.8;
-			glyphStyle1.height = font.config.height * 0.8;
+			glyphStyle1.width = font.config.width * 0.5;
+			glyphStyle1.height = font.config.height * 0.5;
 			//glyphStyle1.zIndex = 1;
 			//glyphStyle1.rotation = 22.5;
 							
@@ -91,7 +91,7 @@ class Pages extends Application
 			}
 
 			//var page = fontProgram.createPage("hello world", 30, 30, 500, null, 0, 0, glyphStyle);
-			var page = fontProgram.createPage("hello world", 30, 30, 500, 160, 0, 0, glyphStyle);
+			var page = fontProgram.createPage("hello world", 30, 30, 500, 40, 0, 0, glyphStyle);
 			trace('textWidth=${page.textWidth}\nlongestLines=${page.longestLines}');
 			
 			// helper tp show visible area
@@ -108,7 +108,7 @@ class Pages extends Application
 						+"\n"
 						+ "Ein fürwahr überaus betrüblicher Aspekt,\r\nder aber immerhin ein wenig unterschiedlich ist:\rSeidenstrümpfe können begriffen werden, \nGauguins nicht."
 						;
-				fontProgram.pageSet(page, text, glyphStyle1);
+				fontProgram.pageSet(page, text, glyphStyle);
 				trace('textWidth=${page.textWidth}\nlongestLines=${page.longestLines}');
 				//fontProgram.pageSet(page, text, 10, 10, glyphStyle);
 				
@@ -119,7 +119,7 @@ class Pages extends Application
 			}, 1000);
 			
 
-			Timer.delay(function() {
+/*			Timer.delay(function() {
 				//fontProgram.pageSetPosition(page, 30, 30, 0, 10);
 				//fontProgram.pageSetXPosition(page, 5, -5, -10);
 				//fontProgram.pageSetYPosition(page, 5, -5, -10);
@@ -135,23 +135,16 @@ class Pages extends Application
 				//helper.h = page.textHeight;
 				buffer.updateElement(helper);
 			}, 2000);
-			
+*/			
 			Timer.delay(function() {
-				//fontProgram.pageSetPosition(page, 30, 30, 0, 20);
-				//fontProgram.pageSetXPosition(page, 5, -5, -10);
-				//fontProgram.pageSetYPosition(page, 5, -5, -10);
-				fontProgram.pageSetPositionSize(page, 30, 30, 500, 160, 0, 0);
-				//fontProgram.pageSetSize(page, 500, 235, -20, 0);
-				//fontProgram.pageSetOffset(page, 10, -20);
-				//fontProgram.pageSetXOffset(page, -20);
-				//fontProgram.pageSetYOffset(page, 10);
+				fontProgram.pageSetStyle(page, glyphStyle1, 0, 0, 2);
 				
 				fontProgram.pageUpdate(page);
 				helper.x = page.x; helper.y = page.y; helper.w = page.width;
 				//helper.h = page.height;
 				//helper.h = page.textHeight;
 				buffer.updateElement(helper);
-			}, 3000);
+			}, 2000);
 			
 /*			Timer.delay(function() {//TODO
 				fontProgram.pageAppendChars(page, "(Bernheim als prestigieuser Biologe zu imaginieren.)\nTESTA\nTESTB 123456789\nTESTC\n" , glyphStyle1);

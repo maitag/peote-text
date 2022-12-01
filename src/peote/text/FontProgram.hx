@@ -1085,6 +1085,9 @@ class $className extends peote.view.Program
 		
 		y += _baseLineOffset(pageLine.base, pageLine.getGlyph(from), charData);
 		
+		// TODO: another argument here to do it only if new metric is greater
+		_setLineMetric(pageLine, pageLine.getGlyph(from), charData);
+		
 		setPosition(pageLine.getGlyph(from), charData, x, y);
 		x += nextGlyphOffset(pageLine.getGlyph(from), charData);
 				
@@ -2258,7 +2261,7 @@ class $className extends peote.view.Program
 				}
 			}
 			i++;
-			y += pageLine.lineHeight;				
+			y += pageLine.lineHeight;
 			page.pushLine( pageLine );
 			if (pageLine.textSize >= textWidth) {
 				if (pageLine.textSize == textWidth) longestLines++;
@@ -2297,9 +2300,134 @@ class $className extends peote.view.Program
 	}
 		
 	//TODO:
-	//public function pageSetStyle(page:Page<$styleType>, glyphStyle:$styleType, fromLine:Int = 0, ?toLine:Null<Int>, addRemoveGlyphes:Bool = true):Float {
-		//return 0;
-	//}
+	public function pageSetStyle(page:Page<$styleType>, glyphStyle:$styleType, fromLine:Int = 0, fromPosition:Int = 0, ?toLine:Null<Int>, ?toPosition:Null<Int>, addRemoveGlyphes:Bool = true):Float {
+		if (toLine == null || toLine > page.length) toLine = page.length;
+		
+		// swapping
+		if (toLine < fromLine) { var tmp = toLine; toLine = fromLine; fromLine = tmp; }
+		else if (fromLine == toLine) toLine++;
+		
+		if (fromLine < page.updateLineFrom) page.updateLineFrom = fromLine;
+		if (toLine > page.updateLineTo) page.updateLineTo = toLine;
+		
+		if (fromLine < 0) fromLine = 0;
+		var textWidth:Float = 0.0;
+		var longestLines:Int = 0;
+		var hadLongestLines:Int = page.longestLines;
+		var pageLine:PageLine<$styleType>;
+		
+		// todo: offset
+		var offset:Float = 0.0;
+		var y:Float = 0.0;
+		var oldLineHeight:Float = 0.0;
+
+		var visibleLineFrom = page.visibleLineFrom;
+		var visibleLineTo = page.visibleLineTo;
+		
+		// change style into range
+		for (i in fromLine...toLine) {
+			pageLine = page.getPageLine(i);
+			oldLineHeight = pageLine.lineHeight;
+			if (pageLine.textSize == pageLine.textSize) hadLongestLines--;
+			
+// TODO: 
+// extra param for pageLineSetStyle() to force shrink/expand into new pageLine.lineHeight and how to set on existing BaseLine
+
+			if (i == fromLine) {
+				pageLineSetStyle(pageLine, page.x, page.width, page.xOffset, glyphStyle, fromPosition, addRemoveGlyphes && (page.visibleLineFrom <= i && i < page.visibleLineTo));
+				y = pageLine.y;
+			}
+			else {
+				if (i == toLine-1) pageLineSetStyle(pageLine, page.x, page.width, page.xOffset, glyphStyle, 0, toPosition, addRemoveGlyphes && (page.visibleLineFrom <= i && i < page.visibleLineTo));
+				else pageLineSetStyle(pageLine, page.x, page.width, page.xOffset, glyphStyle, addRemoveGlyphes && (page.visibleLineFrom <= i && i < page.visibleLineTo));
+				y += pageLine.lineHeight;
+			}
+			
+			if (pageLine.textSize >= textWidth) {
+				if (pageLine.textSize == textWidth) longestLines++;
+				else { longestLines = 0; textWidth = pageLine.textSize; }
+			}
+			
+			if (pageLine.lineHeight != oldLineHeight) 
+			{
+				pageLineSetYPosition(pageLine, page.x, page.width, page.xOffset, y, null, addRemoveGlyphes && (page.visibleLineFrom <= i && i < page.visibleLineTo));
+				offset += pageLine.lineHeight - oldLineHeight;
+				
+				// add or remove if inside visible area
+				if (pageLine.y + pageLine.lineHeight >= page.y)	{	
+					if (pageLine.y < page.y + page.height) {
+						if (i < visibleLineFrom || i >= visibleLineTo) {
+							if (addRemoveGlyphes && !(page.visibleLineFrom <= i && i < page.visibleLineTo)) pageLineAdd(pageLine);
+							if (visibleLineFrom > i) visibleLineFrom = i;
+							if (visibleLineTo < i + 1) visibleLineTo = i + 1;
+						}
+					} else {
+						if (addRemoveGlyphes && page.visibleLineFrom <= i && i < page.visibleLineTo) pageLineRemove(pageLine);
+						if (visibleLineTo > i) visibleLineTo = i;
+					}
+				} else {
+					if (addRemoveGlyphes && page.visibleLineFrom <= i && i < page.visibleLineTo) pageLineRemove(pageLine);
+					visibleLineFrom = i + 1;
+				}				
+			}
+		}
+		
+		// fix the longest lines
+		if (textWidth < page.textWidth) {
+			if (hadLongestLines < 0) { // all of longest lines was into range
+				for (i in 0...fromLine) {
+					pageLine = page.getPageLine(i);
+					if (pageLine.textSize >= textWidth) {
+						if (pageLine.textSize == textWidth) longestLines++;
+						else { longestLines = 0; textWidth = pageLine.textSize; }
+					}
+				}
+				for (i in toLine...page.length) {
+					pageLine = page.getPageLine(i);
+					if (pageLine.textSize >= textWidth) {
+						if (pageLine.textSize == textWidth) longestLines++;
+						else { longestLines = 0; textWidth = pageLine.textSize; }
+					}
+				}
+				
+			} 
+			else longestLines = hadLongestLines;
+		}
+		
+		// move rest of line up or down in depend of offset
+		if (offset != 0) {
+			page.updateLineTo = page.length;
+			//offset and visibleLineFrom visibleLineTo, OPTIMIZE: do this also before into longest-lines-fix and then not here anymore!
+			for (i in toLine...page.length) {
+				pageLine = page.getPageLine(i);
+				pageLineSetYPosition(pageLine, page.x, page.width, page.xOffset, pageLine.y+offset, null, addRemoveGlyphes && (page.visibleLineFrom <= i && i < page.visibleLineTo));
+				// add or remove if inside visible area
+				if (pageLine.y + pageLine.lineHeight >= page.y) {	
+					if (pageLine.y < page.y + page.height) {
+						if (i < visibleLineFrom || i >= visibleLineTo) {
+							if (addRemoveGlyphes && !(page.visibleLineFrom <= i && i < page.visibleLineTo)) pageLineAdd(pageLine);
+							if (visibleLineFrom > i) visibleLineFrom = i;
+							if (visibleLineTo < i + 1) visibleLineTo = i + 1;
+						}
+					} else {
+						if (addRemoveGlyphes && page.visibleLineFrom <= i && i < page.visibleLineTo) pageLineRemove(pageLine);
+						if (visibleLineTo > i) visibleLineTo = i;
+					}
+				} else {
+					if (addRemoveGlyphes && page.visibleLineFrom <= i && i < page.visibleLineTo) pageLineRemove(pageLine);
+					visibleLineFrom = i + 1;
+				}				
+			}
+		}
+		
+		page.visibleLineFrom = visibleLineFrom;
+		page.visibleLineTo = visibleLineTo;
+		
+		page.textWidth = textWidth;
+		page.longestLines = longestLines;
+		page.textHeight += offset;		
+		return offset;
+	}
 
 	public function pageInsertChars(page:Page<$styleType>, chars:String, lineNumber:Int = 0, position:Int = 0, ?glyphStyle:$styleType, ?defaultFontRange:Null<Int>, addRemoveGlyphes:Bool = true, ?onUnrecognizedChar:Int->Int->Int->Void):Float
 	{
