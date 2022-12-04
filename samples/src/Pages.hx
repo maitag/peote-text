@@ -137,7 +137,7 @@ class Pages extends Application
 			}, 2000);
 */			
 			Timer.delay(function() {
-				fontProgram.pageSetStyle(page, glyphStyle1, 0, 0, 2);
+				fontProgram.pageSetStyle(page, glyphStyle1, 0, 10, 2, 50);
 				
 				fontProgram.pageUpdate(page);
 				helper.x = page.x; helper.y = page.y; helper.w = page.width;

@@ -1083,10 +1083,26 @@ class $className extends peote.view.Program
 		pageLine.getGlyph(from).setStyle(glyphStyle); // OPTIMIZE: pageLine.getGlyph()
 		var charData = getCharData(pageLine.getGlyph(from).char);
 		
-		y += _baseLineOffset(pageLine.base, pageLine.getGlyph(from), charData);
-		
-		// TODO: another argument here to do it only if new metric is greater
-		_setLineMetric(pageLine, pageLine.getGlyph(from), charData);
+		// new line-metric for higher or smaller gylphstyle
+		var baseLineOffset:Float = _baseLineOffset(pageLine.base, pageLine.getGlyph(from), charData);
+		if (baseLineOffset < 0) { // new glyphStyle is higher
+			if (from > 0) {
+				pageLine.updateFrom = 0;
+				for (i in 0...from) pageLine.getGlyph(i).y -= baseLineOffset;
+			} 
+			if (to < pageLine.length) {
+				pageLine.updateTo = pageLine.length;
+				for (i in to...pageLine.length) pageLine.getGlyph(i).y -= baseLineOffset;
+			} 
+			_setLineMetric(pageLine, pageLine.getGlyph(from), charData); // enlarge line-metric
+		}
+		else if (baseLineOffset > 0) { // new glyphStyle is smaller
+			if (from == 0 && to == pageLine.length) {
+				// if the full line was changed also decrease the line-height
+				_setLineMetric(pageLine, pageLine.getGlyph(from), charData);
+			} 
+			else y += baseLineOffset;			
+		}
 		
 		setPosition(pageLine.getGlyph(from), charData, x, y);
 		x += nextGlyphOffset(pageLine.getGlyph(from), charData);

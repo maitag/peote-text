@@ -161,14 +161,14 @@ class InputLine extends Application
 			
 			style = new GlyphStyle();
 			style.color = Color.YELLOW;
-			style.width = font.config.width * 2.0;
-			style.height = font.config.height * 2.0;
+			style.width = font.config.width * 0.75;
+			style.height = font.config.height * 0.75;
 			glyphStyle.push(style);
 			
 			style = new GlyphStyle();
 			style.color = Color.RED;
-			style.width = font.config.width * 3.0;
-			style.height = font.config.height * 3.0;
+			style.width = font.config.width * 1.5;
+			style.height = font.config.height * 1.5;
 			glyphStyle.push(style);				
 			
 			// ------------------- line  -------------------				
@@ -344,6 +344,7 @@ class InputLine extends Application
 			var to = select_to;
 			if (to < from) {to = select_from; from = select_to; }
 			fontProgram.lineSetStyle(line, glyphStyle[actual_style], from, to);
+			updateLineMetric();
 			lineUpdate();
 			selectionSetFrom(select_from);
 			selectionSetTo(select_to);
@@ -456,14 +457,22 @@ class InputLine extends Application
 	{
 		topLineElement.x = descLineElement.x = x;
 		topLineElement.w = descLineElement.w = width;
-		
 		fontProgram.skinElemToLine(backgroundProgram, backgroundElement, line);
-		
 		helperLinesProgram.updateElement(topLineElement);
 		helperLinesProgram.updateElement(baseLineElement);
 		helperLinesProgram.updateElement(descLineElement);
 	}
 
+	public function updateLineMetric() {
+		
+		baseLineElement.y = Std.int(line.y + line.base);
+		descLineElement.y = Std.int(line.y + line.lineHeight);
+		selectElement.h = line.lineHeight;
+		selectProgram.updateElement(selectElement);		
+		cursorElement.h = line.height;
+		cursorProgram.updateElement(cursorElement);		
+	}
+	
 	// ---------------------------------------------------------------
 	
 	var selecting = false;
