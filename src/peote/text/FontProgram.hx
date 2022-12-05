@@ -947,7 +947,7 @@ class $className extends peote.view.Program
 				prev_glyph = glyph;
 				i++;
 			}
-			else if (onUnrecognizedChar != null) onUnrecognizedChar(charcode, i);
+			//else if (onUnrecognizedChar != null) onUnrecognizedChar(charcode, i);
 		});
 								
 		if (i < old_length) {
@@ -2183,7 +2183,7 @@ class $className extends peote.view.Program
 			var pageLine = page.getPageLine(i);
 			
 			if (i > visibleLineFrom) {
-				pageLineSet( pageLine, regLinesplit.matched(1), page.x, y, page.width, page.xOffset, glyphStyle, defaultFontRange, addRemoveGlyphes && (page.visibleLineFrom <= i && i < page.visibleLineTo), onUnrecognizedChar.bind(i) );
+				pageLineSet( pageLine, regLinesplit.matched(1), page.x, y, page.width, page.xOffset, glyphStyle, defaultFontRange, addRemoveGlyphes && (page.visibleLineFrom <= i && i < page.visibleLineTo), (onUnrecognizedChar==null) ? null : onUnrecognizedChar.bind(i) );
 				if (y <= page.y + page.height) {
 					// add it if it was NOT visible before
 					if (  addRemoveGlyphes && ( !(page.visibleLineFrom <= i && i < page.visibleLineTo) )  ) pageLineAdd(pageLine);
@@ -2195,7 +2195,7 @@ class $className extends peote.view.Program
 			}
 			else {
 				// at first it is creating to fetch its line-height after
-				pageLineSet( pageLine, regLinesplit.matched(1), page.x, y, page.width, page.xOffset, glyphStyle, defaultFontRange, addRemoveGlyphes && (page.visibleLineFrom <= i && i < page.visibleLineTo), onUnrecognizedChar.bind(i) );
+				pageLineSet( pageLine, regLinesplit.matched(1), page.x, y, page.width, page.xOffset, glyphStyle, defaultFontRange, addRemoveGlyphes && (page.visibleLineFrom <= i && i < page.visibleLineTo), (onUnrecognizedChar==null) ? null : onUnrecognizedChar.bind(i) );
 				if (y + pageLine.lineHeight < page.y) {
 					// remove it if it was visible before
 					if (addRemoveGlyphes && page.visibleLineFrom <= i && i < page.visibleLineTo) pageLineRemove(pageLine);	
@@ -2251,7 +2251,8 @@ class $className extends peote.view.Program
 	{
 		var textWidth = page.textWidth;
 		var longestLines = page.longestLines;
-
+		var onUnrecognizedLineChar = (onUnrecognizedChar==null) ? null : onUnrecognizedChar.bind(i);
+		
 		var y_start = y;
 		while (regLinesplit.match(chars)) 
 		{
@@ -2259,14 +2260,14 @@ class $className extends peote.view.Program
 			var pageLine = new peote.text.PageLine<$styleType>();
 			if (i > visibleLineFrom) {
 				if (y <= page.y + page.height) {
-					pageLineSet( pageLine, regLinesplit.matched(1), page.x, y, page.width, page.xOffset, glyphStyle, defaultFontRange, addRemoveGlyphes, onUnrecognizedChar.bind(i));
+					pageLineSet( pageLine, regLinesplit.matched(1), page.x, y, page.width, page.xOffset, glyphStyle, defaultFontRange, addRemoveGlyphes, onUnrecognizedLineChar);
 					visibleLineTo++;
 				}
-				else pageLineSet( pageLine, regLinesplit.matched(1), page.x, y, page.width, page.xOffset, glyphStyle, defaultFontRange, false, onUnrecognizedChar.bind(i));
+				else pageLineSet( pageLine, regLinesplit.matched(1), page.x, y, page.width, page.xOffset, glyphStyle, defaultFontRange, false, onUnrecognizedLineChar);
 			}
 			else {
 				// at first it is creating to fetch its line-height after
-				pageLineSet( pageLine, regLinesplit.matched(1), page.x, y, page.width, page.xOffset, glyphStyle, defaultFontRange, false, onUnrecognizedChar.bind(i));
+				pageLineSet( pageLine, regLinesplit.matched(1), page.x, y, page.width, page.xOffset, glyphStyle, defaultFontRange, false, onUnrecognizedLineChar);
 				if (y + pageLine.lineHeight < page.y) {
 					visibleLineFrom++;
 					visibleLineTo++;
@@ -2302,7 +2303,7 @@ class $className extends peote.view.Program
 			if ( regLinesplit.match(chars) ) {
 				var i:Int = page.length-1;
 				var pageLine = page.getPageLine(i);
-				pageLineAppendChars( pageLine, page.x, page.width, page.xOffset, regLinesplit.matched(1), glyphStyle, addRemoveGlyphes && (page.visibleLineFrom <= i && i < page.visibleLineTo), onUnrecognizedChar.bind(i));
+				pageLineAppendChars( pageLine, page.x, page.width, page.xOffset, regLinesplit.matched(1), glyphStyle, addRemoveGlyphes && (page.visibleLineFrom <= i && i < page.visibleLineTo), (onUnrecognizedChar==null) ? null : onUnrecognizedChar.bind(i));
 				pageTextWidthAfterExpand(page, pageLine);
 				offset = _pageAppendChars(page, regLinesplit.matchedRight(), ++i, pageLine.y + pageLine.lineHeight, page.visibleLineFrom, page.visibleLineTo, glyphStyle, defaultFontRange, addRemoveGlyphes, onUnrecognizedChar);
 			}
@@ -2460,7 +2461,7 @@ class $className extends peote.view.Program
 					// TODO: only if page was not empty before
 					if (lineNumber < page.updateLineFrom) page.updateLineFrom = lineNumber;
 					if (lineNumber >= page.updateLineTo) page.updateLineTo = lineNumber+1;
-					pageLineInsertChars( pageLine, page.x, page.width, page.xOffset, regLinesplit.matched(1), position, glyphStyle, addRemoveGlyphes && (page.visibleLineFrom <= lineNumber && lineNumber < page.visibleLineTo), onUnrecognizedChar.bind(lineNumber));
+					pageLineInsertChars( pageLine, page.x, page.width, page.xOffset, regLinesplit.matched(1), position, glyphStyle, addRemoveGlyphes && (page.visibleLineFrom <= lineNumber && lineNumber < page.visibleLineTo), (onUnrecognizedChar==null) ? null : onUnrecognizedChar.bind(lineNumber));
 					pageTextWidthAfterExpand(page, pageLine);
 				}
 				else 
@@ -2480,7 +2481,7 @@ class $className extends peote.view.Program
 					var oldLineFrom = page.visibleLineFrom;
 					var oldLineTo = page.visibleLineTo;
 					
-					pageLineAppendChars( pageLine, page.x, page.width, page.xOffset, regLinesplit.matched(1), glyphStyle, addRemoveGlyphes && (page.visibleLineFrom <= lineNumber && lineNumber < page.visibleLineTo), onUnrecognizedChar.bind(lineNumber));
+					pageLineAppendChars( pageLine, page.x, page.width, page.xOffset, regLinesplit.matched(1), glyphStyle, addRemoveGlyphes && (page.visibleLineFrom <= lineNumber && lineNumber < page.visibleLineTo), (onUnrecognizedChar==null) ? null : onUnrecognizedChar.bind(lineNumber));
 					pageTextWidthAfterExpand(page, pageLine);
 					
 					// cutting off all after lineNumber
