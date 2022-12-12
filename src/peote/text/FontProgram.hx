@@ -1786,18 +1786,33 @@ class $className extends peote.view.Program
 		}
 	}
 	
-	public function pageLineGetCharAtPosition(pageLine:$pageLineType, x:Float, size:Float, offset:Float, xPosition:Float):Int
+	public function pageLineGetCharAtPosition(pageLine:$pageLineType, x:Float, size:Float, offset:Float, xPosition:Float, intoVisibleRange:Bool = true):Int
 	{
-		//if (xPosition <= x) return 0;
-		if (xPosition <= x) return pageLine.visibleFrom;
-		else if (xPosition >= x + size) return pageLine.visibleTo;
+		if (xPosition <= x + ((intoVisibleRange) ? 0 : offset)) return (intoVisibleRange) ? pageLine.visibleFrom : 0;
+		else if (xPosition >= x + ((intoVisibleRange) ? size : offset + pageLine.textSize)) return (intoVisibleRange) ? pageLine.visibleTo : pageLine.length;
 		else 
 		{
 			${switch (glyphStyleHasMeta.packed || glyphStyleHasField.local_width || glyphStyleHasField.local_letterSpace)
 			{
 				case true: macro
 				{
-					// TODO: binary search to optimze
+					// binary search
+					if (pageLine.length == 0 || xPosition <= pageLine.getGlyph(0).x) return 0;
+					else {
+						var from:Int = (intoVisibleRange) ? pageLine.visibleFrom : 0;
+						var to:Int = (intoVisibleRange) ? pageLine.visibleTo : pageLine.length;
+					
+						while (from+1 < to)
+							if (xPosition > pageLine.getGlyph(from + ((to-from) >> 1)).x) from = from + ((to-from) >> 1);
+							else to = from + ((to-from) >> 1);
+						
+						var left_glyph = pageLine.getGlyph(from);
+						var chardata = getCharData(left_glyph.char);
+						
+						if ( xPosition < (leftGlyphPos(left_glyph, chardata) + rightGlyphPos(left_glyph, chardata)) / 2) return from;
+						else return to;						
+					}
+					/*
 					var i:Int = pageLine.visibleFrom;
 					while (i < pageLine.visibleTo && xPosition > pageLine.getGlyph(i).x) i++;
 					if (i == 0) return 0;
@@ -1805,6 +1820,7 @@ class $className extends peote.view.Program
 					var chardata = getCharData(left_glyph.char);
 					if ( xPosition < (leftGlyphPos(left_glyph, chardata) + rightGlyphPos(left_glyph, chardata)) / 2) return i-1;
 					else return i;
+					*/
 				}
 				default: switch (glyphStyleHasField.width) {
 					case true: macro return Math.round((xPosition - x - offset + letterSpace(null)/2)/(fontStyle.width + letterSpace(null)));
@@ -2116,14 +2132,14 @@ class $className extends peote.view.Program
 	}
 					
 	/**
-		Returns the index of the nearest visible char at a given x pixel-value.
+		Returns the index of the char where to place the cursor at a given x pixel-position.
 		This function can be used to pick a char by mouse-position.
 		@param line the Line instance
 		@param xPosition x pixel-value at where to pick the nearest char
 	**/
-	public inline function lineGetCharAtPosition(line:$lineType, xPosition:Float):Int
+	public inline function lineGetCharAtPosition(line:$lineType, xPosition:Float, intoVisibleRange:Bool = true):Int
 	{
-		return pageLineGetCharAtPosition(line.pageLine, line.x, line.size, line.offset, xPosition);
+		return pageLineGetCharAtPosition(line.pageLine, line.x, line.size, line.offset, xPosition, intoVisibleRange);
 	}
 		
 
