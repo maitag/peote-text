@@ -4,5 +4,6 @@ package peote.text.util;
 	var packed:Bool;
 	var multiSlot:Bool;
 	var multiTexture:Bool;
+	var globalLineSpace:Bool;
 	public function new() {}
 }

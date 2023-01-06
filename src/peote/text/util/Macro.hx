@@ -149,6 +149,7 @@ class Macro
 					case "packed": glyphStyleHasMeta.packed = true;
 					case "multiSlot":   glyphStyleHasMeta.multiSlot = true;
 					case "multiTexture": glyphStyleHasMeta.multiTexture = true;
+					//case "globalLineSpace": glyphStyleHasMeta.globalLineSpace = true; // <-- // TODO: maybe easier and only pageSetLineMetric()
 					default:
 				}
 			}

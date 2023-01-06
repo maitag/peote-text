@@ -1083,6 +1083,7 @@ class $className extends peote.view.Program
 		pageLine.getGlyph(from).setStyle(glyphStyle); // OPTIMIZE: pageLine.getGlyph()
 		var charData = getCharData(pageLine.getGlyph(from).char);
 		
+		// TODO: also for the other pageLine insertion functions + AUTOLINEHEIGHT.SHRINK/ENLARGE
 		// new line-metric for higher or smaller gylphstyle
 		var baseLineOffset:Float = _baseLineOffset(pageLine.base, pageLine.getGlyph(from), charData);
 		if (baseLineOffset < 0) { // new glyphStyle is higher
@@ -2694,6 +2695,7 @@ class $className extends peote.view.Program
 	
 	
 	// ------------ position, size and offset -------------------
+	
 	public function pageSetPosition(page:Page<$styleType>, x:Float, y:Float, ?xOffset:Null<Float>, ?yOffset:Null<Float>, addRemoveGlyphes:Bool = true) {
 		page.updateLineFrom = 0;
 		page.updateLineTo = page.length;		
@@ -2843,7 +2845,75 @@ class $className extends peote.view.Program
 		page.visibleLineTo = visibleLineTo;
 	}
 	
+	// ------------- to set cursor --------------------
+	
+	public inline function pageGetPositionAtChar(page:Page<$styleType>, pageLine:PageLine<$styleType>, position:Int):Float
+	{
+		return pageLineGetPositionAtChar(pageLine, page.x, page.xOffset, position);
+	}
+					
+	public inline function pageGetPositionAtLine(page:Page<$styleType>, lineNumber:Int):Float
+	{
+		return page.getPageLine(lineNumber).y;
+	}
+					
+	public inline function pageGetCharAtPosition(page:Page<$styleType>, pageLine:PageLine<$styleType>, xPosition:Float, intoVisibleRange:Bool = true):Int
+	{
+		return pageLineGetCharAtPosition(pageLine, page.x, page.width, page.xOffset, xPosition, intoVisibleRange);
+	}
 
+	public function pageGetLineAtPosition(page:Page<$styleType>, yPosition:Float, intoVisibleRange:Bool = true):Int
+	{
+		if (yPosition <= page.y + ((intoVisibleRange) ? 0 : page.yOffset)) return (intoVisibleRange) ? page.visibleLineFrom : 0;
+		else if (yPosition >= page.y + ((intoVisibleRange) ? page.height : page.yOffset + page.textHeight)) return (intoVisibleRange) ? page.visibleLineTo : page.length;
+		else 
+		{
+			//${switch (glyphStyleHasMeta.packed || glyphStyleHasField.local_width || glyphStyleHasField.local_letterSpace)
+			${switch (glyphStyleHasField.local_height) // TODO:  || glyphStyleHasField.local_lineSpace
+			{
+				case true: macro
+				{
+					// binary search
+					if (page.length == 0 || yPosition <= page.getPageLine(0).y) return 0;
+					else {
+						var from:Int = (intoVisibleRange) ? page.visibleLineFrom : 0;
+						var to:Int = (intoVisibleRange) ? page.visibleLineTo : page.length;
+					
+						while (from+1 < to)
+							if (yPosition > page.getPageLine(from + ((to-from) >> 1)).y) from = from + ((to-from) >> 1);
+							else to = from + ((to-from) >> 1);
+						
+						return from;
+					}
+					/*
+					var i:Int = pageLine.visibleFrom;
+					while (i < pageLine.visibleTo && xPosition > pageLine.getGlyph(i).x) i++;
+					if (i == 0) return 0;
+					var left_glyph = pageLine.getGlyph(i - 1);
+					var chardata = getCharData(left_glyph.char);
+					if ( xPosition < (leftGlyphPos(left_glyph, chardata) + rightGlyphPos(left_glyph, chardata)) / 2) return i-1;
+					else return i;
+					*/
+				}
+				default: switch (glyphStyleHasField.width) {
+					case true: macro return Math.round((yPosition - y - page.yOffset) / (fontStyle.height));
+					// TODO: maybe better only setLineMetric() for all pageLines
+					// TODO: case true: macro return Math.round((yPosition - y - page.yOffset + lineSpace(null)/2)/(fontStyle.height + lineSpace(null)));
+					default: macro return Math.round((yPosition - y - page.yOffset)/(font.config.height));
+					// TODO: default: macro return Math.round((yPosition - y - page.yOffset + lineSpace(null)/2)/(font.config.height + lineSpace(null))); 
+				}
+			}}
+		}
+	}
+
+	// TODO: maybe better only setLineMetric()
+	//public function pageSetLineSpace(page:Page<$styleType>, lineSpace:Float, fromLine:Int = 0, toLine:Null<Int> = null, addRemoveGlyphes:Bool = true)
+	//{
+		//
+	//}
+	
+	
+	
 	public inline function pageInsertLine(page:Page<$styleType>, lineNumber:Int, chars:String, glyphStyle:$styleType = null)
 	{
 		

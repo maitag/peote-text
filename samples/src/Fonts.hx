@@ -46,8 +46,8 @@ class Fonts extends Application
 		// --------------------------------------------------------
 		
 		var packedFonts = [
-			{ name: "hack",    y:  30, range: null },
-			{ name: "unifont", y:  80, range: [new Range(0x0000,0x0fff)] }
+			{ name: "hack",    y:  10, range: null },
+			{ name: "unifont", y:  100, range: [new Range(0x0000,0x0fff)] }
 		];
 
 		for (f in packedFonts) 
@@ -102,9 +102,9 @@ class Fonts extends Application
 		// --------------------------------------------------------
 		
 		var tiledFonts = [
-			{ name: "hack_ascii",       y:  160, range: null },
-			{ name: "liberation_ascii", y:  240, range: null },
-			{ name: "peote",            y:  310, range: null }
+			{ name: "hack_ascii",       y:  200, range: null },
+			{ name: "liberation_ascii", y:  300, range: null },
+			{ name: "peote",            y:  400, range: null }
 		];
 		
 		for (f in tiledFonts) 

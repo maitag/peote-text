@@ -83,6 +83,23 @@ class $className
 // -------------------------------------------------------------------------------------------
 // -------------------------------------------------------------------------------------------
 			
+			// ------------- add fields depending on font-type and style ------------------
+/*			
+			if (glyphStyleHasMeta.globalLineSpace) // <-- // TODO: maybe easier and only pageSetLineMetric()
+			{
+				// TODO: add only if @globalLineSpace at glyphstyle	
+				c.fields.push({
+					name: "lineSpace",
+					meta: [{name:":allow", params:[macro peote.text], pos:Context.currentPos()}],
+					access: [Access.APublic],
+					kind: FieldType.FProp("default", "null", macro:Float, macro 0.0),
+					//kind: FieldType.FVar(macro:Float, macro 0.0),
+					pos: Context.currentPos(),
+				});
+			}
+*/			
+			
+			
 			Context.defineModule(classPackage.concat([className]).join('.'),[c]);
 		}
 		return TPath({ pack:classPackage, name:className, params:[] });

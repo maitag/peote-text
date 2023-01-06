@@ -49,9 +49,6 @@ class $className
 	// TODO: optimize for neko/hl/cpp
 	@:allow(peote.text) var glyphes = new Array<$glyphType>();
 	
-	// TODO: wordwrapping
-	// var wordwrapAt:Array<Int> = null;
-	
 	public inline function getGlyph(i:Int):$glyphType return glyphes[i];
 	@:allow(peote.text) inline function setGlyph(i:Int, glyph:$glyphType) glyphes[i] = glyph;
 	@:allow(peote.text) inline function pushGlyph(glyph:$glyphType) glyphes.push(glyph);
@@ -78,6 +75,19 @@ class $className
 			
 // -------------------------------------------------------------------------------------------
 // -------------------------------------------------------------------------------------------
+			
+			// ------------- add fields depending on font-type and style ------------------
+/*			
+			if (glyphStyleHasMeta.globalLineSpace) // <-- // TODO: maybe easier and only pageSetLineMetric()
+			{
+			
+				// TODO: add only if NOT @globalLineSpace at glyphstyle
+				// var lineSpace:Float = 0.0
+			}
+*/			
+			// TODO: wordwrapping
+			// var wordwrapAt:Array<Int> = null;
+			
 			
 			Context.defineModule(classPackage.concat([className]).join('.'),[c]);
 		}
