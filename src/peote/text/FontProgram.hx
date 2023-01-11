@@ -1803,10 +1803,12 @@ class $className extends peote.view.Program
 						var from:Int = (intoVisibleRange) ? pageLine.visibleFrom : 0;
 						var to:Int = (intoVisibleRange) ? pageLine.visibleTo : pageLine.length;
 					
+						if (from >= to) return pageLine.length;
+						
 						while (from+1 < to)
 							if (xPosition > pageLine.getGlyph(from + ((to-from) >> 1)).x) from = from + ((to-from) >> 1);
 							else to = from + ((to-from) >> 1);
-						
+
 						var left_glyph = pageLine.getGlyph(from);
 						var chardata = getCharData(left_glyph.char);
 						
