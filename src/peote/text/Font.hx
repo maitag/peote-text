@@ -368,7 +368,7 @@ class $className
 				//trace(' loading G3Font-Images progress ' + Std.int(loaded / size * 100) + "%" , " ("+loaded+" / "+size+")");
 				if (onProgressOverall != null) onProgressOverall(loaded, size);
 			},
-			function(index:Int, image:peote.view.PeoteGL.Image) { // after every image is loaded
+			function(index:Int, image:lime.graphics.Image) { // after every image is loaded
 				//trace('File number $index loaded completely.');
 				
 				${switch (glyphStyleHasMeta.packed)
@@ -480,7 +480,7 @@ class $className
 				}}	
 					
 			},
-			function(images:Array<peote.view.PeoteGL.Image>) { // after all images is loaded
+			function(images:Array<lime.graphics.Image>) { // after all images is loaded
 				//trace(' --- all images loaded ---');
 				onLoad(this);
 			}

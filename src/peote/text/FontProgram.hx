@@ -1,4 +1,5 @@
 package peote.text;
+import peote.text.PageLine;
 
 #if !macro
 @:genericBuild(peote.text.FontProgram.FontProgramMacro.build("FontProgram"))
@@ -2485,7 +2486,7 @@ class $className extends peote.view.Program
 				}
 				else 
 				{	// trace("multiple lines to insert");					
-					// cutting only glyph-array
+					// cutting restchars from line where to insert
 					var restChars = pageLine.splice(position, pageLine.length - position);
 					var oldFrom:Int = 0;
 					var oldTo:Int = 0;
@@ -2685,14 +2686,172 @@ class $className extends peote.view.Program
 		}
 	}
 	
+// ---------- TODO
+	
 	public inline function pageGetChars(page:Page<$styleType>, fromLine:Int = 0, fromChar:Int = 0, ?toLine:Null<Int>, ?toChar:Null<Int>):String
 	{
 		//pageLineGetChars(pageLine, from, to);
 		return "";
 	}
 	
+/*	public inline function pageCutChars(page:Page<$styleType>, fromLine:Int = 0, fromChar:Int = 0, ?toLine:Null<Int>, ?toChar:Null<Int>):String {
+		
+		return "";
+	}
+	
+	public inline function pageDeleteChars(page:Page<$styleType>, fromLine:Int = 0, fromChar:Int = 0, ?toLine:Null<Int>, ?toChar:Null<Int>) {
+		
+	}
+
+	public inline function pageSetChars(page:Page<$styleType>, chars:String, fromLine:Int = 0, fromChar:Int = 0, ?toLine:Null<Int>, ?toChar:Null<Int>) {
+		
+	}
+	
+	public inline function pageReplaceChars(page:Page<$styleType>, chars:String, fromLine:Int = 0, fromChar:Int = 0, ?toLine:Null<Int>, ?toChar:Null<Int>) {
+		
+	}
+*/	
+	public function pageAddLinefeedAt(page:Page<$styleType>, ?pageLine:PageLine<$styleType>, lineNumber:Int, position:Int = 0, ?glyphStyle:$styleType, ?defaultFontRange:Null<Int>, addRemoveGlyphes:Bool = true)
+	{
+		if (pageLine == null) pageLine = page.getPageLine(lineNumber);
+		if (position == 0) pageNewLinefeed(page, lineNumber, false, glyphStyle, defaultFontRange);
+		else if (position == pageLine.length) pageNewLinefeed(page, lineNumber, glyphStyle, defaultFontRange);
+		else {
+			trace("pageAddLinefeedAt");
+			// TODO: manually here!
+			// 1 - cut and store glyphes at position
+			// 2 - pageAddLinefeed(page, lineNumber, glyphStyle, defaultFontRange);
+			// 3 - remove stored glyphes at new position			
+			pageInsertChars(page, "\n", lineNumber, position, glyphStyle, defaultFontRange, addRemoveGlyphes);
+			// TODO: copy from insert here and remove all what not need!
+		}
+	}
+
+	public inline function pageNewLinefeed(page:Page<$styleType>, lineNumber:Int, afterLine:Bool = true, ?glyphStyle:$styleType, ?defaultFontRange:Null<Int>, addRemoveGlyphes:Bool = true)
+	{
+		if (afterLine) lineNumber++;
+		
+		if (lineNumber < 0) lineNumber = 0;
+		else if (lineNumber > page.length) lineNumber = page.length;
+		
+		trace("new Linefeed after", lineNumber);
+		// TODO: manually move all down and starting by lineNumber
+
+		pageInsertChars(page, "\n", lineNumber, 0, glyphStyle, defaultFontRange, addRemoveGlyphes);
+	}
+	
+	public inline function pageRemoveLinefeed(page:Page<$styleType>, ?pageLine:PageLine<$styleType>, lineNumber:Int, addRemoveGlyphes:Bool = true)
+	{
+		if (lineNumber >= page.length-1) return;
+		
+		trace("pageRemoveLinefeed");
+		if (pageLine == null) pageLine = page.getPageLine(lineNumber);
+		var nextLine = page.getPageLine(lineNumber+1);
+		
+		if (pageLine.length == 0) // if pageLine is empty
+		{
+			_pageDeleteLine(page, pageLine.y, lineNumber, addRemoveGlyphes);
+		}
+		else if (nextLine.length == 0) // if nextLine is empty
+		{
+			_pageDeleteLine(page, nextLine.y, lineNumber+1, addRemoveGlyphes);
+		}
+		else 
+		{
+			var glyph = pageLine.getGlyph(pageLine.length - 1);
+					
+			var nextGlyph = nextLine.getGlyph(0);
+			var nextCharData = getCharData(nextGlyph.char);
+			
+			var xOff = rightGlyphPos(glyph, getCharData(glyph.char)) - page.x;
+			var kerningOff = kerningSpaceOffset(glyph, nextGlyph, nextCharData);
+
+			var nextLineY = nextLine.y;
+			
+			// move all glyphes of nextLine to upper pageLine
+			pageLineSetPosition(nextLine, page.x, page.width, page.xOffset, page.x,
+				pageLine.y + _baseLineOffset(pageLine.base, nextGlyph, nextCharData), page.xOffset + xOff + kerningOff, addRemoveGlyphes);
+			
+			//trace("pageLine", pageLine.visibleFrom, pageLine.visibleTo, "nextLine", nextLine.visibleFrom, nextLine.visibleTo );
+			if (nextLine.visibleFrom < nextLine.visibleTo) {
+				if (nextLine.visibleFrom > 0) pageLine.visibleFrom = pageLine.length + nextLine.visibleFrom;
+				//else if (pageLine.visibleFrom > pageLine.length) pageLine.visibleFrom = pageLine.length
+				pageLine.visibleTo = pageLine.length + nextLine.visibleTo;
+			}
+			//trace("new visible from/to", pageLine.visibleFrom, pageLine.visibleTo );
+
+			pageLine.textSize += nextLine.textSize + kerningOff;
+			
+			if (pageLine.length < pageLine.updateFrom) pageLine.updateFrom = pageLine.length;
+			for (glyph in nextLine.glyphes) pageLine.pushGlyph(glyph); // push glyphes of nextLine to pageLine
+			pageLine.updateTo = pageLine.length;
+			
+			trace("new pageLine update from/to", pageLine.updateFrom, pageLine.updateTo );
+			
+			if (lineNumber < page.updateLineFrom) page.updateLineFrom = lineNumber;
+			_pageDeleteLine(page, nextLineY, lineNumber + 1, addRemoveGlyphes);				
+		}		
+		
+	}
 	
 	
+	public inline function _pageDeleteLine(page:Page<$styleType>, pageLineY:Float, lineNumber:Int, addRemoveGlyphes:Bool = true) 
+	{
+		page.spliceLines(lineNumber, 1); // delete & fix page.visibleLineFrom and page.visibleLineTo
+		if (page.visibleLineFrom > lineNumber) page.visibleLineFrom--;
+		if (page.visibleLineTo > lineNumber) page.visibleLineTo--;
+		
+		if (lineNumber < page.length) {
+			_pageMoveLinesUp(page, lineNumber, pageLineY - page.getPageLine(lineNumber).y, addRemoveGlyphes);
+		}
+		
+		if (lineNumber < page.updateLineFrom) page.updateLineFrom = lineNumber;
+		page.updateLineTo = page.length;		
+	}
+	
+	public inline function _pageMoveLinesUp(page:Page<$styleType>, fromLine:Int, yOffset:Float, addRemoveGlyphes:Bool = true) 
+	{
+		var visibleLineFrom = page.visibleLineFrom;
+		var visibleLineTo = page.visibleLineTo;
+		
+		for (i in fromLine...page.length)
+		{
+			var pageLine = page.getPageLine(i);
+			
+			pageLineSetYPosition(pageLine, page.x, page.width, page.xOffset, pageLine.y + yOffset, null, 
+				addRemoveGlyphes && (page.visibleLineFrom <= i && i < page.visibleLineTo));
+			
+			// add or remove if inside visible area
+			if (pageLine.y + pageLine.lineHeight >= page.y)
+			{	
+				if (pageLine.y < page.y + page.height) {
+					if (i < page.visibleLineFrom || i >= page.visibleLineTo) {
+						if (addRemoveGlyphes) pageLineAdd(pageLine);
+						if (visibleLineFrom > i) visibleLineFrom = i;
+						if (visibleLineTo < i + 1) visibleLineTo = i + 1;
+					}
+				} 
+				else {
+					if (addRemoveGlyphes && i >= page.visibleLineFrom && i < page.visibleLineTo) pageLineRemove(pageLine);
+					if (visibleLineTo > i) visibleLineTo = i;
+				}
+			}
+			else {
+				if (addRemoveGlyphes && i >= page.visibleLineFrom && i < page.visibleLineTo) pageLineRemove(pageLine);
+				visibleLineFrom = i + 1;
+			}
+		}
+		
+		page.visibleLineFrom = visibleLineFrom;
+		page.visibleLineTo = visibleLineTo;	
+	}
+	
+/*	public inline function pageDeleteLines(page:Page<$styleType>, fromLineNumber:Int, toLineNumber:Int) {
+		
+	}
+*/	
+	
+// ------------------	
 	
 	
 	
@@ -2846,6 +3005,30 @@ class $className extends peote.view.Program
 		page.visibleLineFrom = visibleLineFrom;
 		page.visibleLineTo = visibleLineTo;
 	}
+		
+	
+	public function pageUpdate(page:Page<$styleType>, fromLine:Null<Int> = null, toLine:Null<Int> = null)
+	{
+		if (fromLine != null) page.updateLineFrom = fromLine;
+		if (toLine != null) page.updateLineTo = toLine;
+		
+		//trace("visibleLine: " + page.visibleLineFrom+ "-" +page.visibleLineTo);
+		//trace("updateLine : " +  page.updateLineFrom + "-" +page.updateLineTo);
+		
+		if (page.updateLineTo > 0 )
+		{
+			if (page.visibleLineFrom > page.updateLineFrom) page.updateLineFrom = page.visibleLineFrom;
+			if (page.visibleLineTo < page.updateLineTo) page.updateLineTo = page.visibleLineTo;
+			//trace("update from Line " + page.updateLineFrom + " to " +page.updateLineTo);
+			
+			for (i in page.updateLineFrom...page.updateLineTo) pageLineUpdate(page.getPageLine(i));
+
+			page.updateLineFrom = 0x1000000;
+			page.updateLineTo = 0;
+		} 
+		//else trace("nothing to update");
+
+	}
 	
 	// ------------- to set cursor --------------------
 	
@@ -2853,17 +3036,17 @@ class $className extends peote.view.Program
 	{
 		return pageLineGetPositionAtChar(pageLine, page.x, page.xOffset, position);
 	}
+	
+	public inline function pageGetCharAtPosition(page:Page<$styleType>, pageLine:PageLine<$styleType>, xPosition:Float, intoVisibleRange:Bool = true):Int
+	{
+		return pageLineGetCharAtPosition(pageLine, page.x, page.width, page.xOffset, xPosition, intoVisibleRange);
+	}
 					
 	public inline function pageGetPositionAtLine(page:Page<$styleType>, lineNumber:Int):Float
 	{
 		return page.getPageLine(lineNumber).y;
 	}
 					
-	public inline function pageGetCharAtPosition(page:Page<$styleType>, pageLine:PageLine<$styleType>, xPosition:Float, intoVisibleRange:Bool = true):Int
-	{
-		return pageLineGetCharAtPosition(pageLine, page.x, page.width, page.xOffset, xPosition, intoVisibleRange);
-	}
-
 	public function pageGetLineAtPosition(page:Page<$styleType>, yPosition:Float, intoVisibleRange:Bool = true):Int
 	{
 		if (yPosition <= page.y + ((intoVisibleRange) ? 0 : page.yOffset)) return (intoVisibleRange) ? page.visibleLineFrom : 0;
@@ -2908,53 +3091,6 @@ class $className extends peote.view.Program
 		}
 	}
 
-	// TODO: maybe better only setLineMetric()
-	//public function pageSetLineSpace(page:Page<$styleType>, lineSpace:Float, fromLine:Int = 0, toLine:Null<Int> = null, addRemoveGlyphes:Bool = true)
-	//{
-		//
-	//}
-	
-	
-	
-	public inline function pageInsertLine(page:Page<$styleType>, lineNumber:Int, chars:String, glyphStyle:$styleType = null)
-	{
-		
-	}
-
-	//public inline function pageAppendLine
-
-	public inline function pageDeleteLine(page:Page<$styleType>, lineNumber:Int)
-	{
-		
-	}
-
-	public inline function pageSetLine(page:Page<$styleType>, lineNumber:Int, chars:String, glyphStyle:$styleType = null)
-	{
-		
-	}
-	
-	public function pageUpdate(page:Page<$styleType>, fromLine:Null<Int> = null, toLine:Null<Int> = null)
-	{
-		if (fromLine != null) page.updateLineFrom = fromLine;
-		if (toLine != null) page.updateLineTo = toLine;
-		
-		//trace("visibleLine: " + page.visibleLineFrom+ "-" +page.visibleLineTo);
-		//trace("updateLine : " +  page.updateLineFrom + "-" +page.updateLineTo);
-		
-		if (page.updateLineTo > 0 )
-		{
-			if (page.visibleLineFrom > page.updateLineFrom) page.updateLineFrom = page.visibleLineFrom;
-			if (page.visibleLineTo < page.updateLineTo) page.updateLineTo = page.visibleLineTo;
-			//trace("update from Line " + page.updateLineFrom + " to " +page.updateLineTo);
-			
-			for (i in page.updateLineFrom...page.updateLineTo) pageLineUpdate(page.getPageLine(i));
-
-			page.updateLineFrom = 0x1000000;
-			page.updateLineTo = 0;
-		} 
-		//else trace("nothing to update");
-
-	}
 	
 	
 }
