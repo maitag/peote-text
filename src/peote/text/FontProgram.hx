@@ -2487,6 +2487,7 @@ class $className extends peote.view.Program
 				else 
 				{	// trace("multiple lines to insert");					
 					// cutting restchars from line where to insert
+					var wasLongestLine = pageIsLongestLine(page, pageLine);
 					var restChars = pageLine.splice(position, pageLine.length - position);
 					var oldFrom:Int = 0;
 					var oldTo:Int = 0;
@@ -2501,8 +2502,18 @@ class $className extends peote.view.Program
 					var oldLineFrom = page.visibleLineFrom;
 					var oldLineTo = page.visibleLineTo;
 					
+// TODO:					
+					var restCharsSize = pageLine.textSize;
+					pageLine.textSize = (position == 0) ? 0 : rightGlyphPos(pageLine.getGlyph(position - 1), getCharData(pageLine.getGlyph(position - 1).char)) - page.x - page.xOffset;
+					restCharsSize = restCharsSize - pageLine.textSize;
+					
 					pageLineAppendChars( pageLine, page.x, page.width, page.xOffset, regLinesplit.matched(1), glyphStyle, addRemoveGlyphes && (page.visibleLineFrom <= lineNumber && lineNumber < page.visibleLineTo), (onUnrecognizedChar==null) ? null : onUnrecognizedChar.bind(lineNumber));
-					pageTextWidthAfterExpand(page, pageLine);
+// CHECK:					
+					if (wasLongestLine) {
+						if (pageLine.textSize < page.textWidth) pageTextWidthAfterDelete(page);
+						else pageTextWidthAfterExpand(page, pageLine);
+					}
+					else pageTextWidthAfterExpand(page, pageLine);
 					
 					// cutting off all after lineNumber
 					var restLines:Array<PageLine<$styleType>> = page.spliceLines(lineNumber+1, page.length - (lineNumber+1));
@@ -2580,6 +2591,8 @@ class $className extends peote.view.Program
 						
 						if (page.length-1 < page.updateLineFrom) page.updateLineFrom = page.length-1;
 						if (page.length > page.updateLineTo) page.updateLineTo = page.length;
+//CHECK					
+						pageLine.textSize += restCharsSize;
 						pageTextWidthAfterExpand(page, pageLine);
 					}
 						
@@ -2781,7 +2794,8 @@ class $className extends peote.view.Program
 			trace("new pageLine update from/to", pageLine.updateFrom, pageLine.updateTo );
 			
 			if (lineNumber < page.updateLineFrom) page.updateLineFrom = lineNumber;
-			_pageDeleteLine(page, nextLineY, lineNumber + 1, addRemoveGlyphes);				
+			_pageDeleteLine(page, nextLineY, lineNumber + 1, addRemoveGlyphes);
+			pageTextWidthAfterExpand(page, pageLine);
 		}		
 		
 	}
@@ -2789,13 +2803,13 @@ class $className extends peote.view.Program
 	public inline function pageDeleteChar(page:Page<$styleType>, ?pageLine:PageLine<$styleType>, lineNumber:Int, position:Int, addRemoveGlyphes:Bool = true) {
 		if (pageLine == null) pageLine = page.getPageLine(lineNumber);
 		if (position < pageLine.length) {
-			var isLongestLine = pageIsLongestLine(page, pageLine);
+			var wasLongestLine = pageIsLongestLine(page, pageLine);
 			
 			pageLineDeleteChar(pageLine, page.x, page.width, page.xOffset, position, addRemoveGlyphes);
 			if (lineNumber < page.updateLineFrom) page.updateLineFrom = lineNumber;
 			if (lineNumber >= page.updateLineTo) page.updateLineTo = lineNumber + 1;
 			
-			if (isLongestLine) pageTextWidthAfterShrink(page, pageLine);
+			if (wasLongestLine) pageTextWidthAfterDelete(page);
 		}
 		else pageRemoveLinefeed(page, pageLine, lineNumber, addRemoveGlyphes); // last position into line
 	}
