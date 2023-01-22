@@ -2470,7 +2470,7 @@ class $className extends peote.view.Program
 	{
 		chars += "\n";
 		var offset:Float = 0.0;
-		
+		//trace("pageInsertChars", lineNumber);
 		if (page.length > 0 && lineNumber < page.length)
 		{
 			if ( regLinesplit.match(chars) ) 
@@ -2485,7 +2485,7 @@ class $className extends peote.view.Program
 					pageTextWidthAfterExpand(page, pageLine);
 				}
 				else 
-				{	// trace("multiple lines to insert");					
+				{	//trace("multiple lines to insert");					
 					// cutting restchars from line where to insert
 					var wasLongestLine = pageIsLongestLine(page, pageLine);
 					var restChars = pageLine.splice(position, pageLine.length - position);
@@ -2651,6 +2651,7 @@ class $className extends peote.view.Program
 			}
 		}
 		else {
+			//trace("only appending chars");
 			offset = _pageAppendChars(page, chars, page.length, page.y + page.textHeight, page.visibleLineFrom, page.visibleLineTo, glyphStyle, defaultFontRange, addRemoveGlyphes, onUnrecognizedChar);
 			page.updateLineFrom = 0;
 			page.updateLineTo = page.length;
@@ -2727,29 +2728,31 @@ class $className extends peote.view.Program
 		if (position == 0) pageNewLinefeed(page, lineNumber, false, glyphStyle, defaultFontRange);
 		else if (position == pageLine.length) pageNewLinefeed(page, lineNumber, glyphStyle, defaultFontRange);
 		else {
-			trace("pageAddLinefeedAt");
+			//trace("pageAddLinefeedAt");
 			// TODO: optimizing LATER (same as insert pageInsertChars but remove all what not need!)
 			pageInsertChars(page, "\n", lineNumber, position, glyphStyle, defaultFontRange, addRemoveGlyphes);
 		}
 	}
 
-	public inline function pageNewLinefeed(page:Page<$styleType>, lineNumber:Int, afterLine:Bool = true, ?glyphStyle:$styleType, ?defaultFontRange:Null<Int>, addRemoveGlyphes:Bool = true)
+	public inline function pageNewLinefeed(page:Page<$styleType>, ?pageLine:PageLine<$styleType>, lineNumber:Int, afterLine:Bool = true, ?glyphStyle:$styleType, ?defaultFontRange:Null<Int>, addRemoveGlyphes:Bool = true)
 	{
-		trace("pageNewLinefeed", lineNumber, afterLine);
-		if (afterLine) lineNumber++;
+		//trace("pageNewLinefeed", lineNumber, afterLine);
+		if (pageLine == null) pageLine = page.getPageLine(lineNumber);
+/*		if (afterLine) lineNumber++;
 		
 		if (lineNumber < 0) lineNumber = 0;
 		else if (lineNumber > page.length) lineNumber = page.length;
-		
+*/		
 		// TODO: optimizing LATER ( same as into pageRemoveLinefeed )
-		pageInsertChars(page, "\n", lineNumber, 0, glyphStyle, defaultFontRange, addRemoveGlyphes);
+		if (afterLine) pageInsertChars(page, "\n", lineNumber, pageLine.length, glyphStyle, defaultFontRange, addRemoveGlyphes);
+		else pageInsertChars(page, "\n", lineNumber, 0, glyphStyle, defaultFontRange, addRemoveGlyphes);
 	}
 	
 	public inline function pageRemoveLinefeed(page:Page<$styleType>, ?pageLine:PageLine<$styleType>, lineNumber:Int, addRemoveGlyphes:Bool = true)
 	{
 		if (lineNumber >= page.length-1) return;
 		
-		trace("pageRemoveLinefeed");
+		//trace("pageRemoveLinefeed");
 		if (pageLine == null) pageLine = page.getPageLine(lineNumber);
 		var nextLine = page.getPageLine(lineNumber+1);
 		
@@ -2791,7 +2794,7 @@ class $className extends peote.view.Program
 			for (glyph in nextLine.glyphes) pageLine.pushGlyph(glyph); // push glyphes of nextLine to pageLine
 			pageLine.updateTo = pageLine.length;
 			
-			trace("new pageLine update from/to", pageLine.updateFrom, pageLine.updateTo );
+			//trace("new pageLine update from/to", pageLine.updateFrom, pageLine.updateTo );
 			
 			if (lineNumber < page.updateLineFrom) page.updateLineFrom = lineNumber;
 			_pageDeleteLine(page, nextLineY, lineNumber + 1, addRemoveGlyphes);
@@ -2836,9 +2839,10 @@ class $className extends peote.view.Program
 		if (page.visibleLineFrom > lineNumber) page.visibleLineFrom--;
 		if (page.visibleLineTo > lineNumber) page.visibleLineTo--;
 		
-		if (lineNumber < page.length) {
-			_pageMoveLinesUp(page, lineNumber, pageLineY - page.getPageLine(lineNumber).y, addRemoveGlyphes);
-		}
+		//if (lineNumber < page.length) {
+			//_pageMoveLinesUp(page, lineNumber, pageLineY - page.getPageLine(lineNumber).y, addRemoveGlyphes);
+			_pageMoveLinesUp(page, lineNumber, pageLineY, addRemoveGlyphes);
+		//}
 		
 		if (lineNumber < page.updateLineFrom) page.updateLineFrom = lineNumber;
 		page.updateLineTo = page.length;		
@@ -2857,49 +2861,60 @@ class $className extends peote.view.Program
 			else page.visibleLineTo -= n;
 		}
 		
-		if (fromLine < page.length) {
-			_pageMoveLinesUp(page, fromLine, pageLineY - page.getPageLine(fromLine).y, addRemoveGlyphes);
-		}
+		//if (fromLine < page.length) {
+			//_pageMoveLinesUp(page, fromLine, pageLineY - page.getPageLine(fromLine).y, addRemoveGlyphes);
+			_pageMoveLinesUp(page, fromLine, pageLineY, addRemoveGlyphes);
+		//}
 		
 		if (fromLine < page.updateLineFrom) page.updateLineFrom = fromLine;
 		page.updateLineTo = page.length;		
 	}
 	
-	inline function _pageMoveLinesUp(page:Page<$styleType>, fromLine:Int, yOffset:Float, addRemoveGlyphes:Bool = true) 
+	inline function _pageMoveLinesUp(page:Page<$styleType>, fromLine:Int, pageLineY:Float, addRemoveGlyphes:Bool = true) 
 	{
-		var visibleLineFrom = page.visibleLineFrom;
-		var visibleLineTo = page.visibleLineTo;
-		
-		for (i in fromLine...page.length)
+		if (fromLine < page.length)
 		{
-			var pageLine = page.getPageLine(i);
+			var yOffset = pageLineY - page.getPageLine(fromLine).y;
 			
-			pageLineSetYPosition(pageLine, page.x, page.width, page.xOffset, pageLine.y + yOffset, null, 
-				addRemoveGlyphes && (page.visibleLineFrom <= i && i < page.visibleLineTo));
+			var visibleLineFrom = page.visibleLineFrom;
+			var visibleLineTo = page.visibleLineTo;
 			
-			// add or remove if inside visible area
-			if (pageLine.y + pageLine.lineHeight >= page.y)
-			{	
-				if (pageLine.y < page.y + page.height) {
-					if (i < page.visibleLineFrom || i >= page.visibleLineTo) {
-						if (addRemoveGlyphes) pageLineAdd(pageLine);
-						if (visibleLineFrom > i) visibleLineFrom = i;
-						if (visibleLineTo < i + 1) visibleLineTo = i + 1;
+			for (i in fromLine...page.length)
+			{
+				var pageLine = page.getPageLine(i);
+				
+				pageLineSetYPosition(pageLine, page.x, page.width, page.xOffset, pageLine.y + yOffset, null, 
+					addRemoveGlyphes && (page.visibleLineFrom <= i && i < page.visibleLineTo));
+				
+				// add or remove if inside visible area
+				if (pageLine.y + pageLine.lineHeight >= page.y)
+				{	
+					if (pageLine.y < page.y + page.height) {
+						if (i < page.visibleLineFrom || i >= page.visibleLineTo) {
+							if (addRemoveGlyphes) pageLineAdd(pageLine);
+							if (visibleLineFrom > i) visibleLineFrom = i;
+							if (visibleLineTo < i + 1) visibleLineTo = i + 1;
+						}
+					} 
+					else {
+						if (addRemoveGlyphes && i >= page.visibleLineFrom && i < page.visibleLineTo) pageLineRemove(pageLine);
+						if (visibleLineTo > i) visibleLineTo = i;
 					}
-				} 
+				}
 				else {
 					if (addRemoveGlyphes && i >= page.visibleLineFrom && i < page.visibleLineTo) pageLineRemove(pageLine);
-					if (visibleLineTo > i) visibleLineTo = i;
+					visibleLineFrom = i + 1;
 				}
 			}
-			else {
-				if (addRemoveGlyphes && i >= page.visibleLineFrom && i < page.visibleLineTo) pageLineRemove(pageLine);
-				visibleLineFrom = i + 1;
-			}
+			
+			page.visibleLineFrom = visibleLineFrom;
+			page.visibleLineTo = visibleLineTo;
+			
+			page.textHeight += yOffset;
 		}
-		
-		page.visibleLineFrom = visibleLineFrom;
-		page.visibleLineTo = visibleLineTo;	
+		else {
+			page.textHeight = pageLineY - page.y - page.yOffset;
+		}
 	}
 	
 	
@@ -3071,7 +3086,7 @@ class $className extends peote.view.Program
 		{
 			if (page.visibleLineFrom > page.updateLineFrom) page.updateLineFrom = page.visibleLineFrom;
 			if (page.visibleLineTo < page.updateLineTo) page.updateLineTo = page.visibleLineTo;
-			trace("update from Line " + page.updateLineFrom + " to " +page.updateLineTo);
+			//trace("update from Line " + page.updateLineFrom + " to " +page.updateLineTo);
 			
 			for (i in page.updateLineFrom...page.updateLineTo) pageLineUpdate(page.getPageLine(i));
 
