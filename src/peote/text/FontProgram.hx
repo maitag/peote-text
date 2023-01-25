@@ -1776,7 +1776,7 @@ class $className extends peote.view.Program
 	
 	public function pageLineGetPositionAtChar(pageLine:$pageLineType, x:Float, offset:Float, position:Int):Float
 	{
-		if (position == 0) return x + offset;
+		if (position == 0 || pageLine.length == 0) return x + offset;
 		else if (position < pageLine.length) {
 			var right_glyph = pageLine.getGlyph(position);
 			var chardata = getCharData(right_glyph.char);
@@ -2635,14 +2635,14 @@ class $className extends peote.view.Program
 	// recalculate textSize if a new added pageLine is greater
 	public inline function pageTextWidthAfterExpand(page:Page<$styleType>, newSize:Float)
 	{
-		trace("pageTextWidthAfterExpand:",newSize, page.textWidth, (newSize > page.textWidth));
+		//trace("pageTextWidthAfterExpand:",newSize, page.textWidth, (newSize > page.textWidth));
 		if (newSize > page.textWidth) page.textWidth = newSize;
 	}
 	
 	// recalculate pages textSize if one of the longest pageLines was deleted
 	public inline function pageTextWidthAfterChange(page:Page<$styleType>, oldSize:Float, newSize:Float)
 	{
-		trace("pageTextWidthAfterChange:", oldSize, newSize, page.textWidth, (oldSize >= page.textWidth && newSize < page.textWidth));
+		//trace("pageTextWidthAfterChange:", oldSize, newSize, page.textWidth, (oldSize >= page.textWidth && newSize < page.textWidth));
 		if (oldSize >= page.textWidth && newSize < page.textWidth) {
 			// TODO: let make loop custom async later (timecritical!)
 			for (pageLine in page.pageLines) 
@@ -2653,7 +2653,7 @@ class $className extends peote.view.Program
 	
 	public inline function pageTextWidthAfterChangeMultiple(page:Page<$styleType>, fromLine:Int, toLine:Int, oldSize:Float, newSize:Float)
 	{
-		trace("pageTextWidthAfterChangeMultiple:", oldSize, newSize, page.textWidth, (oldSize >= page.textWidth && newSize < page.textWidth));
+		//trace("pageTextWidthAfterChangeMultiple:", oldSize, newSize, page.textWidth, (oldSize >= page.textWidth && newSize < page.textWidth));
 		if (newSize > page.textWidth) page.textWidth = newSize;
 		else if (oldSize >= page.textWidth && newSize < page.textWidth) {
 			// TODO: let make loop customs async later (timecritical!)
