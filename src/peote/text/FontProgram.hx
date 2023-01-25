@@ -1,5 +1,4 @@
 package peote.text;
-import peote.text.PageLine;
 
 #if !macro
 @:genericBuild(peote.text.FontProgram.FontProgramMacro.build("FontProgram"))
@@ -2194,7 +2193,6 @@ class $className extends peote.view.Program
 		var visibleLineTo:Int = 0;
 		var i:Int = 0;
 		var textWidth:Float = 0.0;
-		var longestLines:Int = 0;
 		y += page.yOffset;
 		
 		while (i < page.length && regLinesplit.match(chars)) // overwrite old lines
@@ -2230,15 +2228,12 @@ class $className extends peote.view.Program
 						
 			i++;
 			y += pageLine.lineHeight;
-			if (pageLine.textSize >= textWidth) {
-				if (pageLine.textSize == textWidth) longestLines++;
-				else { longestLines = 0; textWidth = pageLine.textSize; }
-			}
+			if (pageLine.textSize > textWidth) textWidth = pageLine.textSize;
+			
 			chars = regLinesplit.matchedRight();
 		}
 		
 		page.textWidth = textWidth;
-		page.longestLines = longestLines;
 		
 		// --------------------------------
 		page.updateLineFrom = 0;		
@@ -2270,7 +2265,6 @@ class $className extends peote.view.Program
 	inline function _pageAppendChars(page:Page<$styleType>, chars:String, i:Int, y:Float, visibleLineFrom:Int, visibleLineTo:Int, ?glyphStyle:$styleType, defaultFontRange:Null<Int>, addRemoveGlyphes:Bool, onUnrecognizedChar:Int->Int->Int->Void):Float
 	{
 		var textWidth = page.textWidth;
-		var longestLines = page.longestLines;
 		var onUnrecognizedLineChar = (onUnrecognizedChar==null) ? null : onUnrecognizedChar.bind(i);
 		
 		var y_start = y;
@@ -2300,21 +2294,19 @@ class $className extends peote.view.Program
 			i++;
 			y += pageLine.lineHeight;
 			page.pushLine( pageLine );
-			if (pageLine.textSize >= textWidth) {
-				if (pageLine.textSize == textWidth) longestLines++;
-				else { longestLines = 0; textWidth = pageLine.textSize; }
-			}
+			if (pageLine.textSize > textWidth) textWidth = pageLine.textSize;
+			
 			chars = regLinesplit.matchedRight();
 		}
 		page.visibleLineFrom = visibleLineFrom;
 		page.visibleLineTo = visibleLineTo;
 		page.textWidth = textWidth;
-		page.longestLines = longestLines;
 		return y - y_start;
 	}
 	
 	public function pageAppendChars(page:Page<$styleType>, chars:String, ?glyphStyle:$styleType, ?defaultFontRange:Null<Int>, addRemoveGlyphes:Bool = true, ?onUnrecognizedChar:Int->Int->Int->Void):Float
 	{
+//TODO: updateLineFrom/To
 		//if (page.length < page.updateLineFrom) page.updateLineFrom = page.length;
 
 		chars += "\n";
@@ -2324,7 +2316,7 @@ class $className extends peote.view.Program
 				var i:Int = page.length-1;
 				var pageLine = page.getPageLine(i);
 				pageLineAppendChars( pageLine, page.x, page.width, page.xOffset, regLinesplit.matched(1), glyphStyle, addRemoveGlyphes && (page.visibleLineFrom <= i && i < page.visibleLineTo), (onUnrecognizedChar==null) ? null : onUnrecognizedChar.bind(i));
-				pageTextWidthAfterExpand(page, pageLine);
+				pageTextWidthAfterExpand(page, pageLine.textSize);
 				offset = _pageAppendChars(page, regLinesplit.matchedRight(), ++i, pageLine.y + pageLine.lineHeight, page.visibleLineFrom, page.visibleLineTo, glyphStyle, defaultFontRange, addRemoveGlyphes, onUnrecognizedChar);
 			}
 		}
@@ -2348,15 +2340,15 @@ class $className extends peote.view.Program
 		if (toLine > page.updateLineTo) page.updateLineTo = toLine;
 		
 		if (fromLine < 0) fromLine = 0;
-		var textWidth:Float = 0.0;
-		var longestLines:Int = 0;
-		var hadLongestLines:Int = page.longestLines;
+		
 		var pageLine:PageLine<$styleType>;
 		
 		// todo: offset
 		var offset:Float = 0.0;
 		var y:Float = 0.0;
 		var oldLineHeight:Float = 0.0;
+		var oldLineSize:Float = 0.0;
+		var newLineSize:Float = 0.0;
 
 		var visibleLineFrom = page.visibleLineFrom;
 		var visibleLineTo = page.visibleLineTo;
@@ -2364,8 +2356,10 @@ class $className extends peote.view.Program
 		// change style into range
 		for (i in fromLine...toLine) {
 			pageLine = page.getPageLine(i);
-			oldLineHeight = pageLine.lineHeight;
-			if (pageLine.textSize == pageLine.textSize) hadLongestLines--;
+			
+			if (pageLine.textSize > oldLineSize) oldLineSize = pageLine.textSize;
+			
+			oldLineHeight = pageLine.lineHeight;			
 			
 // TODO: 
 // extra param for pageLineSetStyle() to force shrink/expand into new pageLine.lineHeight and how to set on existing BaseLine
@@ -2380,10 +2374,7 @@ class $className extends peote.view.Program
 				y += pageLine.lineHeight;
 			}
 			
-			if (pageLine.textSize >= textWidth) {
-				if (pageLine.textSize == textWidth) longestLines++;
-				else { longestLines = 0; textWidth = pageLine.textSize; }
-			}
+			if (pageLine.textSize > newLineSize) newLineSize = pageLine.textSize;
 			
 			if (pageLine.lineHeight != oldLineHeight) 
 			{
@@ -2409,27 +2400,7 @@ class $className extends peote.view.Program
 			}
 		}
 		
-		// fix the longest lines
-		if (textWidth < page.textWidth) {
-			if (hadLongestLines < 0) { // all of longest lines was into range
-				for (i in 0...fromLine) {
-					pageLine = page.getPageLine(i);
-					if (pageLine.textSize >= textWidth) {
-						if (pageLine.textSize == textWidth) longestLines++;
-						else { longestLines = 0; textWidth = pageLine.textSize; }
-					}
-				}
-				for (i in toLine...page.length) {
-					pageLine = page.getPageLine(i);
-					if (pageLine.textSize >= textWidth) {
-						if (pageLine.textSize == textWidth) longestLines++;
-						else { longestLines = 0; textWidth = pageLine.textSize; }
-					}
-				}
-				
-			} 
-			else longestLines = hadLongestLines;
-		}
+		pageTextWidthAfterChangeMultiple(page, fromLine, toLine, oldLineSize, newLineSize);
 		
 		// move rest of line up or down in depend of offset
 		if (offset != 0) {
@@ -2460,8 +2431,6 @@ class $className extends peote.view.Program
 		page.visibleLineFrom = visibleLineFrom;
 		page.visibleLineTo = visibleLineTo;
 		
-		page.textWidth = textWidth;
-		page.longestLines = longestLines;
 		page.textHeight += offset;		
 		return offset;
 	}
@@ -2482,17 +2451,27 @@ class $className extends peote.view.Program
 					if (lineNumber < page.updateLineFrom) page.updateLineFrom = lineNumber;
 					if (lineNumber >= page.updateLineTo) page.updateLineTo = lineNumber+1;
 					pageLineInsertChars( pageLine, page.x, page.width, page.xOffset, regLinesplit.matched(1), position, glyphStyle, addRemoveGlyphes && (page.visibleLineFrom <= lineNumber && lineNumber < page.visibleLineTo), (onUnrecognizedChar==null) ? null : onUnrecognizedChar.bind(lineNumber));
-					pageTextWidthAfterExpand(page, pageLine);
+					pageTextWidthAfterExpand(page, pageLine.textSize);
 				}
 				else 
 				{	//trace("multiple lines to insert");					
 					// cutting restchars from line where to insert
-					var wasLongestLine = pageIsLongestLine(page, pageLine);
+					
 					var restChars = pageLine.splice(position, pageLine.length - position);
 					var oldFrom:Int = 0;
 					var oldTo:Int = 0;
-										
+					
+					var restCharsTextSize:Float = 0.0;
+					var firstLineOldTextSize:Float = pageLine.textSize;
+					
 					if (restChars.length > 0) {
+						if (position == 0) {
+							pageLine.textSize = 0.0;
+							restCharsTextSize = firstLineOldTextSize;
+						} else {
+							pageLine.textSize = rightGlyphPos(pageLine.getGlyph(position - 1), getCharData(pageLine.getGlyph(position - 1).char)) - page.x - page.xOffset;
+							restCharsTextSize = firstLineOldTextSize - pageLine.textSize;
+						}
 						oldFrom = pageLine.visibleFrom - pageLine.length;
 						oldTo = pageLine.visibleTo - pageLine.length;
 						if (pageLine.visibleFrom > pageLine.length) pageLine.visibleFrom = pageLine.length;
@@ -2502,25 +2481,16 @@ class $className extends peote.view.Program
 					var oldLineFrom = page.visibleLineFrom;
 					var oldLineTo = page.visibleLineTo;
 					
-// TODO:					
-					var restCharsSize = pageLine.textSize;
-					pageLine.textSize = (position == 0) ? 0 : rightGlyphPos(pageLine.getGlyph(position - 1), getCharData(pageLine.getGlyph(position - 1).char)) - page.x - page.xOffset;
-					restCharsSize = restCharsSize - pageLine.textSize;
-					
 					pageLineAppendChars( pageLine, page.x, page.width, page.xOffset, regLinesplit.matched(1), glyphStyle, addRemoveGlyphes && (page.visibleLineFrom <= lineNumber && lineNumber < page.visibleLineTo), (onUnrecognizedChar==null) ? null : onUnrecognizedChar.bind(lineNumber));
-// CHECK:					
-					if (wasLongestLine) {
-						if (pageLine.textSize < page.textWidth) pageTextWidthAfterDelete(page);
-						else pageTextWidthAfterExpand(page, pageLine);
-					}
-					else pageTextWidthAfterExpand(page, pageLine);
 					
-					// cutting off all after lineNumber
+					var firstLineNewTextSize:Float = pageLine.textSize;
+
+					// cutting off all after lineNumber and store into restLines
 					var restLines:Array<PageLine<$styleType>> = page.spliceLines(lineNumber+1, page.length - (lineNumber+1));
 					var restLineFrom = page.length;					
 					var restLineWasVisible:Bool = (page.visibleLineFrom <= lineNumber && lineNumber < page.visibleLineTo);
 					
-					// appending rest of text to that line:
+					// appending rest of chars at end of page:
 					offset = _pageAppendChars(page, regLinesplit.matchedRight(), page.length, pageLine.y + pageLine.lineHeight,
 						(page.visibleLineFrom > page.length) ? page.length : page.visibleLineFrom, 
 						(page.visibleLineTo > page.length) ? page.length : page.visibleLineTo, 
@@ -2529,7 +2499,8 @@ class $className extends peote.view.Program
 					// append the rest glyphes to last appended pageLine!
 					if (restChars.length > 0)
 					{
-						var pageLine = page.getPageLine(page.length-1);
+						var pageLine = page.getPageLine(page.length - 1);
+						
 						if (pageLine.length < pageLine.updateFrom) pageLine.updateFrom = pageLine.length;
 						
 						var line_max =  page.x + page.width;
@@ -2590,12 +2561,12 @@ class $className extends peote.view.Program
 						pageLine.updateTo = pageLine.length;
 						
 						if (page.length-1 < page.updateLineFrom) page.updateLineFrom = page.length-1;
-						if (page.length > page.updateLineTo) page.updateLineTo = page.length;
-//CHECK					
-						pageLine.textSize += restCharsSize;
-						pageTextWidthAfterExpand(page, pageLine);
+
+						pageLine.textSize += restCharsTextSize;
+						pageTextWidthAfterExpand(page, pageLine.textSize);
 					}
-						
+					
+					// appending stored restLines at end of page:
 					if (restLines.length > 0) 
 					{
 						if (page.length < page.updateLineFrom) page.updateLineFrom = page.length;
@@ -2642,11 +2613,11 @@ class $className extends peote.view.Program
 						
 						page.visibleLineFrom = visibleLineFrom;
 						page.visibleLineTo = visibleLineTo;
-						// -----------
-						
-						if (page.length > page.updateLineTo) page.updateLineTo = page.length;
 					}
-					
+				
+					pageTextWidthAfterChange(page, firstLineOldTextSize, firstLineNewTextSize);
+
+					if (page.length > page.updateLineTo) page.updateLineTo = page.length;
 				}
 			}
 		}
@@ -2662,43 +2633,43 @@ class $className extends peote.view.Program
 	}
 
 	// recalculate textSize if a new added pageLine is greater
-	public inline function pageTextWidthAfterExpand(page:Page<$styleType>, pageLine:PageLine<$styleType>)
+	public inline function pageTextWidthAfterExpand(page:Page<$styleType>, newSize:Float)
 	{
-		if (pageLine.textSize >= page.textWidth) {
-			if (pageLine.textSize == page.textWidth) page.longestLines++;
-			else { page.longestLines = 0; page.textWidth = pageLine.textSize; }
-		}
-	}
-	
-	// check if a pageLine is one of the greatest lines inside a page
-	public inline function pageIsLongestLine(page:Page<$styleType>, pageLine:PageLine<$styleType>):Bool
-	{
-		return (pageLine.textSize == page.textWidth);
-	}
-	
-	// recalculate pages textSize if one of the longest pageLine was getting shrinked
-	public inline function pageTextWidthAfterShrink(page:Page<$styleType>, pageLine:PageLine<$styleType>)
-	{
-		if (pageLine.textSize < page.textWidth) pageTextWidthAfterDelete(page);
+		trace("pageTextWidthAfterExpand:",newSize, page.textWidth, (newSize > page.textWidth));
+		if (newSize > page.textWidth) page.textWidth = newSize;
 	}
 	
 	// recalculate pages textSize if one of the longest pageLines was deleted
-	public inline function pageTextWidthAfterDelete(page:Page<$styleType>)
+	public inline function pageTextWidthAfterChange(page:Page<$styleType>, oldSize:Float, newSize:Float)
 	{
-		if (page.longestLines > 0) page.longestLines--;
-		else {
-			var textWidth:Float = 0.0;
-			var longestLines:Int = 0;
-			for (pageLine in page.pageLines) {
-				if (pageLine.textSize >= textWidth) {
-					if (pageLine.textSize == textWidth) longestLines++;
-					else { longestLines = 0; textWidth = pageLine.textSize; }
-				}
-			}
-			page.textWidth = textWidth; 
-			page.longestLines = longestLines; 
+		trace("pageTextWidthAfterChange:", oldSize, newSize, page.textWidth, (oldSize >= page.textWidth && newSize < page.textWidth));
+		if (oldSize >= page.textWidth && newSize < page.textWidth) {
+			// TODO: let make loop custom async later (timecritical!)
+			for (pageLine in page.pageLines) 
+				if (pageLine.textSize > newSize) newSize = pageLine.textSize;
+			page.textWidth = newSize; 
 		}
 	}
+	
+	public inline function pageTextWidthAfterChangeMultiple(page:Page<$styleType>, fromLine:Int, toLine:Int, oldSize:Float, newSize:Float)
+	{
+		trace("pageTextWidthAfterChangeMultiple:", oldSize, newSize, page.textWidth, (oldSize >= page.textWidth && newSize < page.textWidth));
+		if (newSize > page.textWidth) page.textWidth = newSize;
+		else if (oldSize >= page.textWidth && newSize < page.textWidth) {
+			// TODO: let make loop customs async later (timecritical!)
+			var pageLine:PageLine<$styleType>;
+			for (i in 0...fromLine) {
+				pageLine = page.getPageLine(i);
+				if (pageLine.textSize > newSize) newSize = pageLine.textSize;
+			}
+			for (i in toLine...page.length) {
+				pageLine = page.getPageLine(i);
+				if (pageLine.textSize > newSize) newSize = pageLine.textSize;
+			}
+			page.textWidth = newSize;
+		}
+	}
+	
 	
 // ---------- TODO
 	
@@ -2758,11 +2729,11 @@ class $className extends peote.view.Program
 		
 		if (pageLine.length == 0) // if pageLine is empty
 		{
-			_pageDeleteLine(page, pageLine.y, lineNumber, addRemoveGlyphes);
+			_pageDeleteLine(page, pageLine, pageLine.y, lineNumber, addRemoveGlyphes);
 		}
 		else if (nextLine.length == 0) // if nextLine is empty
 		{
-			_pageDeleteLine(page, nextLine.y, lineNumber+1, addRemoveGlyphes);
+			_pageDeleteLine(page, pageLine, nextLine.y, lineNumber+1, addRemoveGlyphes);
 		}
 		else 
 		{
@@ -2789,6 +2760,7 @@ class $className extends peote.view.Program
 			//trace("new visible from/to", pageLine.visibleFrom, pageLine.visibleTo );
 
 			pageLine.textSize += nextLine.textSize + kerningOff;
+			pageTextWidthAfterExpand(page, pageLine.textSize);
 			
 			if (pageLine.length < pageLine.updateFrom) pageLine.updateFrom = pageLine.length;
 			for (glyph in nextLine.glyphes) pageLine.pushGlyph(glyph); // push glyphes of nextLine to pageLine
@@ -2797,8 +2769,7 @@ class $className extends peote.view.Program
 			//trace("new pageLine update from/to", pageLine.updateFrom, pageLine.updateTo );
 			
 			if (lineNumber < page.updateLineFrom) page.updateLineFrom = lineNumber;
-			_pageDeleteLine(page, nextLineY, lineNumber + 1, addRemoveGlyphes);
-			pageTextWidthAfterExpand(page, pageLine);
+			_pageDeleteLine(page, nextLine, nextLineY, lineNumber + 1, addRemoveGlyphes);
 		}		
 		
 	}
@@ -2806,13 +2777,14 @@ class $className extends peote.view.Program
 	public inline function pageDeleteChar(page:Page<$styleType>, ?pageLine:PageLine<$styleType>, lineNumber:Int, position:Int, addRemoveGlyphes:Bool = true) {
 		if (pageLine == null) pageLine = page.getPageLine(lineNumber);
 		if (position < pageLine.length) {
-			var wasLongestLine = pageIsLongestLine(page, pageLine);
+			
+			var oldTextSize = pageLine.textSize;
 			
 			pageLineDeleteChar(pageLine, page.x, page.width, page.xOffset, position, addRemoveGlyphes);
 			if (lineNumber < page.updateLineFrom) page.updateLineFrom = lineNumber;
 			if (lineNumber >= page.updateLineTo) page.updateLineTo = lineNumber + 1;
 			
-			if (wasLongestLine) pageTextWidthAfterDelete(page);
+			pageTextWidthAfterChange(page, oldTextSize, pageLine.textSize);
 		}
 		else pageRemoveLinefeed(page, pageLine, lineNumber, addRemoveGlyphes); // last position into line
 	}
@@ -2833,9 +2805,14 @@ class $className extends peote.view.Program
 	}
 
 	
-	inline function _pageDeleteLine(page:Page<$styleType>, pageLineY:Float, lineNumber:Int, addRemoveGlyphes:Bool = true) 
+	inline function _pageDeleteLine(page:Page<$styleType>, pageLine:PageLine<$styleType>, pageLineY:Float, lineNumber:Int, addRemoveGlyphes:Bool = true) 
 	{
-		page.spliceLines(lineNumber, 1); // delete & fix page.visibleLineFrom and page.visibleLineTo
+		var oldTextSize = pageLine.textSize;
+		page.spliceLines(lineNumber, 1); // delete
+		
+		pageTextWidthAfterChange(page, pageLine.textSize, 0.0);
+		
+		//  fix page.visibleLineFrom and page.visibleLineTo
 		if (page.visibleLineFrom > lineNumber) page.visibleLineFrom--;
 		if (page.visibleLineTo > lineNumber) page.visibleLineTo--;
 		
@@ -2851,6 +2828,9 @@ class $className extends peote.view.Program
 	inline function _pageDeleteLines(page:Page<$styleType>, pageLineY:Float, fromLine:Int, toLine:Int, addRemoveGlyphes:Bool = true) 
 	{
 		var n = toLine - fromLine;
+		
+// TODO: pageTextWidthAfterChange
+		
 		page.spliceLines(fromLine, n); // delete & fix page.visibleLineFrom and page.visibleLineTo
 		if (page.visibleLineFrom > fromLine) {
 			if (page.visibleLineFrom < toLine) page.visibleLineFrom = fromLine;

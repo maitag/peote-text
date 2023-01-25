@@ -41,7 +41,6 @@ class $className
 	@:allow(peote.text) public var height(default, null):Float = 0xffff; // visible height of the page (in pixel)
 	
 	@:allow(peote.text) public var textWidth(default, null):Float = 0.0; // pixel size of longest line
-	@:allow(peote.text) public var longestLines(default, null):Int = 0;  // how many longest lines
 	@:allow(peote.text) public var textHeight(default, null):Float = 0.0; // pixel size of all lines
 	
 	
