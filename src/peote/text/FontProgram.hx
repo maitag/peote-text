@@ -692,11 +692,7 @@ class $className extends peote.view.Program
 			}
 			default: macro // ------- simple font -------
 			{
-// TODO: TABs
-				if (charcode == 9) {trace("TABULATOR-HACK setCharcode"); charcode = 32; }
-				// glyph.tile = tab2space(charcode) - charData.min;
-				
-				glyph.tile = charcode - charData.min;
+				glyph.tile = tab2space(charcode) - charData.min;
 			}
 		}}
 	
