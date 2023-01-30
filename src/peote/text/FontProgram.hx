@@ -384,17 +384,28 @@ class $className extends peote.view.Program
 	// -------------------------------------------------------------------------------------------------
 	// -------------------------------------------------------------------------------------------------
 	
+	// Tabulators
+	inline function makeTabSize(glyph:$glyphType, width:Float):Float {
+		if (glyph.char == 9) return width * 3.0;
+		else return width;
+	}
+	
+	inline function tab2space(charcode:Int):Int {
+		if (charcode == 9) return 32 else return charcode;
+	}
+	
+	
 	// returns range, fontdata and metric in dependend of font-type
 	inline function getCharData(charcode:Int):$charDataType
-	{
+	{		
 		${switch (glyphStyleHasMeta.packed) {
 			// ------- Gl3Font -------
 			case true: 
 				if (glyphStyleHasMeta.multiTexture && glyphStyleHasMeta.multiSlot) {
 					macro {
-						var range = font.getRange(charcode);
+						var range = font.getRange(tab2space(charcode));
 						if (range != null) {
-							var metric = range.fontData.getMetric(charcode);
+							var metric = range.fontData.getMetric(tab2space(charcode));
 							if (metric == null) return null;
 							else return {unit:range.unit, slot:range.slot, fontData:range.fontData, metric:metric};
 						}
@@ -403,9 +414,9 @@ class $className extends peote.view.Program
 				}
 				else if (glyphStyleHasMeta.multiTexture) 
 					macro {
-						var range = font.getRange(charcode);
+						var range = font.getRange(tab2space(charcode));
 						if (range != null) {
-							var metric = range.fontData.getMetric(charcode);
+							var metric = range.fontData.getMetric(tab2space(charcode));
 							if (metric == null) return null;
 							else return {unit:range.unit, fontData:range.fontData, metric:metric};
 						}
@@ -413,28 +424,28 @@ class $className extends peote.view.Program
 					}
 				else if (glyphStyleHasMeta.multiSlot)
 					macro {
-						var range = font.getRange(charcode);
+						var range = font.getRange(tab2space(charcode));
 						if (range != null) {
-							var metric = range.fontData.getMetric(charcode);
+							var metric = range.fontData.getMetric(tab2space(charcode));
 							if (metric == null) return null;
 							else return {slot:range.slot, fontData:range.fontData, metric:metric};
 						}
 						else return null;
 					}
 				else macro {
-						//var metric = font.getRange(charcode).getMetric(charcode);
-						var range = font.getRange(charcode);
-						var metric = range.getMetric(charcode);
+						//var metric = font.getRange(tab2space(charcode)).getMetric(tab2space(charcode));
+						var range = font.getRange(tab2space(charcode));
+						var metric = range.getMetric(tab2space(charcode));
 						if (metric == null) return null;
 						else return {fontData:range, metric:metric};
 					}
 			// ------- simple font -------
-			default:macro return font.getRange(charcode);
+			default:macro return font.getRange(tab2space(charcode));
 		}}
 	}
 	
 	// -------------------------------------------------
-	
+
 	inline function rightGlyphPos(glyph:$glyphType, charData:$charDataType):Float
 	{
 		${switch (glyphStyleHasMeta.packed)
@@ -442,19 +453,19 @@ class $className extends peote.view.Program
 			case true: macro // ------- Gl3Font -------
 			{
 				${switch (glyphStyleHasField.local_width) {
-					case true: macro return glyph.x + (charData.metric.advance - charData.metric.left) * glyph.width;
+					case true: macro return glyph.x + (charData.metric.advance - charData.metric.left) * makeTabSize(glyph, glyph.width);
 					default: switch (glyphStyleHasField.width) {
-						case true: macro return glyph.x + (charData.metric.advance - charData.metric.left) * fontStyle.width;
-						default: macro return glyph.x + (charData.metric.advance - charData.metric.left) * font.config.width;
+						case true: macro return glyph.x + (charData.metric.advance - charData.metric.left) * makeTabSize(glyph, fontStyle.width);
+						default: macro return glyph.x + (charData.metric.advance - charData.metric.left) * makeTabSize(glyph, font.config.width);
 				}}}
 			}
 			default: macro // ------- simple font -------
 			{
 				${switch (glyphStyleHasField.local_width) {
-					case true: macro return glyph.x + glyph.width;
+					case true: macro return glyph.x + makeTabSize(glyph, glyph.width);
 					default: switch (glyphStyleHasField.width) {
-						case true: macro return glyph.x + fontStyle.width;
-						default: macro return glyph.x + font.config.width;
+						case true: macro return glyph.x + makeTabSize(glyph, fontStyle.width);
+						default: macro return glyph.x + makeTabSize(glyph, font.config.width);
 				}}}
 			}
 		}}
@@ -467,10 +478,10 @@ class $className extends peote.view.Program
 			case true: macro // ------- Gl3Font -------
 			{
 				${switch (glyphStyleHasField.local_width) {
-					case true: macro return glyph.x - (charData.metric.left) * glyph.width;
+					case true: macro return glyph.x - (charData.metric.left) * makeTabSize(glyph, glyph.width);
 					default: switch (glyphStyleHasField.width) {
-						case true: macro return glyph.x - (charData.metric.left) * fontStyle.width;
-						default: macro return glyph.x - (charData.metric.left) * font.config.width;
+						case true: macro return glyph.x - (charData.metric.left) * makeTabSize(glyph, fontStyle.width);
+						default: macro return glyph.x - (charData.metric.left) * makeTabSize(glyph, font.config.width);
 				}}}
 			}
 			default: macro // ------- simple font -------
@@ -487,47 +498,47 @@ class $className extends peote.view.Program
 		{	case true: macro // ------- Gl3Font -------
 			{
 				${switch (glyphStyleHasField.local_width) {
-					case true: macro return charData.metric.advance * glyph.width;
+					case true: macro return charData.metric.advance * makeTabSize(glyph, glyph.width);
 					default: switch (glyphStyleHasField.width) {
-						case true: macro return charData.metric.advance * fontStyle.width;
-						default: macro return charData.metric.advance * font.config.width;
+						case true: macro return charData.metric.advance * makeTabSize(glyph, fontStyle.width);
+						default: macro return charData.metric.advance * makeTabSize(glyph, font.config.width);
 				}}}
 			}
 			default: macro // ------- simple font -------
 			{
 				${switch (glyphStyleHasField.local_width) {
-					case true: macro return glyph.width;
+					case true: macro return makeTabSize(glyph, glyph.width);
 					default: switch (glyphStyleHasField.width) {
-						case true: macro return fontStyle.width;
-						default: macro return font.config.width;
+						case true: macro return makeTabSize(glyph, fontStyle.width);
+						default: macro return makeTabSize(glyph, font.config.width);
 				}}}
 			}
 		}}					
 	}
 	
 	inline function letterSpace(glyph:$glyphType):Float
-	{	
+	{
 		${switch (glyphStyleHasField.local_letterSpace) {
 			case true: macro return glyph.letterSpace;
 			default: switch (glyphStyleHasField.letterSpace) {
 				case true: macro return fontStyle.letterSpace;
-				default: macro return 0.0;// font.config.letterSpace; // enable into FontConfig.hx
+				default: macro return 0.0;// TODO: font.config.letterSpace; // enable into FontConfig.hx
 		}}}
 	}
 	
 	inline function kerningSpaceOffset(prev_glyph:$glyphType, glyph:$glyphType, charData:$charDataType):Float
-	{
+	{		
 		if (prev_glyph != null) {
 			${switch (glyphStyleHasMeta.packed)
 			{	case true: macro // ------- Gl3Font -------
 				{	
 					if (font.kerning) 
-					{	//trace("kerning: ", prev_glyph.char, glyph.char, " -> " + charData.fontData.kerning[prev_glyph.char][glyph.char]);
+					{	//trace("kerning: ", prev_glyph.char, glyph.char, " -> " + charData.fontData.kerning[tab2space(prev_glyph.char)][tab2space(glyph.char)]);
 						${switch (glyphStyleHasField.local_width) {
-							case true: macro return charData.fontData.kerning[prev_glyph.char][glyph.char] * (glyph.width + prev_glyph.width)/2 + letterSpace(prev_glyph);
+							case true: macro return charData.fontData.kerning[tab2space(prev_glyph.char)][tab2space(glyph.char)] * (glyph.width + prev_glyph.width)/2 + letterSpace(prev_glyph);
 							default: switch (glyphStyleHasField.width) {
-								case true: macro return charData.fontData.kerning[prev_glyph.char][glyph.char] * fontStyle.width + letterSpace(prev_glyph);
-								default: macro return charData.fontData.kerning[prev_glyph.char][glyph.char] * font.config.width + letterSpace(prev_glyph);
+								case true: macro return charData.fontData.kerning[tab2space(prev_glyph.char)][tab2space(glyph.char)] * fontStyle.width + letterSpace(prev_glyph);
+								default: macro return charData.fontData.kerning[tab2space(prev_glyph.char)][tab2space(glyph.char)] * font.config.width + letterSpace(prev_glyph);
 						}}}
 					}
 					else return letterSpace(prev_glyph);
@@ -656,7 +667,7 @@ class $className extends peote.view.Program
 	}
 
 	inline function setCharcode(glyph:$glyphType, charcode:Int, charData:$charDataType)
-	{
+	{		
 		glyph.char = charcode;
 		
 		${switch (glyphStyleHasMeta.multiTexture) {
@@ -681,6 +692,10 @@ class $className extends peote.view.Program
 			}
 			default: macro // ------- simple font -------
 			{
+// TODO: TABs
+				if (charcode == 9) {trace("TABULATOR-HACK setCharcode"); charcode = 32; }
+				// glyph.tile = tab2space(charcode) - charData.min;
+				
 				glyph.tile = charcode - charData.min;
 			}
 		}}
@@ -883,7 +898,7 @@ class $className extends peote.view.Program
 		{
 			charData = getCharData(charcode);
 			if (charData != null)
-			{
+			{	
 				if (i >= old_length) { // append
 					glyph = new peote.text.Glyph<$styleType>();
 					pageLine.pushGlyph(glyph);
