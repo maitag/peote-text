@@ -385,6 +385,10 @@ class $className extends peote.view.Program
 	// -------------------------------------------------------------------------------------------------
 	
 	// Tabulators
+	// TODO: let en/disable per meta !
+	// and also the "spacesPerTab:Float" param should go throught all pageLine-functions
+	// to let store them for each Page or Line
+	
 	inline function makeTabSize(glyph:$glyphType, width:Float):Float {
 		if (glyph.char == 9) return width * 3.0;
 		else return width;
@@ -688,7 +692,7 @@ class $className extends peote.view.Program
 				glyph.tx = charData.metric.u; // - weightOffset; // TODO: offsets for THICK weighted letters
 				glyph.ty = charData.metric.v; // - weightOffset;
 				glyph.tw = charData.metric.w; // + weightOffset + weightOffset;
-				glyph.th = charData.metric.h; // + weightOffset + weightOffset;							
+				glyph.th = charData.metric.h; // + weightOffset + weightOffset;
 			}
 			default: macro // ------- simple font -------
 			{
@@ -1701,9 +1705,7 @@ class $className extends peote.view.Program
 	{
 		if (to == null) to = pageLine.length;
 		var chars:String = "";
-		for (glyph in pageLine.glyphes) {
-			chars += String.fromCharCode(glyph.char);
-		}
+		for (i in from...to) chars += String.fromCharCode(pageLine.getGlyph(i).char);
 		return chars;
 	}
 	
