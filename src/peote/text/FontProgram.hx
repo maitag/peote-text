@@ -2804,8 +2804,47 @@ class $className extends peote.view.Program
 	
 	// TODO:
 
-	public inline function pageDeleteChars(page:Page<$styleType>, fromLine:Int = 0, fromChar:Int = 0, ?toLine:Null<Int>, ?toChar:Null<Int>, addRemoveGlyphes:Bool = true) {
-		
+	public  function pageDeleteChars(page:Page<$styleType>, fromLine:Int, toLine:Int, fromChar:Int, toChar:Int, addRemoveGlyphes:Bool = true) {
+		if (fromLine == toLine -1) {
+			
+			//trace("single line");
+			
+			var pageLine = page.getPageLine(fromLine);
+			var oldTextSize = pageLine.textSize;
+			
+			pageLineDeleteChars(pageLine, page.x, page.width, page.xOffset, fromChar, toChar, addRemoveGlyphes);
+			if (fromLine < page.updateLineFrom) page.updateLineFrom = fromLine;
+			if (toLine > page.updateLineTo) page.updateLineTo = toLine;
+			
+			pageTextWidthAfterChange(page, oldTextSize, pageLine.textSize);
+		}
+		else {
+			//trace("multi line");
+			
+			// --- first line
+			var pageLine = page.getPageLine(fromLine);
+			//var oldTextSize = pageLine.textSize;
+			
+			// TODO:
+			
+			pageLineDeleteChars(pageLine, page.x, page.width, page.xOffset, fromChar, addRemoveGlyphes);
+			if (fromLine < page.updateLineFrom) page.updateLineFrom = fromLine;
+			
+			// delete full lines
+			pageDeleteLines(page, fromLine+1, toLine-1, addRemoveGlyphes);
+			
+			// --- last line
+			pageLine = page.getPageLine(fromLine+1);
+			pageLineDeleteChars(pageLine, page.x, page.width, page.xOffset, 0, toChar, addRemoveGlyphes);
+			
+			// remove linefeed
+			pageRemoveLinefeed(page, fromLine, addRemoveGlyphes);
+			
+			
+			
+			//pageTextWidthAfterChange(page, oldTextSize, pageLine.textSize);
+			
+		}
 	}
 
 	
@@ -2813,8 +2852,21 @@ class $className extends peote.view.Program
 		
 	}
 	
-	public inline function pageDeleteLines(page:Page<$styleType>, fromLine:Int, toLine:Int, addRemoveGlyphes:Bool = true) {
+	public inline function pageDeleteLines(page:Page < $styleType > , fromLine:Int, toLine:Int, addRemoveGlyphes:Bool = true) {
 		
+		//trace("pageDeleteLines from/to", fromLine,  toLine);
+		
+		for (i in fromLine...toLine) {
+			//var pageLine = page.getPageLine(i);
+			//if (addRemoveGlyphes && i>= page.visibleLineFrom && i < page.visibleLineTo) pageLineRemove(pageLine);
+			//_pageDeleteLine(page, pageLine, pageLine.y, i, addRemoveGlyphes);
+			
+			// TODO: pageTextWidthAfterChange
+			if (addRemoveGlyphes && i>= page.visibleLineFrom && i < page.visibleLineTo) pageLineRemove(page.getPageLine(i));
+		}
+		
+		// TODO: empty selected pages!
+		_pageDeleteLines(page, page.getPageLine(fromLine).y, fromLine, toLine, addRemoveGlyphes);
 	}
 
 	
@@ -2860,7 +2912,7 @@ class $className extends peote.view.Program
 		//}
 		
 		if (fromLine < page.updateLineFrom) page.updateLineFrom = fromLine;
-		page.updateLineTo = page.length;		
+		page.updateLineTo = page.length;
 	}
 	
 	inline function _pageMoveLinesUp(page:Page<$styleType>, fromLine:Int, pageLineY:Float, addRemoveGlyphes:Bool = true) 
