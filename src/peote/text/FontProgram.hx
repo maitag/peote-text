@@ -2190,8 +2190,6 @@ class $className extends peote.view.Program
 	
 	static var regLinesplit:EReg = ~/^(.*?)(\n|\r\n|\r)/;
 
-	// TODO: change linecreation to have tabs (alternatively into creation of a tab-char into font!)
-	// TODO: wrap and wordwrap
 	public function pageSet(page:Page<$styleType>, chars:String, ?x:Null<Float>, ?y:Null<Float>, ?width:Null<Float>, ?height:Null<Float>, ?xOffset:Null<Float>, ?yOffset:Null<Float>,
 		?glyphStyle:$styleType, ?defaultFontRange:Null<Int>, addRemoveGlyphes:Bool = true, ?onUnrecognizedChar:Int->Int->Int->Void)
 	{
@@ -2656,7 +2654,7 @@ class $className extends peote.view.Program
 		if (newSize > page.textWidth) page.textWidth = newSize;
 	}
 	
-	// recalculate pages textSize if one of the longest pageLines was deleted
+	// recalculate pages textSize if size of a pageLine (what could be the longest) was shrinked
 	public inline function pageTextWidthAfterChange(page:Page<$styleType>, oldSize:Float, newSize:Float)
 	{
 		//trace("pageTextWidthAfterChange:", oldSize, newSize, page.textWidth, (oldSize >= page.textWidth && newSize < page.textWidth));
@@ -2815,7 +2813,7 @@ class $className extends peote.view.Program
 	public  function pageDeleteChars(page:Page<$styleType>, fromLine:Int, toLine:Int, fromChar:Int, toChar:Int, addRemoveGlyphes:Bool = true) {
 		if (fromLine == toLine -1) {
 			
-			//trace("single line");
+			trace("single line");
 			
 			var pageLine = page.getPageLine(fromLine);
 			var oldTextSize = pageLine.textSize;
@@ -2826,31 +2824,101 @@ class $className extends peote.view.Program
 			
 			pageTextWidthAfterChange(page, oldTextSize, pageLine.textSize);
 		}
+		else if (fromChar == 0 && toChar == 0) { // delete full lines
+			pageDeleteLines(page, fromLine, toLine-1, addRemoveGlyphes);
+		}
+		else if (fromChar == 0) {
+			var nextLineY = page.getPageLine(fromLine).y;
+			var nextLine = page.getPageLine(toLine-1);
+			var oldTextSize = nextLine.textSize;
+			pageLineDeleteChars(nextLine, page.x, page.width, page.xOffset, 0, toChar, addRemoveGlyphes && pageLineIsVisible(page, toLine-1));
+			var newTextSize = nextLine.textSize;
+			// delete fromLine...toLine-1
+			if (fromLine < page.updateLineFrom) page.updateLineFrom = fromLine;			
+			for (i in fromLine...toLine-1) {
+				var _pageLine = page.getPageLine(i);
+				if (_pageLine.textSize > oldTextSize) oldTextSize = _pageLine.textSize;
+				if (addRemoveGlyphes && pageLineIsVisible(page, i)) pageLineRemove(_pageLine);
+			}			
+			pageTextWidthAfterChangeMultiple(page, fromLine, toLine, oldTextSize, newTextSize);			
+			_pageDeleteLines(page, nextLineY, fromLine, toLine-1, addRemoveGlyphes);
+		}
 		else {
-			//trace("multi line");
 			
-			// --- first line
 			var pageLine = page.getPageLine(fromLine);
-			//var oldTextSize = pageLine.textSize;
-			
-			// TODO:
-			
+			var oldTextSize = pageLine.textSize;
+			var nextLineY = page.getPageLine(fromLine+1).y;
+
 			pageLineDeleteChars(pageLine, page.x, page.width, page.xOffset, fromChar, addRemoveGlyphes && pageLineIsVisible(page, fromLine));
+			
+			var nextLine = page.getPageLine(toLine-1);
+			
 			if (fromLine < page.updateLineFrom) page.updateLineFrom = fromLine;
 			
-			// delete full lines
-			pageDeleteLines(page, fromLine+1, toLine-1, addRemoveGlyphes);
+			if (toChar >= nextLine.length) {
+				//var nextLineY = page.getPageLine(fromLine+1).y;
+				//var nextLine = page.getPageLine(toLine-1);
+				//var oldTextSize = pageLine.textSize;
+				//pageLineDeleteChars(pageLine, page.x, page.width, page.xOffset, fromChar, addRemoveGlyphes && pageLineIsVisible(page, fromLine));
+				var newTextSize = pageLine.textSize;
+				//if (fromLine < page.updateLineFrom) page.updateLineFrom = fromLine;
+				// delete fromLine+1...toLine
+				for (i in fromLine+1...toLine) {
+					var _pageLine = page.getPageLine(i);
+					if (_pageLine.textSize > oldTextSize) oldTextSize = _pageLine.textSize;
+					if (addRemoveGlyphes && pageLineIsVisible(page, i)) pageLineRemove(_pageLine);
+				}			
+				pageTextWidthAfterChangeMultiple(page, fromLine, toLine, oldTextSize, newTextSize);			
+				_pageDeleteLines(page, nextLineY, fromLine+1, toLine, addRemoveGlyphes);
+			}
+			else {			
 			
-			// --- last line
-			pageLine = page.getPageLine(fromLine+1);
-			pageLineDeleteChars(pageLine, page.x, page.width, page.xOffset, 0, toChar, addRemoveGlyphes);
-			
-			// remove linefeed
-			pageRemoveLinefeed(page, fromLine, addRemoveGlyphes);
-			
-			
-			
-			//pageTextWidthAfterChange(page, oldTextSize, pageLine.textSize);
+				if (nextLine.textSize > oldTextSize) oldTextSize = nextLine.textSize;
+				pageLineDeleteChars(nextLine, page.x, page.width, page.xOffset, 0, toChar, addRemoveGlyphes && pageLineIsVisible(page, toLine-1));
+				
+				var glyph = pageLine.getGlyph(pageLine.length - 1);
+						
+				var nextGlyph = nextLine.getGlyph(0);
+				var nextCharData = getCharData(nextGlyph.char);
+				
+				var xOff = rightGlyphPos(glyph, getCharData(glyph.char)) - page.x;
+				var kerningOff = kerningSpaceOffset(glyph, nextGlyph, nextCharData);
+
+				// move all glyphes of nextLine to upper pageLine
+				if ( addRemoveGlyphes ) {
+					if ( pageLineIsVisible(page, fromLine) && !pageLineIsVisible(page, toLine-1) ) pageLineAdd(nextLine);
+					else if ( !pageLineIsVisible(page, fromLine) && pageLineIsVisible(page, toLine-1) ) pageLineRemove(nextLine);
+				}
+				pageLineSetPosition(nextLine, page.x, page.width, page.xOffset, page.x,
+					pageLine.y + _baseLineOffset(pageLine.base, nextGlyph, nextCharData), page.xOffset + xOff + kerningOff, addRemoveGlyphes && pageLineIsVisible(page, fromLine));
+				
+				//trace("pageLine", pageLine.visibleFrom, pageLine.visibleTo, "nextLine", nextLine.visibleFrom, nextLine.visibleTo );
+				if (nextLine.visibleFrom < nextLine.visibleTo) {
+					if (nextLine.visibleFrom > 0) pageLine.visibleFrom = pageLine.length + nextLine.visibleFrom;
+					//else if (pageLine.visibleFrom > pageLine.length) pageLine.visibleFrom = pageLine.length
+					pageLine.visibleTo = pageLine.length + nextLine.visibleTo;
+				}
+				//trace("new visible from/to", pageLine.visibleFrom, pageLine.visibleTo );
+
+				pageLine.textSize += nextLine.textSize + kerningOff;
+				var newTextSize = pageLine.textSize;
+				
+				if (pageLine.length < pageLine.updateFrom) pageLine.updateFrom = pageLine.length;
+				for (glyph in nextLine.glyphes) pageLine.pushGlyph(glyph); // push glyphes of nextLine to pageLine
+				pageLine.updateTo = pageLine.length;
+				
+				//trace("new pageLine update from/to", pageLine.updateFrom, pageLine.updateTo );
+				
+				//if (fromLine < page.updateLineFrom) page.updateLineFrom = fromLine;
+				
+				for (i in fromLine+1...toLine-1) {
+					var _pageLine = page.getPageLine(i);
+					if (_pageLine.textSize > oldTextSize) oldTextSize = _pageLine.textSize;
+					if (addRemoveGlyphes && pageLineIsVisible(page, i)) pageLineRemove(_pageLine);
+				}			
+				pageTextWidthAfterChangeMultiple(page, fromLine, toLine, oldTextSize, newTextSize);			
+				_pageDeleteLines(page, nextLineY, fromLine+1, toLine, addRemoveGlyphes);
+			}
 			
 		}
 	}
@@ -2860,20 +2928,16 @@ class $className extends peote.view.Program
 		
 	}
 	
-	public inline function pageDeleteLines(page:Page < $styleType > , fromLine:Int, toLine:Int, addRemoveGlyphes:Bool = true) {
-		
-		//trace("pageDeleteLines from/to", fromLine,  toLine);
-		
+	public inline function pageDeleteLines(page:Page<$styleType>, fromLine:Int, toLine:Int, addRemoveGlyphes:Bool = true) 
+	{
+		trace("pageDeleteLines from/to", fromLine,  toLine);		
+		var oldTextSize:Float = 0.0;
 		for (i in fromLine...toLine) {
-			//var pageLine = page.getPageLine(i);
-			//if (addRemoveGlyphes && i>= page.visibleLineFrom && i < page.visibleLineTo) pageLineRemove(pageLine);
-			//_pageDeleteLine(page, pageLine, pageLine.y, i, addRemoveGlyphes);
-			
-			// TODO: pageTextWidthAfterChange
-			if (addRemoveGlyphes && i>= page.visibleLineFrom && i < page.visibleLineTo) pageLineRemove(page.getPageLine(i));
+			var _pageLine = page.getPageLine(i);
+			if (_pageLine.textSize > oldTextSize) oldTextSize = _pageLine.textSize;
+			if (addRemoveGlyphes && pageLineIsVisible(page, i)) pageLineRemove(_pageLine);
 		}
-		
-		// TODO: empty selected pages!
+		pageTextWidthAfterChangeMultiple(page, fromLine, toLine, oldTextSize, 0.0);
 		_pageDeleteLines(page, page.getPageLine(fromLine).y, fromLine, toLine, addRemoveGlyphes);
 	}
 
@@ -2889,10 +2953,7 @@ class $className extends peote.view.Program
 		if (page.visibleLineFrom > lineNumber) page.visibleLineFrom--;
 		if (page.visibleLineTo > lineNumber) page.visibleLineTo--;
 		
-		//if (lineNumber < page.length) {
-			//_pageMoveLinesUp(page, lineNumber, pageLineY - page.getPageLine(lineNumber).y, addRemoveGlyphes);
-			_pageMoveLinesUp(page, lineNumber, pageLineY, addRemoveGlyphes);
-		//}
+		_pageMoveLinesUp(page, lineNumber, pageLineY, addRemoveGlyphes);
 		
 		if (lineNumber < page.updateLineFrom) page.updateLineFrom = lineNumber;
 		page.updateLineTo = page.length;		
@@ -2901,8 +2962,6 @@ class $className extends peote.view.Program
 	inline function _pageDeleteLines(page:Page<$styleType>, pageLineY:Float, fromLine:Int, toLine:Int, addRemoveGlyphes:Bool = true) 
 	{
 		var n = toLine - fromLine;
-		
-// TODO: pageTextWidthAfterChange
 		
 		page.spliceLines(fromLine, n); // delete & fix page.visibleLineFrom and page.visibleLineTo
 		if (page.visibleLineFrom > fromLine) {
@@ -2914,10 +2973,7 @@ class $className extends peote.view.Program
 			else page.visibleLineTo -= n;
 		}
 		
-		//if (fromLine < page.length) {
-			//_pageMoveLinesUp(page, fromLine, pageLineY - page.getPageLine(fromLine).y, addRemoveGlyphes);
-			_pageMoveLinesUp(page, fromLine, pageLineY, addRemoveGlyphes);
-		//}
+		_pageMoveLinesUp(page, fromLine, pageLineY, addRemoveGlyphes);
 		
 		if (fromLine < page.updateLineFrom) page.updateLineFrom = fromLine;
 		page.updateLineTo = page.length;
@@ -3053,11 +3109,12 @@ class $className extends peote.view.Program
 		page.updateLineFrom = 0;
 		page.updateLineTo = page.length;		
 		if (yOffset != null) _setPagePosSizeOffset(page, _SET_POS, null, page.y, xOffset, yOffset, addRemoveGlyphes);
-		else
+		else if (xOffset != null) {
 			for (i in 0...page.length) {
 				var pageLine = page.getPageLine(i);
 				pageLineSetOffset(pageLine, page.x, page.width, page.xOffset, xOffset, addRemoveGlyphes && pageLineIsVisible(page, i));
 			}
+		}
 		if (xOffset != null) page.xOffset = xOffset;
 		if (yOffset != null) page.yOffset = yOffset;
 	}
