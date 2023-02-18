@@ -1846,6 +1846,43 @@ class $className extends peote.view.Program
 		}
 	}
 	
+	inline function pageLineIsWordCharAt(pageLine:$pageLineType, position:Int):Bool {
+		return ~/\w/.match(String.fromCharCode(pageLine.getGlyph(position).char));
+	}
+	
+	inline function pageLineIsWhitespaceCharAt(pageLine:$pageLineType, position:Int):Bool {
+		return ~/\s/.match(String.fromCharCode(pageLine.getGlyph(position).char));
+	}
+	
+	public inline function pageLineWordLeft(pageLine:$pageLineType, position:Int):Int {
+		if (position <= 0) return 0;
+		//trace("pageLineIsWhitespaceCharAt ", position, pageLineIsWhitespaceCharAt(pageLine, position - 1));
+		if (pageLineIsWhitespaceCharAt(pageLine, position - 1))
+			while (position > 0 && pageLineIsWhitespaceCharAt(pageLine, position-1)) position--;
+		//trace("pageLineIsWordCharAt", position, pageLineIsWordCharAt(pageLine, position - 1));
+		if (pageLineIsWordCharAt(pageLine, position-1))
+			while (position > 0 && pageLineIsWordCharAt(pageLine, position-1)) position--;
+		else 
+			while (position > 0 && (!pageLineIsWordCharAt(pageLine, position-1) && !pageLineIsWhitespaceCharAt(pageLine, position - 1))) position--;	
+		return position;
+	}
+
+	public inline function pageLineWordRight(pageLine:$pageLineType, position:Int):Int {
+		if (position >= pageLine.length) return 0;
+		
+		if (pageLineIsWhitespaceCharAt(pageLine, position))
+			while (position < pageLine.length && pageLineIsWhitespaceCharAt(pageLine, position)) position++;
+		else {
+			if (pageLineIsWordCharAt(pageLine, position))
+				while (position < pageLine.length && pageLineIsWordCharAt(pageLine, position)) position++;
+			else 
+				while (position < pageLine.length && (!pageLineIsWordCharAt(pageLine, position) && !pageLineIsWhitespaceCharAt(pageLine, position))) position++;	
+			while (position < pageLine.length && pageLineIsWhitespaceCharAt(pageLine, position)) position++;
+		}
+			
+		return position;
+	}
+	
 	// -----------------------------------------
 	// ---------------- Lines ------------------
 	// -----------------------------------------	
@@ -2159,7 +2196,9 @@ class $className extends peote.view.Program
 	}
 		
 
-	// T O D O
+	public inline function lineWordLeft(line:$lineType, position:Int):Int return pageLineWordLeft(line.pageLine, position);
+	public inline function lineWordRight(line:$lineType, position:Int):Int return pageLineWordRight(line.pageLine, position);
+
 	
 	// -----------------------------------------
 	// ---------------- Pages ------------------
