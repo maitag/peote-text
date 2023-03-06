@@ -2540,7 +2540,7 @@ class $className extends peote.view.Program
 
 					// cutting off all after lineNumber and store into restLines
 					var restLines:Array<PageLine<$styleType>> = page.spliceLines(lineNumber+1, page.length - (lineNumber+1));
-					var restLineFrom = page.length;					
+					var restLineFrom = page.length;
 					var restLineWasVisible:Bool = (page.visibleLineFrom <= lineNumber && lineNumber < page.visibleLineTo);
 					
 					// appending rest of chars at end of page:
@@ -2807,7 +2807,7 @@ class $className extends peote.view.Program
 			var nextGlyph = nextLine.getGlyph(0);
 			var nextCharData = getCharData(nextGlyph.char);
 			
-			var xOff = rightGlyphPos(glyph, getCharData(glyph.char)) - page.x;
+			var xOff = rightGlyphPos(glyph, getCharData(glyph.char)) - page.x - page.xOffset;
 			var kerningOff = kerningSpaceOffset(glyph, nextGlyph, nextCharData);
 
 			var nextLineY = nextLine.y;
@@ -2917,7 +2917,7 @@ class $className extends peote.view.Program
 				var nextGlyph = nextLine.getGlyph(0);
 				var nextCharData = getCharData(nextGlyph.char);
 				
-				var xOff = rightGlyphPos(glyph, getCharData(glyph.char)) - page.x;
+				var xOff = rightGlyphPos(glyph, getCharData(glyph.char)) - page.x - page.xOffset;
 				var kerningOff = kerningSpaceOffset(glyph, nextGlyph, nextCharData);
 
 				// move all glyphes of nextLine to upper pageLine
