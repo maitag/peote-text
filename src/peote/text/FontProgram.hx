@@ -416,7 +416,7 @@ class $className extends peote.view.Program
 						else return null;
 					}
 				}
-				else if (glyphStyleHasMeta.multiTexture) 
+				else if (glyphStyleHasMeta.multiTexture)
 					macro {
 						var range = font.getRange(tab2space(charcode));
 						if (range != null) {
@@ -553,6 +553,35 @@ class $className extends peote.view.Program
 			}}					
 		}
 		else return 0.0;
+	}
+	
+	// -------------------------------------------------
+	
+	public function getCharSize(charCode:Int, glyphStyle:$styleType):Float {
+		var charData = getCharData(charCode);
+		if (charData == null) return 0.0;
+		
+		${switch (glyphStyleHasMeta.packed)
+		{
+			case true: macro // ------- Gl3Font -------
+			{
+				${switch (glyphStyleHasField.local_width) {
+					case true: macro return (charData.metric.advance - charData.metric.left) * glyphStyle.width;
+					default: switch (glyphStyleHasField.width) {
+						case true: macro return (charData.metric.advance - charData.metric.left) * fontStyle.width;
+						default: macro return (charData.metric.advance - charData.metric.left) * font.config.width;
+				}}}
+			}
+			default: macro // ------- simple font -------
+			{
+				${switch (glyphStyleHasField.local_width) {
+					case true: macro return glyphStyle.width;
+					default: switch (glyphStyleHasField.width) {
+						case true: macro return fontStyle.width;
+						default: macro return font.config.width;
+				}}}
+			}
+		}}
 	}
 	
 	// -------------------------------------------------
