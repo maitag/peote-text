@@ -1897,7 +1897,7 @@ class $className extends peote.view.Program
 	}
 
 	public inline function pageLineWordRight(pageLine:$pageLineType, position:Int):Int {
-		if (position >= pageLine.length) return 0;
+		if (position >= pageLine.length) return pageLine.length;
 		
 		if (pageLineIsWhitespaceCharAt(pageLine, position))
 			while (position < pageLine.length && pageLineIsWhitespaceCharAt(pageLine, position)) position++;
