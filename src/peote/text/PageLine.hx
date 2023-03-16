@@ -64,11 +64,11 @@ class $className
 	}
 	
 	
-	@:allow(peote.text) var visibleFrom(default, null):Int = 0;
-	@:allow(peote.text) var visibleTo(default, null):Int = 0;
+	@:allow(peote.text) public var visibleFrom(default, null):Int = 0;
+	@:allow(peote.text) public var visibleTo(default, null):Int = 0;
 	
-	@:allow(peote.text) var updateFrom(default, null):Int = 0x1000000;
-	@:allow(peote.text) var updateTo(default, null):Int = 0;
+	@:allow(peote.text) public var updateFrom(default, null):Int = 0x1000000;
+	@:allow(peote.text) public var updateTo(default, null):Int = 0;
 	
 	@:allow(peote.text) function new() {}
 }
