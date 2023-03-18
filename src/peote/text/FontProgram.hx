@@ -3310,12 +3310,18 @@ class $className extends peote.view.Program
 						return from;
 					}
 				}
-				default: switch (glyphStyleHasField.width) {
-					case true: macro return Math.round((yPosition - y - page.yOffset) / (fontStyle.height));
-					// TODO: maybe better only setLineMetric() for all pageLines
-					// TODO: case true: macro return Math.round((yPosition - y - page.yOffset + lineSpace(null)/2)/(fontStyle.height + lineSpace(null)));
-					default: macro return Math.round((yPosition - y - page.yOffset)/(font.config.height));
-					// TODO: default: macro return Math.round((yPosition - y - page.yOffset + lineSpace(null)/2)/(font.config.height + lineSpace(null))); 
+				default: 
+					switch (glyphStyleHasField.height) {
+						case true: macro {
+							// TODO: at now for packed only:
+							var h = getCharData(32).fontData.lineHeight;
+												
+							return Std.int((yPosition - page.y - page.yOffset) / (h * fontStyle.height));
+						}
+						// TODO: maybe better only setLineMetric() for all pageLines
+						// TODO: case true: macro return Math.round((yPosition - y - page.yOffset + lineSpace(null)/2)/(fontStyle.height + lineSpace(null)));
+						default: macro return Math.round((yPosition - page.y - page.yOffset) / (h * font.config.height));
+						// TODO: default: macro return Math.round((yPosition - y - page.yOffset + lineSpace(null)/2)/(font.config.height + lineSpace(null))); 
 				}
 			}}
 		}
