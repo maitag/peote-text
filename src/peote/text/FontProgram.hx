@@ -60,7 +60,7 @@ class $className extends peote.view.Program
 	
 	var _buffer:peote.view.Buffer<$glyphType>;
 	
-	public inline function new(font:peote.text.Font<$styleType>, fontStyle:$styleType, isMasked:Bool = false, bufferMinSize:Int = 1024, bufferGrowSize:Int = 1024, bufferAutoShrink:Bool = true)
+	public function new(font:peote.text.Font<$styleType>, fontStyle:$styleType, isMasked:Bool = false, bufferMinSize:Int = 1024, bufferGrowSize:Int = 1024, bufferAutoShrink:Bool = true)
 	{
 		_buffer = new peote.view.Buffer<$glyphType>(bufferMinSize, bufferGrowSize, bufferAutoShrink);
 		super(_buffer);
@@ -1888,7 +1888,10 @@ class $className extends peote.view.Program
 		//trace("pageLineIsWhitespaceCharAt ", position, pageLineIsWhitespaceCharAt(pageLine, position - 1));
 		if (pageLineIsWhitespaceCharAt(pageLine, position - 1))
 			while (position > 0 && pageLineIsWhitespaceCharAt(pageLine, position-1)) position--;
+		
 		//trace("pageLineIsWordCharAt", position, pageLineIsWordCharAt(pageLine, position - 1));
+		if (position <= 0) return 0;
+		
 		if (pageLineIsWordCharAt(pageLine, position-1))
 			while (position > 0 && pageLineIsWordCharAt(pageLine, position-1)) position--;
 		else 
