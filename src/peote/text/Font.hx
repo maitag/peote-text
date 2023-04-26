@@ -147,19 +147,19 @@ class $className
 	// -------- peote-ui ---------
 	
 	#if peote_ui
-	@:keep public function createUITextLine(xPosition:Int, yPosition:Int, ?textSize:peote.ui.util.TextSize, zIndex:Int = 0, text:String,
-	                ?fontStyle:$styleType, ?textStyle:peote.ui.style.TextStyle):peote.ui.interactive.UITextLine<$styleType>
+	@:keep public function createUITextLine(xPosition:Int, yPosition:Int, ?textSize:peote.ui.config.TextSize, zIndex:Int = 0, text:String,
+	                ?fontStyle:$styleType, ?config:peote.ui.config.TextConfig):peote.ui.interactive.UITextLine<$styleType>
 	                //:$uiTextLineType
 	{
-		return new peote.ui.interactive.UITextLine<$styleType>(xPosition, yPosition, textSize, zIndex, text, this, fontStyle, textStyle);
-		//return new $uiTextLinePath(xPosition, yPosition, textSize, zIndex, text, this, fontStyle, textStyle);
+		return new peote.ui.interactive.UITextLine<$styleType>(xPosition, yPosition, textSize, zIndex, text, this, fontStyle, config);
+		//return new $uiTextLinePath(xPosition, yPosition, textSize, zIndex, text, this, fontStyle, config);
 	}
-	@:keep public function createUITextPage(xPosition:Int, yPosition:Int, ?textSize:peote.ui.util.TextSize, zIndex:Int = 0, text:String,
-	                ?fontStyle:$styleType, ?textStyle:peote.ui.style.TextStyle):peote.ui.interactive.UITextPage<$styleType>
+	@:keep public function createUITextPage(xPosition:Int, yPosition:Int, ?textSize:peote.ui.config.TextSize, zIndex:Int = 0, text:String,
+	                ?fontStyle:$styleType, ?config:peote.ui.config.TextConfig):peote.ui.interactive.UITextPage<$styleType>
 	                //:$uiTextPageType
 	{
-		return new peote.ui.interactive.UITextPage<$styleType>(xPosition, yPosition, textSize, zIndex, text, this, fontStyle, textStyle);
-		//return new $uiTextPagePath(xPosition, yPosition, textSize, zIndex, text, this, fontStyle, textStyle);
+		return new peote.ui.interactive.UITextPage<$styleType>(xPosition, yPosition, textSize, zIndex, text, this, fontStyle, config);
+		//return new $uiTextPagePath(xPosition, yPosition, textSize, zIndex, text, this, fontStyle, config);
 	}
 	#end
 	
