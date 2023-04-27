@@ -147,19 +147,19 @@ class $className
 	// -------- peote-ui ---------
 	
 	#if peote_ui
-	@:keep public function createUITextLine(xPosition:Int, yPosition:Int, ?textSize:peote.ui.config.TextSize, zIndex:Int = 0, text:String,
+	@:keep public function createUITextLine(xPosition:Int, yPosition:Int, width:Int, height:Int, zIndex:Int = 0, text:String,
 	                ?fontStyle:$styleType, ?config:peote.ui.config.TextConfig):peote.ui.interactive.UITextLine<$styleType>
 	                //:$uiTextLineType
 	{
-		return new peote.ui.interactive.UITextLine<$styleType>(xPosition, yPosition, textSize, zIndex, text, this, fontStyle, config);
-		//return new $uiTextLinePath(xPosition, yPosition, textSize, zIndex, text, this, fontStyle, config);
+		return new peote.ui.interactive.UITextLine<$styleType>(xPosition, yPosition, width, height, zIndex, text, this, fontStyle, config);
+		//return new $uiTextLinePath(xPosition, yPosition, width, height, zIndex, text, this, fontStyle, config);
 	}
-	@:keep public function createUITextPage(xPosition:Int, yPosition:Int, ?textSize:peote.ui.config.TextSize, zIndex:Int = 0, text:String,
+	@:keep public function createUITextPage(xPosition:Int, yPosition:Int, width:Int, height:Int, zIndex:Int = 0, text:String,
 	                ?fontStyle:$styleType, ?config:peote.ui.config.TextConfig):peote.ui.interactive.UITextPage<$styleType>
 	                //:$uiTextPageType
 	{
-		return new peote.ui.interactive.UITextPage<$styleType>(xPosition, yPosition, textSize, zIndex, text, this, fontStyle, config);
-		//return new $uiTextPagePath(xPosition, yPosition, textSize, zIndex, text, this, fontStyle, config);
+		return new peote.ui.interactive.UITextPage<$styleType>(xPosition, yPosition, width, height, zIndex, text, this, fontStyle, config);
+		//return new $uiTextPagePath(xPosition, yPosition, width, height, zIndex, text, this, fontStyle, config);
 	}
 	#end
 	
