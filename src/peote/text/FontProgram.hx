@@ -228,7 +228,7 @@ class $className extends peote.view.Program
 	{
 		this.fontStyle = fontStyle;
 		
-		alphaEnabled = true;		
+		blendEnabled = true;		
 		
 		var color:String;
 		${switch (glyphStyleHasField.local_color) {
