@@ -92,7 +92,8 @@ class Pages extends Application
 
 			//var page = fontProgram.createPage("hello world", 30, 30, 500, null, 0, 0, glyphStyle);
 			var page = fontProgram.createPage("hello world", 30, 30, 500, 40, 0, 0, glyphStyle);
-			trace('textWidth=${page.textWidth}\nlongestLines=${page.longestLines}');
+			//trace('textWidth=${page.textWidth}\nlongestLines=${page.longestLines}');
+			trace('textWidth=${page.textWidth}');
 			
 			// helper tp show visible area
 			var buffer = new Buffer<HelperElement>(1);
@@ -109,7 +110,8 @@ class Pages extends Application
 						+ "Ein fürwahr überaus betrüblicher Aspekt,\r\nder aber immerhin ein wenig unterschiedlich ist:\rSeidenstrümpfe können begriffen werden, \nGauguins nicht."
 						;
 				fontProgram.pageSet(page, text, glyphStyle);
-				trace('textWidth=${page.textWidth}\nlongestLines=${page.longestLines}');
+				//trace('textWidth=${page.textWidth}\nlongestLines=${page.longestLines}');
+				trace('textWidth=${page.textWidth}');
 				//fontProgram.pageSet(page, text, 10, 10, glyphStyle);
 				
 				trace("after pageSet:",page.updateLineFrom, page.updateLineTo);
