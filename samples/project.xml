@@ -6,7 +6,7 @@
 	<android target-sdk-version="28" />
 	<!-- <meta build-number="714" /> --> <!-- let set the buildnumber manual (android) -->
 	
-	<app main="Pages" path="bin" file="Main" />
+	<app main="Gl3FontRendering" path="bin" file="Main" />
 	<!--
 		Gl3FontRendering,
 		Glyphes,
@@ -58,6 +58,7 @@
 	<!-- <haxedef name="source-map-content" /> --> <!-- to debug with chrome id needs also "-debug" -->
 	<haxeflag name="-dce" value="full" />
 	<!-- <haxedef name="dump=pretty output" /> -->
+	<haxedef name="keep_inline_positions" />
 	
 	<!-- <haxedef name="HXCPP_CHECK_POINTER"/> -->
 	<!-- <haxedef name="HXCPP_M32" if="cpp" /> --> <!-- on windows 64 is default -->

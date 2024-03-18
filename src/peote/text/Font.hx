@@ -321,10 +321,7 @@ class $className
 					if (item.slot.height > h) h = item.slot.height;
 				}
 				textureCache = new peote.view.Texture(w, h, config.ranges.length,
-					4,// colors -> TODO
-					false, // mipmaps
-					1, 1, // min/mag-filter
-					maxTextureSize
+					{format:peote.view.TextureFormat.RGBA, maxTextureSize:maxTextureSize, smoothShrink: true, smoothExpand: true}
 				);
 			}
 		}}
@@ -404,13 +401,13 @@ class $className
 							}
 							default: switch (glyphStyleHasMeta.multiSlot) {
 								case true: macro {
-									textureCache.setImage(image, index);
+									textureCache.setData(image, index);
 									for (i in Std.int(range.min / rangeSize)...Std.int(range.max / rangeSize)+1) {
 										rangeMapping.set(i, {slot:index, fontData:gl3font});
 									}
 								}
 								default: macro {
-									textureCache.setImage(image);
+									textureCache.setData(image);
 									rangeMapping = gl3font;
 								}
 							}
@@ -464,13 +461,17 @@ class $className
 							}
 							default: switch (glyphStyleHasMeta.multiSlot) {
 								case true: macro {
-									textureCache.setImage(image, index, tilesX, tilesY);
+									textureCache.setData(image, index);
+									textureCache.tilesX = tilesX;
+									textureCache.tilesY = tilesY;
 									for (i in Std.int(range.min / rangeSize)...Std.int(range.max / rangeSize)+1) {
 										rangeMapping.set(i, {slot:index, min:range.min, max:range.max, height:lineHeight, base:lineBase});
 									}
 								}
 								default: macro {
-									textureCache.setImage(image, 0, tilesX, tilesY);
+									textureCache.setData(image, 0);
+									textureCache.tilesX = tilesX;
+									textureCache.tilesY = tilesY;
 									rangeMapping = {min:range.min, max:range.max, height:lineHeight, base:lineBase};
 								}
 							}

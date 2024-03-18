@@ -19,7 +19,10 @@ import peote.view.Buffer;
 import peote.view.Program;
 import peote.view.Color;
 import peote.view.Texture;
-import peote.view.utils.Util;
+import peote.view.TextureData;
+import peote.view.TextureConfig;
+import peote.view.TextureFormat;
+import peote.view.intern.Util;
 import peote.view.Element;
 
 import peote.text.Gl3FontData;
@@ -104,8 +107,8 @@ class Gl3FontRendering extends Application
 		//loadFont("assets/fonts/packed/unifont/unifont_3000-3fff", 0x3000, 0x3fff, false,
 			function(gl3font:Gl3FontData, image:Image, isKerning:Bool)
 			{
-				var texture = new Texture(image.width, image.height, 1, 4, false, 1, 1);
-				texture.setImage(image);
+				var texture = new Texture(image.width, image.height, 1, {format:TextureFormat.RGBA, smoothShrink: true, smoothExpand: true});
+				texture.setData(image);
 				program.setTexture(texture, "TEX");
 				display.addProgram(program);    // programm to display
 				

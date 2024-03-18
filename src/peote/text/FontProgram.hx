@@ -253,12 +253,12 @@ class $className extends peote.view.Program
 			${switch (glyphStyleHasField.local_weight) {
 				case true:  macro weight = "weight";
 				default: switch (glyphStyleHasField.weight) {
-					case true: macro weight = peote.view.utils.Util.toFloatString(fontStyle.weight);
+					case true: macro weight = peote.view.intern.Util.toFloatString(fontStyle.weight);
 					default: macro {}
 				}
 			}}
 			
-			var sharp = peote.view.utils.Util.toFloatString(0.5);
+			var sharp = peote.view.intern.Util.toFloatString(0.5);
 			
 			${switch (glyphStyleHasField.local_bgColor) {
 				case true: macro setColorFormula("mix(" + bgColor + "," + color + "," + "smoothstep( " + weight + " - " + sharp + " * fwidth(TEX.r), " + weight + " + " + sharp + " * fwidth(TEX.r), TEX.r))");
@@ -318,12 +318,12 @@ class $className extends peote.view.Program
 		}
 
 		${switch (glyphStyleHasField.zIndex && !glyphStyleHasField.local_zIndex) {
-			case true: macro setFormula("zIndex", peote.view.utils.Util.toFloatString(fontStyle.zIndex));
+			case true: macro setFormula("zIndex", peote.view.intern.Util.toFloatString(fontStyle.zIndex));
 			default: macro {}
 		}}
 		
 		${switch (glyphStyleHasField.rotation && !glyphStyleHasField.local_rotation) {
-			case true: macro setFormula("rotation", peote.view.utils.Util.toFloatString(fontStyle.rotation));
+			case true: macro setFormula("rotation", peote.view.intern.Util.toFloatString(fontStyle.rotation));
 			default: macro {}
 		}}
 		
@@ -332,7 +332,7 @@ class $className extends peote.view.Program
 		${switch (glyphStyleHasField.local_tilt) {
 			case true:  macro tilt = "tilt";
 			default: switch (glyphStyleHasField.tilt) {
-				case true: macro tilt = peote.view.utils.Util.toFloatString(fontStyle.tilt);
+				case true: macro tilt = peote.view.intern.Util.toFloatString(fontStyle.tilt);
 				default: macro {}
 			}
 		}}
@@ -352,17 +352,17 @@ class $className extends peote.view.Program
 					case true: macro {}
 					default: switch (glyphStyleHasField.width) {
 						case true:
-							macro setFormula("width", peote.view.utils.Util.toFloatString(fontStyle.width));
+							macro setFormula("width", peote.view.intern.Util.toFloatString(fontStyle.width));
 						default:
-							macro setFormula("width", peote.view.utils.Util.toFloatString(font.config.width));
+							macro setFormula("width", peote.view.intern.Util.toFloatString(font.config.width));
 				}}}
 				${switch (glyphStyleHasField.local_height) {
 					case true: macro {}
 					default: switch (glyphStyleHasField.height) {
 						case true:
-							macro setFormula("height", peote.view.utils.Util.toFloatString(fontStyle.height));
+							macro setFormula("height", peote.view.intern.Util.toFloatString(fontStyle.height));
 						default:
-							macro setFormula("height", peote.view.utils.Util.toFloatString(font.config.height));
+							macro setFormula("height", peote.view.intern.Util.toFloatString(font.config.height));
 				}}}
 				
 				// mixing alpha while use of zIndex
