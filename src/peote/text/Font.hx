@@ -50,7 +50,7 @@ class FontMacro
 			var textureType:ComplexType;
 			
 			if (glyphStyleHasMeta.multiTexture) {
-				textureType = macro: peote.view.utils.TextureCache;
+				textureType = macro: peote.view.TextureCache;
 				if (glyphStyleHasMeta.multiSlot) {
 					if (glyphStyleHasMeta.packed) {
 						rangeType = macro: {unit:Int, slot:Int, fontData:peote.text.Gl3FontData};
@@ -303,15 +303,9 @@ class $className
 						}
 						default: macro {}
 					}}
-					if (!found) sizes.push({width:item.slot.width, height:item.slot.height, slots:1});
+					if (!found) sizes.push({width:item.slot.width, height:item.slot.height, slots:1, config:{format:peote.view.utils.TextureFormat.RGBA, smoothExpand:true, smoothShrink:true}});
 				}
-				textureCache = new peote.view.utils.TextureCache(
-					sizes,
-					4, // colors -> TODO
-					false, // mipmaps
-					1,1, // min/mag-filter
-					maxTextureSize
-				);
+				textureCache = new peote.view.TextureCache(sizes);
 			}
 			default: macro {
 				var w:Int = 0;
