@@ -289,7 +289,7 @@ class $className
 		
 		${switch (glyphStyleHasMeta.multiTexture) {
 			case true: macro {
-				var sizes = new Array<{width:Int, height:Int, slots:Int}>();
+				var sizes = new Array<{width:Int, height:Int, slots:Int, config:peote.view.TextureConfig}>();
 				for (item in config.ranges) {
 					var found = false;
 					${switch (glyphStyleHasMeta.multiSlot) {
@@ -303,7 +303,7 @@ class $className
 						}
 						default: macro {}
 					}}
-					if (!found) sizes.push({width:item.slot.width, height:item.slot.height, slots:1, config:{format:peote.view.utils.TextureFormat.RGBA, smoothExpand:true, smoothShrink:true}});
+					if (!found) sizes.push({width:item.slot.width, height:item.slot.height, slots:1, config:{format:peote.view.TextureFormat.RGBA, smoothExpand:true, smoothShrink:true}});
 				}
 				textureCache = new peote.view.TextureCache(sizes);
 			}
@@ -349,6 +349,7 @@ class $className
 		// TODO
 	}
 	
+	@:access(peote.text.Range)
 	private function loadImages(?gl3FontData:Array<peote.text.Gl3FontData>, onLoad:peote.text.Font<$styleType>->Void, onProgressOverall:Int->Int->Void, debug:Bool):Void
 	{		
 		//trace("load images");
@@ -381,10 +382,10 @@ class $className
 						
 						// sort ranges into rangeMapping
 						var range = config.ranges[index].range;
-						
+
 						${switch (glyphStyleHasMeta.multiTexture) {
 							case true: macro {
-								var p = textureCache.addImage(image); 
+								var p = textureCache.addData(image); 
 								//trace( image.width+"x"+image.height, "texture-unit:" + p.unit, "texture-slot:" + p.slot);							
 								for (i in Std.int(range.min / rangeSize)...Std.int(range.max / rangeSize) + 1) {
 									${switch (glyphStyleHasMeta.multiSlot) {
@@ -406,6 +407,10 @@ class $className
 								}
 							}
 						}}
+
+						// because first charcode is need to get the default metrics sometimes (e.g. for new pagelines)
+						range.min = gl3font.firstCharCode;
+						
 					}
 					default: macro // ------- simple font -------
 					{

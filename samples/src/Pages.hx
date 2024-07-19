@@ -54,9 +54,9 @@ class Pages extends Application
 		peoteView.addDisplay(display);
 		
 		new Font<GlyphStylePacked>("assets/fonts/packed/hack/config.json")
-		//new Font<GlyphStylePacked>("assets/fonts/packed/unifont/config.json", [new peote.text.Range(0x0000,0x0fff)])
-		//new Font<GlyphStylePacked>("assets/fonts/packed/unifont/config.json")
-		//new Font<GlyphStylePacked>("assets/fonts/packed/unifont/config.json", [peote.text.Range.C0ControlsBasicLatin(), peote.text.Range.C1ControlsLatin1Supplement()])
+		// new Font<GlyphStylePacked>("assets/fonts/packed/unifont/config.json", [new peote.text.Range(0x0000,0x0fff)])
+		// new Font<GlyphStylePacked>("assets/fonts/packed/unifont/config.json")
+		// new Font<GlyphStylePacked>("assets/fonts/packed/unifont/config.json", [peote.text.Range.C0ControlsBasicLatin(), peote.text.Range.C1ControlsLatin1Supplement()])
 		//new Font<GlyphStyleTiled>("assets/fonts/tiled/hack_ascii.json")
 		//new Font<GlyphStyleTiled>("assets/fonts/tiled/liberation_ascii.json")
 		//new Font<GlyphStyleTiled>("assets/fonts/tiled/peote.json")

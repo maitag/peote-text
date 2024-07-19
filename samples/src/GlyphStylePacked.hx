@@ -2,9 +2,9 @@ package;
 
 import peote.view.Color;
 
-//@multiSlot    // multiple slots per texture to store multiple unicode-ranges
-//@multiTexture // multiple textures to store multiple unicode-ranges
-//@useInt // TODO
+// @multiSlot    // multiple slots per texture to store multiple unicode-ranges
+// @multiTexture // multiple textures to store multiple unicode-ranges
+// @useInt // TODO
 @packed  // glyphes are packed into textureatlas with ttfcompile (gl3font)
 class GlyphStylePacked 
 {

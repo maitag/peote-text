@@ -145,18 +145,21 @@ haxelib git peote-text https://github.com/maitag/peote-text
 - pageTextWidthAfterShrink(page:Page<$styleType>, pageLine:PageLine<$styleType>)
 - pageTextWidthAfterDelete(page:Page<$styleType>)
 
-- ----- TODO: ------
+
 - pageGetChars    (page:Page<$styleType>, fromLine:Int = 0, fromChar:Int = 0, ?toLine:Null<Int>, ?toChar:Null<Int>):String
 - pageCutChars    (page:Page<$styleType>, fromLine:Int = 0, fromChar:Int = 0, ?toLine:Null<Int>, ?toChar:Null<Int>):String
 
 - pageDeleteChars (page:Page<$styleType>, fromLine:Int, toLine:Int, fromChar:Int, toChar:Int, addRemoveGlyphes:Bool = true)
 
+
+- ----- TODO: ------
 - pageSetChars    (page:Page<$styleType>, chars:String, fromLine:Int = 0, fromChar:Int = 0, ?toLine:Null<Int>, ?toChar:Null<Int>)
 - pageReplaceChars(page:Page<$styleType>, chars:String, fromLine:Int = 0, fromChar:Int = 0, ?toLine:Null<Int>, ?toChar:Null<Int>)
 
-- pageAddLinefeed   (page:Page<$styleType>, lineNumber:Int, ?glyphStyle:$styleType, ?defaultFontRange:Null<Int>, addRemoveGlyphes:Bool = true)
-- pageNewLinefeed   (page:Page<$styleType>, lineNumber:Int, afterLine:Bool = true, ?glyphStyle:$styleType, ?defaultFontRange:Null<Int>, addRemoveGlyphes:Bool = true)
-- pageRemoveLinefeed(page:Page<$styleType>, lineNumber:Int, addRemoveGlyphes:Bool = true)
+
+- pageAddLinefeedAt (page:Page<$styleType>, ?pageLine:PageLine<$styleType>, lineNumber:Int, position:Int = 0, ?glyphStyle:$styleType, ?defaultFontRange:Null<Int>, addRemoveGlyphes:Bool = true)
+- pageNewLinefeed   (page:Page<$styleType>, ?pageLine:PageLine<$styleType>, lineNumber:Int, afterLine:Bool = true, ?glyphStyle:$styleType, ?defaultFontRange:Null<Int>, addRemoveGlyphes:Bool = true)
+- pageRemoveLinefeed(page:Page<$styleType>, ?pageLine:PageLine<$styleType>, lineNumber:Int, addRemoveGlyphes:Bool = true)
 
 - pageDeleteLine(page:Page<$styleType>, lineNumber:Int)
 - pageDeleteLines(page:Page<$styleType>, fromLineNumber:Int, toLineNumber:Int)

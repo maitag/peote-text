@@ -549,7 +549,7 @@ class Range {
 	
 	public var min(default, null):Int;
 	public var max(default, null):Int;
-	
+
 	public inline function new(min:Int, max:Int)
 	{
 		this.min = min;

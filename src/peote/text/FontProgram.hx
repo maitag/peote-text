@@ -673,7 +673,7 @@ class $className extends peote.view.Program
 	}
 	
 	inline function setSize(glyph:$glyphType, charData:$charDataType)
-	{
+	{	
 		${switch (glyphStyleHasMeta.packed)
 		{
 			case true: macro // ------- Gl3Font -------
@@ -700,7 +700,7 @@ class $className extends peote.view.Program
 	}
 
 	inline function setCharcode(glyph:$glyphType, charcode:Int, charData:$charDataType)
-	{		
+	{	
 		glyph.char = charcode;
 		
 		${switch (glyphStyleHasMeta.multiTexture) {
@@ -1025,6 +1025,7 @@ class $className extends peote.view.Program
 	}
 	
 	inline function _setLineMetric(pageLine:$pageLineType, glyph:$glyphType, charData:$charDataType) {
+		
 		if (glyph != null) {
 			${switch (glyphStyleHasMeta.packed) {
 				case true: macro {
@@ -2987,9 +2988,9 @@ class $className extends peote.view.Program
 		}
 	}
 
-// TODO:	
 	public function pageDeleteLine(page:Page<$styleType>, lineNumber:Int, addRemoveGlyphes:Bool = true) {
-		
+		var pageLine = page.getPageLine(lineNumber);
+		_pageDeleteLine(page, pageLine, pageLine.y, lineNumber, addRemoveGlyphes);
 	}
 	
 	public function pageDeleteLines(page:Page<$styleType>, fromLine:Int, toLine:Int, addRemoveGlyphes:Bool = true) 
@@ -2997,9 +2998,9 @@ class $className extends peote.view.Program
 		//trace("pageDeleteLines from/to", fromLine,  toLine);		
 		var oldTextSize:Float = 0.0;
 		for (i in fromLine...toLine) {
-			var _pageLine = page.getPageLine(i);
-			if (_pageLine.textSize > oldTextSize) oldTextSize = _pageLine.textSize;
-			if (addRemoveGlyphes && pageLineIsVisible(page, i)) pageLineRemove(_pageLine);
+			var pageLine = page.getPageLine(i);
+			if (pageLine.textSize > oldTextSize) oldTextSize = pageLine.textSize;
+			if (addRemoveGlyphes && pageLineIsVisible(page, i)) pageLineRemove(pageLine);
 		}
 		pageTextWidthAfterChangeMultiple(page, fromLine, toLine, oldTextSize, 0.0);
 		_pageDeleteLines(page, page.getPageLine(fromLine).y, fromLine, toLine, addRemoveGlyphes);
@@ -3008,7 +3009,6 @@ class $className extends peote.view.Program
 	
 	inline function _pageDeleteLine(page:Page<$styleType>, pageLine:PageLine<$styleType>, pageLineY:Float, lineNumber:Int, addRemoveGlyphes:Bool = true) 
 	{
-		var oldTextSize = pageLine.textSize;
 		page.spliceLines(lineNumber, 1); // delete
 		
 		pageTextWidthAfterChange(page, pageLine.textSize, 0.0);
@@ -3091,8 +3091,70 @@ class $className extends peote.view.Program
 	}
 	
 	
-// ------------------	
+	// ------------ wrap lines ----------------------------------
+
+	// TODO:
+	public function pageWrapLine(page:Page<$styleType>, lineNumber:Int, wordwrap:Bool = false, updatePageTextWidth:Bool = true, ?glyphStyle:$styleType, ?defaultFontRange:Null<Int>, addRemoveGlyphes:Bool = true):Int {
+		trace("pageWrapLine ", lineNumber);
+		var pageLine = page.getPageLine(lineNumber);
+		var position:Int;
+		var glyph:Glyph<$styleType>;
+		var repeat = true;
+		var oldSize:Float = pageLine.textSize;
+		var newSize:Float = 0.0;
+		var i:Int = 0;
+		while (repeat && pageLine.textSize > page.width) {
+			position = pageLine.visibleTo - 1;
+			glyph = pageLine.getGlyph(position);
+			// trace("glyph", glyph.char, rightGlyphPos(glyph, getCharData(glyph.char)) , page.x + page.width );			
+			if (wordwrap) {
+				while (position > 0 && glyph.char != 32 && glyph.char != 9) {
+					position--;
+					glyph = pageLine.getGlyph(position);
+				}
+				if (position == 0) {
+					position = pageLine.visibleTo - 1;
+					glyph = pageLine.getGlyph(position);
+				}
+			}
+			if (glyph.char == 32 || glyph.char == 9 || rightGlyphPos(glyph, getCharData(glyph.char)) <= page.x + page.width) {
+				position++;
+				glyph = pageLine.getGlyph(position);
+				while (position < pageLine.length && (glyph.char == 32 || glyph.char == 9)) {
+					position++;
+					glyph = pageLine.getGlyph(position);
+				}				
+			}
+			if (position > 0 && position < pageLine.length) {
+				pageInsertChars(page, "\n", lineNumber, position, glyphStyle, defaultFontRange, addRemoveGlyphes);			
+				if (pageLine.textSize > newSize) newSize = pageLine.textSize;
+				pageLine = page.getPageLine(++lineNumber);
+				i++;
+			} else repeat = false;
+		}
+		// this is timecritical and not need if the complete page is wrapped:
+		if (updatePageTextWidth && newSize > 0.0) pageTextWidthAfterChange(page, oldSize, newSize);
+		return i;
+	}
 	
+	/*
+	public function pageWrapLines(page:Page<$styleType>, fromLine:Int, toLine:Int, wordwrap:Bool = false, addRemoveGlyphes:Bool = true ) {
+		//trace("pageWrapLines from/to", fromLine,  toLine);		
+		var oldTextSize:Float = 0.0;
+		for (i in fromLine...toLine) {
+			var _pageLine = page.getPageLine(i);
+			if (_pageLine.textSize > oldTextSize) oldTextSize = _pageLine.textSize;
+			// if (addRemoveGlyphes && pageLineIsVisible(page, i)) pageLineWrap(_pageLine, wordwrap);
+		}
+		pageTextWidthAfterChangeMultiple(page, fromLine, toLine, oldTextSize, 0.0);
+		// _pageWrapLines(page, page.getPageLine(fromLine).y, fromLine, toLine, addRemoveGlyphes);
+
+	}	
+	
+	public function pageUnwrapLines(page:Page<$styleType>, fromLine:Int, toLine:Int, addRemoveGlyphes:Bool = true ) {
+
+	}	
+	*/
 	
 	
 	// ------------ position, size and offset -------------------

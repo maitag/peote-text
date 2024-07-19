@@ -6,7 +6,7 @@
 	<android target-sdk-version="28" />
 	<!-- <meta build-number="714" /> --> <!-- let set the buildnumber manual (android) -->
 	
-	<app main="Gl3FontRendering" path="bin" file="Main" />
+	<app main="PageWrapping" path="bin" file="Main" />
 	<!--
 		Gl3FontRendering,
 		Glyphes,
@@ -14,6 +14,7 @@
 		Lines,
 		InputLine,
 		Pages
+		PageWrapping
 	-->
 	<!--<define name="stats" if="html5" />-->
 	

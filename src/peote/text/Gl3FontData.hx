@@ -14,6 +14,8 @@ class Gl3FontData
 {
 	public var rangeMin:Int;
 	public var rangeMax:Int;
+
+	public var firstCharCode:Int;
 	
 	#if (neko || cpp)
     public var metrics:Vector<Metric>;
@@ -50,6 +52,10 @@ class Gl3FontData
 		
 		for (i in 0...N) {
 			var charcode = bytes.getInt32(pos); pos += 4;
+
+			// because first charcode is need to get the default metrics sometimes (e.g. for new pagelines)
+			if (i==0) firstCharCode = charcode;
+
 			var m:Metric = {
 				kerning : i,
 				advance : bytes.getFloat(pos   ) / lineHeight,
