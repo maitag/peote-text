@@ -4,9 +4,9 @@
 	"license": "MIT",
 	"tags": ["peote", "text", "textrendering", "font", "glyph"],
 	"description": "Glyph and Textrendering for peote-view",
-	"version": "0.9.0",
+	"version": "0.9.1",
 	"classPath": "src/",
-	"releasenote": "removing background-functions and adding skin instead",
+	"releasenote": "fixing macros how it detects already generated types (lang-server cache glitch)",
 	"contributors": ["Sylvio Sell - maitag"],
 	"dependencies": {
 		"lime": "",

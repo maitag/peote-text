@@ -9,6 +9,7 @@ import haxe.macro.TypeTools;
 
 class Macro
 {
+	/*
 	public static var cache = new Map<String, Bool>();
 	
 	static public function isNotGenerated(className:String):Bool {
@@ -18,6 +19,13 @@ class Macro
 			return true;
 		}
 	}
+	*/
+	static public function typeNotGenerated(fullyQualifiedName:String):Bool {
+		try {
+            if(Context.getType(fullyQualifiedName) != null) return false;
+        } catch(_) {}
+        return true;
+    }
 
 	static public function build(className:String,
 		buildClass:String // className

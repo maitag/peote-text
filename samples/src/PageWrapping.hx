@@ -102,7 +102,7 @@ class PageWrapping extends Application
 						+ "Ein fürwahr überaus betrüblicher Aspekt,\r\nder aber immerhin ein wenig unterschiedlich ist:\rSeidenstrümpfe können begriffen werden, \nGauguins nicht."
 						;
 			//var page = fontProgram.createPage(text, 30, 30, 500, null, 0, 0, glyphStyle);
-			var page = fontProgram.createPage(text, 30, 30, 510, 200, 0, 0, glyphStyle);
+			var page = fontProgram.createPage(text, 30, 30, 517, 200, 0, 0, glyphStyle);
 			//trace('textWidth=${page.textWidth}\nlongestLines=${page.longestLines}');
 			trace('textWidth=${page.textWidth}');
 			
@@ -115,7 +115,7 @@ class PageWrapping extends Application
 			display.addProgram(helperProgram, true);
 			
 			Timer.delay(function() {
-				var numWrapped = fontProgram.pageWrapLine(page, 1, true, false, glyphStyle);
+				var numWrapped = fontProgram.pageWrapLine(page, 1, false, false, glyphStyle);
 				trace("numwrapped:", numWrapped);
 				//trace('textWidth=${page.textWidth}\nlongestLines=${page.longestLines}');
 				

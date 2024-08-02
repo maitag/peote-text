@@ -35,7 +35,7 @@ class GlyphStylePacked
 	public var weight:Float = 0.5; // for distance field fonts
 	
 	// adjusting Glyphes inside Line
-	//public var letterSpace:Float = 5.0;
+	// public var letterSpace:Float = 5.0;
 	
 	// outline/glow for distance field fonts
 	

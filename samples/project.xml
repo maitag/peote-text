@@ -6,7 +6,7 @@
 	<android target-sdk-version="28" />
 	<!-- <meta build-number="714" /> --> <!-- let set the buildnumber manual (android) -->
 	
-	<app main="PageWrapping" path="bin" file="Main" />
+	<app main="Fonts" path="bin" file="Main" />
 	<!--
 		Gl3FontRendering,
 		Glyphes,
