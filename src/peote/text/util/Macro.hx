@@ -9,6 +9,10 @@ import haxe.macro.TypeTools;
 
 class Macro
 {
+	// here is battle-test for the various ways:
+	// https://github.com/HaxeFoundation/haxe/blob/62854a7c2947ca95fd7b85a80d7e056cbf1d4d41/tests/server/test/templates/csSafeTypeBuilding/Macro.macro.hx#L14
+	// (thx to Rudy *hugs)
+	
 	/*
 	public static var cache = new Map<String, Bool>();
 	
@@ -26,6 +30,8 @@ class Macro
         } catch(_) {}
         return true;
     }
+	
+	// --------------------------------------------------------
 
 	static public function build(className:String,
 		buildClass:String // className
