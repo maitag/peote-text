@@ -24,12 +24,31 @@ class Macro
 		}
 	}
 	*/
+	/*
 	static public function typeNotGenerated(fullyQualifiedName:String):Bool {
 		try {
-            if(Context.getType(fullyQualifiedName) != null) return false;
-        } catch(_) {}
-        return true;
-    }
+			if(Context.getType(fullyQualifiedName) != null) return false;
+		} catch(_) {}
+		return true;
+	}
+	*/
+	// ---------------------------------------------------------
+
+	@:persistent static var generated = new Map<String, Bool>();
+
+	static function isAlive(name:String):Bool {
+		return try Context.getType(name) != null
+			catch(s:String) {
+				if (s != 'Type not found \'$name\'') throw(s);
+				false;
+			};
+	}
+
+	static public inline function typeAlreadyGenerated(fullyQualifiedName:String):Bool {
+		if ( generated.exists(fullyQualifiedName) && isAlive(fullyQualifiedName) ) return true;
+		generated.set(fullyQualifiedName, true);
+		return false;
+	}
 	
 	// --------------------------------------------------------
 

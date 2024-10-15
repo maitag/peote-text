@@ -15,10 +15,14 @@ class FontProgramMacro
 	static public function buildClass(className:String, classPackage:Array<String>, stylePack:Array<String>, styleModule:String, styleName:String, styleSuperModule:String, styleSuperName:String, styleType:ComplexType, styleField:Array<String>):ComplexType
 	{
 		className += Macro.classNameExtension(styleName, styleModule);
+
+		var fullyQualifiedName:String = classPackage.concat([className]).join('.');
+		var tp = TPath({ pack:classPackage, name:className, params:[] });
+		if ( Macro.typeAlreadyGenerated(fullyQualifiedName) ) return tp;
 		
-		if ( Macro.typeNotGenerated(classPackage.concat([className]).join('.')) )
+		// if ( Macro.typeNotGenerated(classPackage.concat([className]).join('.')) )
 		// if ( Macro.isNotGenerated(className) )
-		{
+		// {
 			Macro.debug(className, classPackage, stylePack, styleModule, styleName, styleSuperModule, styleSuperName, styleType, styleField);
 
 			var glyphType = Glyph.GlyphMacro.buildClass("Glyph", classPackage, stylePack, styleModule, styleName, styleSuperModule, styleSuperName, styleType, styleField);
@@ -3096,6 +3100,7 @@ class $className extends peote.view.Program
 
 	// TODO:
 	public function pageWrapLine(page:Page<$styleType>, lineNumber:Int, wordwrap:Bool = false, updatePageTextWidth:Bool = true, ?glyphStyle:$styleType, ?defaultFontRange:Null<Int>, addRemoveGlyphes:Bool = true):Int {
+		if (lineNumber >= page.length) return 0;
 		trace("pageWrapLine ", lineNumber);
 		var pageLine = page.getPageLine(lineNumber);
 		var position:Int;
@@ -3400,9 +3405,11 @@ class $className extends peote.view.Program
 // -------------------------------------------------------------------------------------------
 // -------------------------------------------------------------------------------------------
 			
-			Context.defineModule(classPackage.concat([className]).join('.'),[c]);
-		}
-		return TPath({ pack:classPackage, name:className, params:[] });
+			// Context.defineModule(classPackage.concat([className]).join('.'),[c]);
+			Context.defineModule(fullyQualifiedName, [c]);
+		// }
+		// return TPath({ pack:classPackage, name:className, params:[] });
+		return tp;
 	}
 }
 #end

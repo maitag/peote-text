@@ -15,10 +15,14 @@ class GlyphMacro
 	static public function buildClass(className:String, classPackage:Array<String>, stylePack:Array<String>, styleModule:String, styleName:String, styleSuperModule:String, styleSuperName:String, styleType:ComplexType, styleField:Array<String>):ComplexType
 	{
 		className += Macro.classNameExtension(styleName, styleModule);
+
+		var fullyQualifiedName:String = classPackage.concat([className]).join('.');
+		var tp = TPath({ pack:classPackage, name:className, params:[] });
+		if ( Macro.typeAlreadyGenerated(fullyQualifiedName) ) return tp;
 		
-		if ( Macro.typeNotGenerated(classPackage.concat([className]).join('.')) )
+		// if ( Macro.typeNotGenerated(classPackage.concat([className]).join('.')) )
 		// if ( Macro.isNotGenerated(className) )
-		{
+		// {
 			Macro.debug(className, classPackage, stylePack, styleModule, styleName, styleSuperModule, styleSuperName, styleType, styleField);
 						
 			var glyphStyleHasMeta  = Macro.parseGlyphStyleMetas(styleModule+"."+styleName); //trace("Glyph - glyphStyleHasMeta:", glyphStyleHasMeta);
@@ -288,10 +292,12 @@ class $className implements peote.view.Element
 				});
 				
 			}
-			Context.defineModule(classPackage.concat([className]).join('.'),[c]);
+			// Context.defineModule(classPackage.concat([className]).join('.'),[c]);
+			Context.defineModule(fullyQualifiedName, [c]);
 			//trace(new haxe.macro.Printer().printTypeDefinition(c));
-		}
-		return TPath({ pack:classPackage, name:className, params:[] });
+		// }
+		// return TPath({ pack:classPackage, name:className, params:[] });
+		return tp;
 	}
 }
 #end
