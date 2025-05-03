@@ -15,87 +15,95 @@ class FontMacro
 	static public function buildClass(className:String, classPackage:Array<String>, stylePack:Array<String>, styleModule:String, styleName:String, styleSuperModule:String, styleSuperName:String, styleType:ComplexType, styleField:Array<String>):ComplexType
 	{
 		className += Macro.classNameExtension(styleName, styleModule);
-
 		var fullyQualifiedName:String = classPackage.concat([className]).join('.');
-		var tp = TPath({ pack:classPackage, name:className, params:[] });
-		if ( Macro.typeAlreadyGenerated(fullyQualifiedName) ) return tp;
-		
-		// if ( Macro.typeNotGenerated(classPackage.concat([className]).join('.')) )
-		// if ( Macro.isNotGenerated(className) )
-		// {
+
+		if ( !Macro.typeAlreadyGenerated(fullyQualifiedName) )
+		{	
 			Macro.debug(className, classPackage, stylePack, styleModule, styleName, styleSuperModule, styleSuperName, styleType, styleField);
 
-			//var fontProgramType = FontProgram.FontProgramMacro.buildClass("FontProgram", classPackage, stylePack, styleModule, styleName, styleSuperModule, styleSuperName, styleType, styleField);
+			var fontProgramType = //FontProgram.FontProgramMacro.buildClass("FontProgram", classPackage, stylePack, styleModule, styleName, styleSuperModule, styleSuperName, styleType, styleField);
+				// TPath({ pack:classPackage, name:"FontProgram" + Macro.classNameExtension(styleName, styleModule), params:[] });
+				TPath({ pack:classPackage, name:"FontProgram", params:[TPType(styleType)] });
+
 			var glyphType  = Glyph.GlyphMacro.buildClass("Glyph", classPackage, stylePack, styleModule, styleName, styleSuperModule, styleSuperName, styleType, styleField);
 			var lineType  = Line.LineMacro.buildClass("Line", classPackage, stylePack, styleModule, styleName, styleSuperModule, styleSuperName, styleType, styleField);
 			//var pageLineType = 
-			PageLine.PageLineMacro.buildClass("PageLine", classPackage, stylePack, styleModule, styleName, styleSuperModule, styleSuperName, styleType, styleField);
+			// PageLine.PageLineMacro.buildClass("PageLine", classPackage, stylePack, styleModule, styleName, styleSuperModule, styleSuperName, styleType, styleField);
 			
-			#if peote_ui
-			var uiTextLineType = peote.ui.interactive.UITextLine.UITextLineMacro.buildClass("UITextLine", ["peote","ui","interactive"], stylePack, styleModule, styleName, styleSuperModule, styleSuperName, styleType, styleField);
-			//var uiTextLinePath:TypePath =  { pack:["peote","ui","interactive"], name:"UITextLine" + Macro.classNameExtension(styleName, styleModule), params:[] };
-			#end
-			
-			var styleModulName = styleModule.split(".").pop();
-			var stylePath:TypePath = ( styleModulName == styleName) ? { pack:stylePack, name:styleName, params:[] } 
-				:{ pack:stylePack, name:styleModulName, params:[], sub:styleName } ;
-			
-			
+			var fontType:ComplexType =  TPath({ pack:classPackage, name:"Font" + Macro.classNameExtension(styleName, styleModule), params:[] });
+
 			var fontProgramPath:TypePath =  { pack:classPackage, name:"FontProgram" + Macro.classNameExtension(styleName, styleModule), params:[] };
 			var glyphPath:TypePath = { pack:classPackage, name:"Glyph" + Macro.classNameExtension(styleName, styleModule), params:[] };
 			var linePath:TypePath =  { pack:classPackage, name:"Line" + Macro.classNameExtension(styleName, styleModule), params:[] };
 			
-			// ---------------------
+			#if peote_ui
+			//var uiTextLineType = 
+			peote.ui.interactive.UITextLine.UITextLineMacro.buildClass("UITextLine", ["peote","ui","interactive"], stylePack, styleModule, styleName, styleSuperModule, styleSuperName, styleType, styleField);
+			//var uiTextLinePath:TypePath =  { pack:["peote","ui","interactive"], name:"UITextLine" + Macro.classNameExtension(styleName, styleModule), params:[] };
+			#end
 			
-			var glyphStyleHasMeta = Macro.parseGlyphStyleMetas(styleModule+"."+styleName); // trace("FontProgram: glyphStyleHasMeta", glyphStyleHasMeta);
-			var glyphStyleHasField = Macro.parseGlyphStyleFields(styleModule+"."+styleName); // trace("FontProgram: glyphStyleHasField", glyphStyleHasField);
-			
-			var rangeMappingType:ComplexType;
-			var rangeType:ComplexType;
-			var textureType:ComplexType;
-			
-			if (glyphStyleHasMeta.multiTexture) {
-				textureType = macro: peote.view.TextureCache;
-				if (glyphStyleHasMeta.multiSlot) {
-					if (glyphStyleHasMeta.packed) {
-						rangeType = macro: {unit:Int, slot:Int, fontData:peote.text.Gl3FontData};
-					}
-					else {
-						rangeType = macro: {unit:Int, slot:Int, min:Int, max:Int, height:Float, base:Float};
-					}
+			Context.defineModule(fullyQualifiedName, [ getTypeDefinition(className, stylePack, styleModule, styleName, styleType, glyphType, lineType, fontType, fontProgramType, fontProgramPath, glyphPath, linePath) ]);
+		}
+		return TPath({ pack:classPackage, name:className, params:[] });
+	}
+		
+	static public function getTypeDefinition(className:String, stylePack:Array<String>, styleModule:String, styleName:String, styleType:ComplexType, glyphType:ComplexType, lineType:ComplexType, fontType:ComplexType, fontProgramType:ComplexType, fontProgramPath:TypePath, glyphPath:TypePath, linePath:TypePath):TypeDefinition
+	{			
+		var styleModulName = styleModule.split(".").pop();
+		var stylePath:TypePath = ( styleModulName == styleName) ? { pack:stylePack, name:styleName, params:[] } 
+			:{ pack:stylePack, name:styleModulName, params:[], sub:styleName } ;
+		
+		// ---------------------
+		
+		var glyphStyleHasMeta = Macro.parseGlyphStyleMetas(styleModule+"."+styleName); // trace("FontProgram: glyphStyleHasMeta", glyphStyleHasMeta);
+		var glyphStyleHasField = Macro.parseGlyphStyleFields(styleModule+"."+styleName); // trace("FontProgram: glyphStyleHasField", glyphStyleHasField);
+		
+		var rangeMappingType:ComplexType;
+		var rangeType:ComplexType;
+		var textureType:ComplexType;
+		
+		if (glyphStyleHasMeta.multiTexture) {
+			textureType = macro: peote.view.TextureCache;
+			if (glyphStyleHasMeta.multiSlot) {
+				if (glyphStyleHasMeta.packed) {
+					rangeType = macro: {unit:Int, slot:Int, fontData:peote.text.Gl3FontData};
 				}
 				else {
-					if (glyphStyleHasMeta.packed) {
-						rangeType = macro: {unit:Int, fontData:peote.text.Gl3FontData};
-					}
-					else {
-						rangeType = macro: {unit:Int, min:Int, max:Int, height:Float, base:Float};
-					}
+					rangeType = macro: {unit:Int, slot:Int, min:Int, max:Int, height:Float, base:Float};
+				}
+			}
+			else {
+				if (glyphStyleHasMeta.packed) {
+					rangeType = macro: {unit:Int, fontData:peote.text.Gl3FontData};
+				}
+				else {
+					rangeType = macro: {unit:Int, min:Int, max:Int, height:Float, base:Float};
+				}
+			}
+			rangeMappingType = macro: haxe.ds.Vector<$rangeType>;
+		}
+		else {
+			textureType = macro: peote.view.Texture;
+			if (glyphStyleHasMeta.multiSlot) {
+				if (glyphStyleHasMeta.packed) {
+					rangeType = macro: {slot:Int, fontData:peote.text.Gl3FontData};
+				}
+				else {
+					rangeType = macro: {slot:Int, min:Int, max:Int, height:Float, base:Float};
 				}
 				rangeMappingType = macro: haxe.ds.Vector<$rangeType>;
 			}
 			else {
-				textureType = macro: peote.view.Texture;
-				if (glyphStyleHasMeta.multiSlot) {
-					if (glyphStyleHasMeta.packed) {
-						rangeType = macro: {slot:Int, fontData:peote.text.Gl3FontData};
-					}
-					else {
-						rangeType = macro: {slot:Int, min:Int, max:Int, height:Float, base:Float};
-					}
-					rangeMappingType = macro: haxe.ds.Vector<$rangeType>;
+				if (glyphStyleHasMeta.packed) {
+					rangeType = rangeMappingType = macro: peote.text.Gl3FontData;
 				}
 				else {
-					if (glyphStyleHasMeta.packed) {
-						rangeType = rangeMappingType = macro: peote.text.Gl3FontData;
-					}
-					else {
-						rangeType = rangeMappingType = macro: {min:Int, max:Int, height:Float, base:Float};
-					}
+					rangeType = rangeMappingType = macro: {min:Int, max:Int, height:Float, base:Float};
 				}
 			}
-			
-			var c = macro
+		}
+		
+		var c = macro
 
 // -------------------------------------------------------------------------------------------
 // -------------------------------------------------------------------------------------------
@@ -138,11 +146,11 @@ class $className
 		this.maxTextureSize = maxTextureSize;
 	}
 	
-	//public function createFontProgram(fontStyle:$styleType, isMasked:Bool = false):$fontProgramType
-	@:keep public function createFontProgram(fontStyle:$styleType, isMasked:Bool = false, bufferMinSize:Int = 1024, bufferGrowSize:Int = 1024, bufferAutoShrink:Bool = true):peote.text.FontProgram<$styleType>
+	@:keep public function createFontProgram(fontStyle:$styleType, isMasked:Bool = false, bufferMinSize:Int = 1024, bufferGrowSize:Int = 1024, bufferAutoShrink:Bool = true):$fontProgramType
+	// @:keep public function createFontProgram(fontStyle:$styleType, isMasked:Bool = false, bufferMinSize:Int = 1024, bufferGrowSize:Int = 1024, bufferAutoShrink:Bool = true):peote.text.FontProgram<$styleType>
 	{
-		return new peote.text.FontProgram<$styleType>(this, fontStyle, isMasked, bufferMinSize, bufferGrowSize, bufferAutoShrink);
-		//return new $fontProgramPath(this, fontStyle, isMasked, bufferMinSize, bufferGrowSize, bufferAutoShrink);
+		//return new peote.text.FontProgram<$styleType>(this, fontStyle, isMasked, bufferMinSize, bufferGrowSize, bufferAutoShrink);
+		return new $fontProgramPath(this, fontStyle, isMasked, bufferMinSize, bufferGrowSize, bufferAutoShrink);
 	}
 	
 	@:keep public function createFontStyle():$styleType return new $stylePath();		
@@ -196,7 +204,8 @@ class $className
 	}
 
 	// --------------------------- Loading -------------------------
-	public function load(onLoad:peote.text.Font<$styleType>->Void, ?onProgressOverall:Int->Int->Void, debug:Bool=false)
+	public function load(onLoad:$fontType->Void, ?onProgressOverall:Int->Int->Void, debug:Bool=false)
+	// public function load(onLoad:peote.text.Font<$styleType>->Void, ?onProgressOverall:Int->Int->Void, debug:Bool=false)
 	{
 		utils.Loader.text(path + jsonFilename, debug, function(jsonString:String)
 		{	
@@ -284,7 +293,8 @@ class $className
 		});	
 	}
 	
-	private function init(onLoad:peote.text.Font<$styleType>->Void, onProgressOverall:Int->Int->Void, debug:Bool)
+	private function init(onLoad:$fontType->Void, onProgressOverall:Int->Int->Void, debug:Bool)
+	// private function init(onLoad:peote.text.Font<$styleType>->Void, onProgressOverall:Int->Int->Void, debug:Bool)
 	{
 		${switch (glyphStyleHasMeta.multiTexture || glyphStyleHasMeta.multiSlot) {
 			case true: macro
@@ -331,7 +341,8 @@ class $className
 		}}
 	}
 	
-	private function loadFontData(onLoad:peote.text.Font<$styleType>->Void, onProgressOverall:Int->Int->Void, debug:Bool):Void
+	private function loadFontData(onLoad:$fontType->Void, onProgressOverall:Int->Int->Void, debug:Bool):Void
+	// private function loadFontData(onLoad:peote.text.Font<$styleType>->Void, onProgressOverall:Int->Int->Void, debug:Bool):Void
 	{		
 		var gl3FontData = new Array<peote.text.Gl3FontData>();		
 		utils.Loader.bytesArray(
@@ -355,7 +366,8 @@ class $className
 	}
 	
 	@:access(peote.text.Range)
-	private function loadImages(?gl3FontData:Array<peote.text.Gl3FontData>, onLoad:peote.text.Font<$styleType>->Void, onProgressOverall:Int->Int->Void, debug:Bool):Void
+	private function loadImages(?gl3FontData:Array<peote.text.Gl3FontData>, onLoad:$fontType->Void, onProgressOverall:Int->Int->Void, debug:Bool):Void
+	// private function loadImages(?gl3FontData:Array<peote.text.Gl3FontData>, onLoad:peote.text.Font<$styleType>->Void, onProgressOverall:Int->Int->Void, debug:Bool):Void
 	{		
 		//trace("load images");
 		utils.Loader.imageArray(
@@ -499,8 +511,6 @@ class $className
 	
 }
 
-
-
 // -------------------------------------------------------------------------------------------
 // -------------------------------------------------------------------------------------------
 			
@@ -527,11 +537,8 @@ class $className
 				
 			}
 */			
-			// Context.defineModule(classPackage.concat([className]).join('.'),[c]);
-			Context.defineModule(fullyQualifiedName, [c]);
-		// }
-		// return TPath({ pack:classPackage, name:className, params:[] });
-		return tp;
+
+		return c;
 	}
 }
 #end

@@ -94,12 +94,12 @@ class PageWrapping extends Application
 				unrecognizedChars += " " + StringTools.hex(charcode);
 			}
 
-			var text = "Um einen Feuerball rast eine Kotkugel,\n"
+			var text =   "Um einen Feuerball rast eine Kotkugel,\n"
 						+"auf der Damenseidenstrümpfe verkauft und Gauguins geschätzt werden."
-						+" 0123456789 0123456789 abcd efgh  abc "
-						+"ABC----------------------------------------------------------"
-						+"\n"
-						+ "Ein fürwahr überaus betrüblicher Aspekt,\r\nder aber immerhin ein wenig unterschiedlich ist:\rSeidenstrümpfe können begriffen werden, \nGauguins nicht."
+						        +" 0123456789 0123456789 abcd efgh  abc "
+								+"ABC----------------------------------------------------------"
+						        +"\n"
+						+ "Ein fürwahr überaus betrüblicher Aspekt, der aber immerhin ein wenig unterschiedlich ist: Seidenstrümpfe können begriffen werden, Gauguins nicht."
 						;
 			//var page = fontProgram.createPage(text, 30, 30, 500, null, 0, 0, glyphStyle);
 			var page = fontProgram.createPage(text, 30, 30, 517, 200, 0, 0, glyphStyle);
@@ -115,13 +115,15 @@ class PageWrapping extends Application
 			display.addProgram(helperProgram, true);
 			
 			Timer.delay(function() {
+				trace("old amount of lines into page:", page.length);
 				var numWrapped = fontProgram.pageWrapLine(page, 1, false, false, glyphStyle);
 				trace("numwrapped:", numWrapped);
+				trace("new amount of lines into page:", page.length);
 				//trace('textWidth=${page.textWidth}\nlongestLines=${page.longestLines}');
 				
 				fontProgram.pageUpdate(page);
 				//helper.h = page.textHeight; buffer.updateElement(helper);
-			}, 1000);
+			}, 2000);
 			
 			
 		});

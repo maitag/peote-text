@@ -36,7 +36,7 @@ class Macro
 
 	@:persistent static var generated = new Map<String, Bool>();
 
-	static function isAlive(name:String):Bool {
+	static inline function isAlive(name:String):Bool {
 		return try Context.getType(name) != null
 			catch(s:String) {
 				if (s != 'Type not found \'$name\'') throw(s);
