@@ -17,6 +17,10 @@ import peote.text.packed.FontP;
 import peote.text.packed.FontProgramP;
 import peote.text.packed.GlyphStyleP;
 
+import peote.text.tiled.FontT;
+import peote.text.tiled.FontProgramT;
+import peote.text.tiled.GlyphStyleT;
+
 import peote.text.Range;
 
 import peote.text.skin.simple.SimpleSkinProgram;
@@ -102,7 +106,7 @@ class FontsPregenerated extends Application
 		}
 		
 		// --------------------------------------------------------
-		/*
+		
 		var tiledFonts = [
 			{ name: "hack_ascii",       y:  200, range: null },
 			{ name: "liberation_ascii", y:  300, range: null },
@@ -111,9 +115,9 @@ class FontsPregenerated extends Application
 		
 		for (f in tiledFonts) 
 		{
-			new Font<GlyphStyleTiled>('assets/fonts/tiled/${f.name}.json', f.range).load(function(font)
+			new FontT('assets/fonts/tiled/${f.name}.json', f.range).load(function(font)
 			{
-				var glyphStyle = new GlyphStyleTiled();
+				var glyphStyle = new GlyphStyleT();
 				glyphStyle.width = font.config.width;
 				glyphStyle.height = font.config.height;								
 				
@@ -123,7 +127,7 @@ class FontsPregenerated extends Application
 				
 				display.addProgram(fontProgram);
 				
-				var line = fontProgram.createLine('ABC defg (tiled: ${f.name})', 0, f.y);					
+				var line = fontProgram.createLine('ABC defg (tiled: ${f.name})', 0, f.y);				
 				
 				glyphStyle.color = Color.YELLOW;
 				//glyphStyle.bgColor = Color.RED;
@@ -154,7 +158,7 @@ class FontsPregenerated extends Application
 			true // debug
 			);
 		}
-		*/
+		
 				
 		timer = new Timer(40); zoomIn();
 	}

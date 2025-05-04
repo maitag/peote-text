@@ -28,11 +28,12 @@ class Main extends Application
 
 	public function start()
 	{
-		trace("start");
+		var map:Map<String,String>;
 
-		var map:Map<String,String> = generate("P", "peote.text.packed");
-		// trace(map);
-		// trace(map.get('FontProgramP'));
+
+		// ------ GENERATE PACKED --------
+
+		map = generate("P", "peote.text.packed");
 
 		// create directory
 		if (!FileSystem.exists("packed")) FileSystem.createDirectory("packed");
@@ -42,7 +43,24 @@ class Main extends Application
 			trace('save packed/$name.hx');
 			File.saveContent('packed/$name.hx',content);
 		}
+
+
+		// ------ GENERATE TILED --------
+
+		map = generate("T", "peote.text.tiled");
+
+		// create directory
+		if (!FileSystem.exists("tiled")) FileSystem.createDirectory("tiled");
+
+		// save into files
+		for (name => content in map) {
+			trace('save tiled/$name.hx');
+			File.saveContent('tiled/$name.hx',content);
+		}
+
 	}
+
+
 
 	macro static function generate(postfix:String, p:String):Expr {
 		#if macro

@@ -3,9 +3,9 @@ package;
 // @multiSlot    // multiple slots per texture to store multiple unicode-ranges
 // @multiTexture // multiple textures to store multiple unicode-ranges
 
-@packed  // glyphes are packed into textureatlas with ttfcompile (gl3font)
-class GlyphStyleP
+class GlyphStyleT
 {
+
 	//@global public var color:Int = 0x43cb18ff;
 	public var color:Int = 0x43cb18ff;
 	
@@ -33,7 +33,7 @@ class GlyphStyleP
 	public var weight:Float = 0.5; // for distance field fonts
 	
 	// adjusting Glyphes inside Line
-	// public var letterSpace:Float = 5.0;
+	// public var letterSpace:Float = 2.0;
 	
 	// outline/glow for distance field fonts
 	
