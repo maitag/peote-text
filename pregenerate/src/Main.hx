@@ -33,7 +33,7 @@ class Main extends Application
 
 		// ------ GENERATE PACKED --------
 
-		map = generate("P", "peote.text.packed");
+		map = generate("P", "Packed", "peote.text.packed");
 
 		// create directory
 		if (!FileSystem.exists("packed")) FileSystem.createDirectory("packed");
@@ -47,7 +47,7 @@ class Main extends Application
 
 		// ------ GENERATE TILED --------
 
-		map = generate("T", "peote.text.tiled");
+		map = generate("T", "Tiled", "peote.text.tiled");
 
 		// create directory
 		if (!FileSystem.exists("tiled")) FileSystem.createDirectory("tiled");
@@ -62,7 +62,7 @@ class Main extends Application
 
 
 
-	macro static function generate(postfix:String, p:String):Expr {
+	macro static function generate(postfix:String, postfixStyle:String, p:String):Expr {
 		#if macro
 		// trace( postfix );
 		// trace( pack );
@@ -73,17 +73,17 @@ class Main extends Application
 		
 		var glyphTypeDef = peote.text.Glyph.GlyphMacro.getTypeDefinition(
 			'Glyph$postfix', // className
-			'GlyphStyle$postfix', // styleModule
-			'GlyphStyle$postfix', // styleName
-			TPath({ pack:[], name:'GlyphStyle$postfix', params:[] })  // styleType 
+			'peote.text', // styleModule
+			'GlyphStyle$postfixStyle', // styleName
+			TPath({ pack:['peote.text'], name:'GlyphStyle$postfixStyle', params:[] })  // styleType 
 		);
 		glyphTypeDef.meta = [ {name:":allow", params:[ Context.parse(p, Context.currentPos()) ], pos:Context.currentPos()} ];
 		nameValueMap.push(macro $v{'Glyph$postfix'} => $v{pack + new Printer().printTypeDefinition(glyphTypeDef)});
 
 		var pageLineTypeDef = peote.text.PageLine.PageLineMacro.getTypeDefinition(
 			'PageLine$postfix', // className
-			'GlyphStyle$postfix', // styleModule
-			'GlyphStyle$postfix', // styleName
+			'peote.text', // styleModule
+			'GlyphStyle$postfixStyle', // styleName
 			TPath({ pack:[], name:'Glyph$postfix', params:[] })  // glyphType 
 		);
 		pageLineTypeDef.meta = [ {name:":allow", params:[ Context.parse(p, Context.currentPos()) ], pos:Context.currentPos()} ];
@@ -91,8 +91,8 @@ class Main extends Application
 		
 		var lineTypeDef = peote.text.Line.LineMacro.getTypeDefinition(
 			'Line$postfix', // className
-			'GlyphStyle$postfix', // styleModule
-			'GlyphStyle$postfix', // styleName
+			'peote.text', // styleModule
+			'GlyphStyle$postfixStyle', // styleName
 			TPath({ pack:[], name:'Glyph$postfix', params:[] }),  // glyphType 
 			{ pack:[], name:'PageLine$postfix', params:[] }  // pageLinePath
 		);
@@ -101,8 +101,8 @@ class Main extends Application
 		
 		var pageTypeDef = peote.text.Page.PageMacro.getTypeDefinition(
 			'Page$postfix', // className
-			'GlyphStyle$postfix', // styleModule
-			'GlyphStyle$postfix', // styleName
+			'peote.text', // styleModule
+			'GlyphStyle$postfixStyle', // styleName
 			TPath({ pack:[], name:'PageLine$postfix', params:[] })  // pageLineType 
 		);
 		pageTypeDef.meta = [ {name:":allow", params:[ Context.parse(p, Context.currentPos()) ], pos:Context.currentPos()} ];
@@ -110,10 +110,11 @@ class Main extends Application
 		
 		var fontTypeDef = peote.text.Font.FontMacro.getTypeDefinition(
 			'Font$postfix', // className
+			{ pack:['peote.text'], name:'GlyphStyle$postfixStyle', params:[] }, // stylePath
 			[], // stylePack
-			'GlyphStyle$postfix', // styleModule
-			'GlyphStyle$postfix', // styleName
-			TPath({ pack:[], name:'GlyphStyle$postfix', params:[] }),  // styleType
+			'peote.text', // styleModule
+			'GlyphStyle$postfixStyle', // styleName
+			TPath({ pack:['peote.text'], name:'GlyphStyle$postfixStyle', params:[] }),  // styleType
 			TPath({ pack:[], name:'Glyph$postfix', params:[] }),  // glyphType
 			TPath({ pack:[], name:'Line$postfix', params:[] }),  // lineType
 			TPath({ pack:[], name:'Font$postfix', params:[] }),  // fontType
@@ -122,13 +123,13 @@ class Main extends Application
 			{ pack:[], name:'Glyph$postfix', params:[] },  // glyphPath
 			{ pack:[], name:'Line$postfix', params:[] }  // linePath
 		);
-		nameValueMap.push(macro $v{'Font$postfix'} => $v{pack + new Printer().printTypeDefinition(fontTypeDef)});
+		nameValueMap.push(macro $v{'Font$postfix'} => $v{pack + "@:access(peote.text.FontConfig)\n" + new Printer().printTypeDefinition(fontTypeDef)});
 		
 		var fontProgramTypeDef = peote.text.FontProgram.FontProgramMacro.getTypeDefinition(
 			'FontProgram$postfix', // className
-			'GlyphStyle$postfix', // styleModule
-			'GlyphStyle$postfix', // styleName
-			TPath({ pack:[], name:'GlyphStyle$postfix', params:[] }),  // styleType
+			'peote.text', // styleModule
+			'GlyphStyle$postfixStyle', // styleName
+			TPath({ pack:['peote.text'], name:'GlyphStyle$postfixStyle', params:[] }),  // styleType
 			TPath({ pack:[], name:'Glyph$postfix', params:[] }),  // glyphType
 			TPath({ pack:[], name:'Line$postfix', params:[] }),  // lineType
 			TPath({ pack:[], name:'PageLine$postfix', params:[] }),  // pageLineType
@@ -139,7 +140,7 @@ class Main extends Application
 			{ pack:[], name:'PageLine$postfix', params:[] },  // pageLinePath
 			{ pack:[], name:'Page$postfix', params:[] }  // pagePath
 		);
-		nameValueMap.push(macro $v{'FontProgram$postfix'} => $v{pack + new Printer().printTypeDefinition(fontProgramTypeDef)});
+		nameValueMap.push(macro $v{'FontProgram$postfix'} => $v{pack + "@:access(peote.text.FontConfig)\n" + new Printer().printTypeDefinition(fontProgramTypeDef)});
 		
 		return macro $a{nameValueMap};
 		#end

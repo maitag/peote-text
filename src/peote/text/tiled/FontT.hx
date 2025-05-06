@@ -1,4 +1,5 @@
 package peote.text.tiled;
+@:access(peote.text.FontConfig)
 class FontT {
 	var path : String;
 	var jsonFilename : String;
@@ -23,11 +24,11 @@ class FontT {
 		this.maxTextureSize = maxTextureSize;
 	}
 	@:keep
-	public function createFontProgram(fontStyle:GlyphStyleT, isMasked:Bool = false, bufferMinSize:Int = 1024, bufferGrowSize:Int = 1024, bufferAutoShrink:Bool = true):FontProgramT {
+	public function createFontProgram(fontStyle:peote.text.GlyphStyleTiled, isMasked:Bool = false, bufferMinSize:Int = 1024, bufferGrowSize:Int = 1024, bufferAutoShrink:Bool = true):FontProgramT {
 		return new FontProgramT(this, fontStyle, isMasked, bufferMinSize, bufferGrowSize, bufferAutoShrink);
 	}
 	@:keep
-	public function createFontStyle():GlyphStyleT return new GlyphStyleT();
+	public function createFontStyle():peote.text.GlyphStyleTiled return new peote.text.GlyphStyleTiled();
 	public function createGlyph():GlyphT return new GlyphT();
 	public function createLine():LineT return new LineT();
 	public inline function getRange(charcode:Int):{ var min : Int; var max : Int; var height : Float; var base : Float; } {
@@ -54,7 +55,7 @@ class FontT {
 			if (config.line != null) { };
 			{
 				if (config.packed) {
-					var error = 'Error, metadata of ' + "GlyphStyleT" + ' class has to be \"@packed\" for \"' + path + jsonFilename + '\" and \"packed\":true';
+					var error = 'Error, metadata of ' + "GlyphStyleTiled" + ' class has to be \"@packed\" for \"' + path + jsonFilename + '\" and \"packed\":true';
 					haxe.Log.trace(error, { fileName : path + jsonFilename, lineNumber : 0, className : "", methodName : "" });
 					throw (error);
 				};
@@ -62,12 +63,12 @@ class FontT {
 			if (kerning && config.kerning != null) kerning = config.kerning;
 			{
 				if (ranges == null && config.ranges.length > 1) {
-					var error = 'Error, set ' + "GlyphStyleT" + ' to @multiSlot and/or @multiTexture or define a single range while Font creation or inside \"' + path + jsonFilename + '\"';
+					var error = 'Error, set ' + "GlyphStyleTiled" + ' to @multiSlot and/or @multiTexture or define a single range while Font creation or inside \"' + path + jsonFilename + '\"';
 					haxe.Log.trace(error, { fileName : path + jsonFilename, lineNumber : 0, className : "", methodName : "" });
 					throw (error);
 				};
 			};
-			var found_ranges = new Array<{ var image : String; var data : String; var slot : { var width : Int; var height : Int; }; var tiles : { var x : Int; var y : Int; }; var line : { var height : Float; var base : Float; }; var range : Range; }>();
+			var found_ranges = new Array<{ var image : String; var data : String; var slot : { var width : Int; var height : Int; }; var tiles : { var x : Int; var y : Int; }; var line : { var height : Float; var base : Float; }; var range : peote.text.Range; }>();
 			for (item in config.ranges) {
 				var min = item.range.min;
 				var max = item.range.max;

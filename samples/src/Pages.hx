@@ -16,8 +16,12 @@ import peote.view.Program;
 import peote.view.Color;
 import peote.view.Element;
 
-// import peote.text.Font;
+import peote.text.GlyphStylePacked;
+import peote.text.GlyphStyleTiled;
+
+import peote.text.Font;
 import peote.text.packed.FontP;
+import peote.text.tiled.FontT;
 
 class HelperElement implements Element
 {
@@ -54,8 +58,9 @@ class Pages extends Application
 		display   = new Display(10,10, window.width-20, window.height-20, Color.GREY1);
 		peoteView.addDisplay(display);
 		
-		new FontP("assets/fonts/packed/hack/config.json")
-		// new Font<GlyphStylePacked>("assets/fonts/packed/hack/config.json")
+		// new FontP("assets/fonts/packed/hack/config.json")
+		// new FontT("assets/fonts/tiled/hack_ascii.json")
+		new Font<GlyphStylePacked>("assets/fonts/packed/hack/config.json")
 		// new Font<GlyphStylePacked>("assets/fonts/packed/unifont/config.json", [new peote.text.Range(0x0000,0x0fff)])
 		// new Font<GlyphStylePacked>("assets/fonts/packed/unifont/config.json")
 		// new Font<GlyphStylePacked>("assets/fonts/packed/unifont/config.json", [peote.text.Range.C0ControlsBasicLatin(), peote.text.Range.C1ControlsLatin1Supplement()])

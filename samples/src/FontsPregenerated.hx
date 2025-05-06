@@ -15,11 +15,11 @@ import peote.view.Color;
 
 import peote.text.packed.FontP;
 import peote.text.packed.FontProgramP;
-import peote.text.packed.GlyphStyleP;
+import peote.text.GlyphStylePacked;
 
 import peote.text.tiled.FontT;
 import peote.text.tiled.FontProgramT;
-import peote.text.tiled.GlyphStyleT;
+import peote.text.GlyphStyleTiled;
 
 import peote.text.Range;
 
@@ -60,7 +60,7 @@ class FontsPregenerated extends Application
 		{
 			new FontP('assets/fonts/packed/${f.name}/config.json', f.range).load( function(font)
 			{
-				var glyphStyle = new GlyphStyleP();
+				var glyphStyle = new GlyphStylePacked();
 				glyphStyle.width = 28;// font.config.width * 1.0;
 				glyphStyle.height = 28;// font.config.height * 1.0;								
 				
@@ -117,7 +117,7 @@ class FontsPregenerated extends Application
 		{
 			new FontT('assets/fonts/tiled/${f.name}.json', f.range).load(function(font)
 			{
-				var glyphStyle = new GlyphStyleT();
+				var glyphStyle = new GlyphStyleTiled();
 				glyphStyle.width = font.config.width;
 				glyphStyle.height = font.config.height;								
 				

@@ -37,24 +37,32 @@ class FontMacro
 			var linePath:TypePath =  { pack:classPackage, name:"Line" + Macro.classNameExtension(styleName, styleModule), params:[] };
 			
 			#if peote_ui
-			//var uiTextLineType = 
-			peote.ui.interactive.UITextLine.UITextLineMacro.buildClass("UITextLine", ["peote","ui","interactive"], stylePack, styleModule, styleName, styleSuperModule, styleSuperName, styleType, styleField);
-			//var uiTextLinePath:TypePath =  { pack:["peote","ui","interactive"], name:"UITextLine" + Macro.classNameExtension(styleName, styleModule), params:[] };
+			var uiTextLineType:ComplexType = // peote.ui.interactive.UITextLine.UITextLineMacro.buildClass("UITextLine", ["peote","ui","interactive"], stylePack, styleModule, styleName, styleSuperModule, styleSuperName, styleType, styleField);
+				TPath({ pack:["peote","ui","interactive"], name:"UITextLine", params:[TPType(styleType)] });
+			var uiTextLinePath:TypePath =  { pack:["peote","ui","interactive"], name:"UITextLine" + Macro.classNameExtension(styleName, styleModule), params:[] };
+			
+			var uiTextPageType:ComplexType = //peote.ui.interactive.UITextPage.UITextPageMacro.buildClass("UITextPage", ["peote","ui","interactive"], stylePack, styleModule, styleName, styleSuperModule, styleSuperName, styleType, styleField);
+				// TPath({ pack:["peote","ui","interactive"], name:"UITextPage" + Macro.classNameExtension(styleName, styleModule), params:[] });
+				TPath({ pack:["peote","ui","interactive"], name:"UITextPage", params:[TPType(styleType)] });
+			var uiTextPagePath:TypePath =  { pack:["peote","ui","interactive"], name:"UITextPage" + Macro.classNameExtension(styleName, styleModule), params:[] };
 			#end
 			
-			Context.defineModule(fullyQualifiedName, [ getTypeDefinition(className, stylePack, styleModule, styleName, styleType, glyphType, lineType, fontType, fontProgramType, fontProgramPath, glyphPath, linePath) ]);
+			var styleModulName = styleModule.split(".").pop();
+			var stylePath:TypePath = ( styleModulName == styleName) ? { pack:stylePack, name:styleName, params:[] } 
+				:{ pack:stylePack, name:styleModulName, params:[], sub:styleName } ;
+			
+			Context.defineModule(fullyQualifiedName, [ getTypeDefinition(className, stylePath, stylePack, styleModule, styleName, styleType, glyphType, lineType, fontType, fontProgramType, fontProgramPath, glyphPath, linePath
+				#if peote_ui ,uiTextLineType, uiTextLinePath, uiTextPageType, uiTextPagePath #end
+			)]);
 		}
 		return TPath({ pack:classPackage, name:className, params:[] });
 	}
 		
-	static public function getTypeDefinition(className:String, stylePack:Array<String>, styleModule:String, styleName:String, styleType:ComplexType, glyphType:ComplexType, lineType:ComplexType, fontType:ComplexType, fontProgramType:ComplexType, fontProgramPath:TypePath, glyphPath:TypePath, linePath:TypePath):TypeDefinition
-	{			
-		var styleModulName = styleModule.split(".").pop();
-		var stylePath:TypePath = ( styleModulName == styleName) ? { pack:stylePack, name:styleName, params:[] } 
-			:{ pack:stylePack, name:styleModulName, params:[], sub:styleName } ;
-		
-		// ---------------------
-		
+	static public function getTypeDefinition(className:String, stylePath:TypePath, stylePack:Array<String>, styleModule:String, styleName:String, styleType:ComplexType,
+		glyphType:ComplexType, lineType:ComplexType, fontType:ComplexType, fontProgramType:ComplexType, fontProgramPath:TypePath, glyphPath:TypePath, linePath:TypePath
+		#if peote_ui ,uiTextLineType:ComplexType, uiTextLinePath:TypePath, uiTextPageType:ComplexType, uiTextPagePath:TypePath #end
+		):TypeDefinition
+	{		
 		var glyphStyleHasMeta = Macro.parseGlyphStyleMetas(styleModule+"."+styleName); // trace("FontProgram: glyphStyleHasMeta", glyphStyleHasMeta);
 		var glyphStyleHasField = Macro.parseGlyphStyleFields(styleModule+"."+styleName); // trace("FontProgram: glyphStyleHasField", glyphStyleHasField);
 		
@@ -161,18 +169,14 @@ class $className
 	
 	#if peote_ui
 	@:keep public function createUITextLine(xPosition:Int, yPosition:Int, width:Int, height:Int, zIndex:Int = 0, text:String,
-	                ?fontStyle:$styleType, ?config:peote.ui.config.TextConfig):peote.ui.interactive.UITextLine<$styleType>
-	                //:$uiTextLineType
+	                ?fontStyle:$styleType, ?config:peote.ui.config.TextConfig):$uiTextLineType
 	{
-		return new peote.ui.interactive.UITextLine<$styleType>(xPosition, yPosition, width, height, zIndex, text, this, fontStyle, config);
-		//return new $uiTextLinePath(xPosition, yPosition, width, height, zIndex, text, this, fontStyle, config);
+		return new $uiTextLinePath(xPosition, yPosition, width, height, zIndex, text, this, fontStyle, config);
 	}
 	@:keep public function createUITextPage(xPosition:Int, yPosition:Int, width:Int, height:Int, zIndex:Int = 0, text:String,
-	                ?fontStyle:$styleType, ?config:peote.ui.config.TextConfig):peote.ui.interactive.UITextPage<$styleType>
-	                //:$uiTextPageType
+	                ?fontStyle:$styleType, ?config:peote.ui.config.TextConfig):$uiTextPageType
 	{
-		return new peote.ui.interactive.UITextPage<$styleType>(xPosition, yPosition, width, height, zIndex, text, this, fontStyle, config);
-		//return new $uiTextPagePath(xPosition, yPosition, width, height, zIndex, text, this, fontStyle, config);
+		return new $uiTextPagePath(xPosition, yPosition, width, height, zIndex, text, this, fontStyle, config);
 	}
 	#end
 	
@@ -260,7 +264,7 @@ class $className
 				}
 			}}
 
-			var found_ranges = new Array<{image:String,data:String,slot:{width:Int, height:Int},tiles:{x:Int, y:Int},line:{height:Float, base:Float},range:Range}>();
+			var found_ranges = new Array<{image:String,data:String,slot:{width:Int, height:Int},tiles:{x:Int, y:Int},line:{height:Float, base:Float},range:peote.text.Range}>();
 			
 			for( item in config.ranges )
 			{

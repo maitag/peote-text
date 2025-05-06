@@ -2,13 +2,14 @@ package peote.text.packed;
 @:allow(peote.text.packed) class GlyphP implements peote.view.Element {
 	public var char(default, null) : Int = -1;
 	public function new() { }
-	inline function setStyle(glyphStyle:GlyphStyleP) {
+	inline function setStyle(glyphStyle:peote.text.GlyphStylePacked) {
 		{
 			width = glyphStyle.width;
 			height = glyphStyle.height;
 			color = glyphStyle.color;
 			weight = glyphStyle.weight;
 			tilt = glyphStyle.tilt;
+			letterSpace = glyphStyle.letterSpace;
 		};
 	}
 	@posX
@@ -22,6 +23,7 @@ package peote.text.packed;
 	public var weight : Float = 0.0;
 	@custom
 	public var tilt : Float = 0.0;
+	public var letterSpace : Float = 0.0;
 	public var width(default, set) : Float;
 	private function set_width(value:Float):Float {
 		if (width > 0.0) w = w / width * value else w = 0;

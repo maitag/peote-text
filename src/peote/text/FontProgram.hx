@@ -26,9 +26,11 @@ class FontProgramMacro
 			var pageLineType = PageLine.PageLineMacro.buildClass("PageLine", classPackage, stylePack, styleModule, styleName, styleSuperModule, styleSuperName, styleType, styleField);
 			
 			var fontType:ComplexType = Font.FontMacro.buildClass("Font", classPackage, stylePack, styleModule, styleName, styleSuperModule, styleSuperName, styleType, styleField);
-			  //TPath({ pack:classPackage, name:"Font" + Macro.classNameExtension(styleName, styleModule), params:[] });
+				//TPath({ pack:classPackage, name:"Font" + Macro.classNameExtension(styleName, styleModule), params:[] });
+				// TPath({ pack:classPackage, name:"Font", params:[TPType(styleType)] });
 			var pageType:ComplexType = Page.PageMacro.buildClass("Page", classPackage, stylePack, styleModule, styleName, styleSuperModule, styleSuperName, styleType, styleField);
 				// TPath({ pack:classPackage, name:"Page" + Macro.classNameExtension(styleName, styleModule), params:[] });
+				// TPath({ pack:classPackage, name:"Page", params:[TPType(styleType)] });
 			
 			var glyphPath:TypePath = { pack:classPackage, name:"Glyph" + Macro.classNameExtension(styleName, styleModule), params:[] };
 			var linePath:TypePath = { pack:classPackage, name:"Line" + Macro.classNameExtension(styleName, styleModule), params:[] };

@@ -2,13 +2,14 @@ package peote.text.tiled;
 @:allow(peote.text.tiled) class GlyphT implements peote.view.Element {
 	public var char(default, null) : Int = -1;
 	public function new() { }
-	inline function setStyle(glyphStyle:GlyphStyleT) {
+	inline function setStyle(glyphStyle:peote.text.GlyphStyleTiled) {
 		{
 			width = glyphStyle.width;
 			height = glyphStyle.height;
 			color = glyphStyle.color;
 			weight = glyphStyle.weight;
 			tilt = glyphStyle.tilt;
+			letterSpace = glyphStyle.letterSpace;
 		};
 	}
 	@posX
@@ -22,6 +23,7 @@ package peote.text.tiled;
 	public var weight : Float = 0.0;
 	@custom
 	public var tilt : Float = 0.0;
+	public var letterSpace : Float = 0.0;
 	@sizeX
 	@varying
 	public var width : Float = 0.0;

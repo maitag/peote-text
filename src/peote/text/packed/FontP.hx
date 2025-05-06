@@ -1,4 +1,5 @@
 package peote.text.packed;
+@:access(peote.text.FontConfig)
 class FontP {
 	var path : String;
 	var jsonFilename : String;
@@ -23,11 +24,11 @@ class FontP {
 		this.maxTextureSize = maxTextureSize;
 	}
 	@:keep
-	public function createFontProgram(fontStyle:GlyphStyleP, isMasked:Bool = false, bufferMinSize:Int = 1024, bufferGrowSize:Int = 1024, bufferAutoShrink:Bool = true):FontProgramP {
+	public function createFontProgram(fontStyle:peote.text.GlyphStylePacked, isMasked:Bool = false, bufferMinSize:Int = 1024, bufferGrowSize:Int = 1024, bufferAutoShrink:Bool = true):FontProgramP {
 		return new FontProgramP(this, fontStyle, isMasked, bufferMinSize, bufferGrowSize, bufferAutoShrink);
 	}
 	@:keep
-	public function createFontStyle():GlyphStyleP return new GlyphStyleP();
+	public function createFontStyle():peote.text.GlyphStylePacked return new peote.text.GlyphStylePacked();
 	public function createGlyph():GlyphP return new GlyphP();
 	public function createLine():LineP return new LineP();
 	public inline function getRange(charcode:Int):peote.text.Gl3FontData {
@@ -52,7 +53,7 @@ class FontP {
 			if (config.line != null) { };
 			{
 				if (!config.packed) {
-					var error = 'Error, for ' + "GlyphStyleP" + ' \"@packed\" in \"' + path + jsonFilename + '\" set \"packed\":true';
+					var error = 'Error, for ' + "GlyphStylePacked" + ' \"@packed\" in \"' + path + jsonFilename + '\" set \"packed\":true';
 					haxe.Log.trace(error, { fileName : path + jsonFilename, lineNumber : 0, className : "", methodName : "" });
 					throw (error);
 				};
@@ -60,12 +61,12 @@ class FontP {
 			if (kerning && config.kerning != null) kerning = config.kerning;
 			{
 				if (ranges == null && config.ranges.length > 1) {
-					var error = 'Error, set ' + "GlyphStyleP" + ' to @multiSlot and/or @multiTexture or define a single range while Font creation or inside \"' + path + jsonFilename + '\"';
+					var error = 'Error, set ' + "GlyphStylePacked" + ' to @multiSlot and/or @multiTexture or define a single range while Font creation or inside \"' + path + jsonFilename + '\"';
 					haxe.Log.trace(error, { fileName : path + jsonFilename, lineNumber : 0, className : "", methodName : "" });
 					throw (error);
 				};
 			};
-			var found_ranges = new Array<{ var image : String; var data : String; var slot : { var width : Int; var height : Int; }; var tiles : { var x : Int; var y : Int; }; var line : { var height : Float; var base : Float; }; var range : Range; }>();
+			var found_ranges = new Array<{ var image : String; var data : String; var slot : { var width : Int; var height : Int; }; var tiles : { var x : Int; var y : Int; }; var line : { var height : Float; var base : Float; }; var range : peote.text.Range; }>();
 			for (item in config.ranges) {
 				var min = item.range.min;
 				var max = item.range.max;

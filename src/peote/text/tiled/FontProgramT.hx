@@ -1,13 +1,14 @@
 package peote.text.tiled;
+@:access(peote.text.FontConfig)
 class FontProgramT extends peote.view.Program {
 	public var font : FontT;
-	public var fontStyle : GlyphStyleT;
+	public var fontStyle : peote.text.GlyphStyleTiled;
 	public var isMasked(default, null) = false;
 	var maskProgram : peote.view.Program;
 	var maskBuffer : peote.view.Buffer<peote.text.MaskElement>;
 	public var skinPrograms : peote.text.skin.SkinProgramArray = null;
 	var _buffer : peote.view.Buffer<GlyphT>;
-	public function new(font:FontT, fontStyle:GlyphStyleT, isMasked:Bool = false, bufferMinSize:Int = 1024, bufferGrowSize:Int = 1024, bufferAutoShrink:Bool = true) {
+	public function new(font:FontT, fontStyle:peote.text.GlyphStyleTiled, isMasked:Bool = false, bufferMinSize:Int = 1024, bufferGrowSize:Int = 1024, bufferAutoShrink:Bool = true) {
 		_buffer = new peote.view.Buffer<GlyphT>(bufferMinSize, bufferGrowSize, bufferAutoShrink);
 		super(_buffer);
 		if (isMasked) enableMasking();
@@ -122,7 +123,7 @@ class FontProgramT extends peote.view.Program {
 		autoUpdateTextures = false;
 		setTexture(font.textureCache, "TEX");
 	}
-	public inline function setFontStyle(fontStyle:GlyphStyleT):Void {
+	public inline function setFontStyle(fontStyle:peote.text.GlyphStyleTiled):Void {
 		this.fontStyle = fontStyle;
 		blendEnabled = true;
 		var color:String;
@@ -184,7 +185,7 @@ class FontProgramT extends peote.view.Program {
 		};
 	}
 	inline function letterSpace(glyph:GlyphT):Float {
-		return 0.0;
+		return glyph.letterSpace;
 	}
 	inline function kerningSpaceOffset(prev_glyph:GlyphT, glyph:GlyphT, charData:{ var min : Int; var max : Int; var height : Float; var base : Float; }):Float {
 		if (prev_glyph != null) {
@@ -193,7 +194,7 @@ class FontProgramT extends peote.view.Program {
 			};
 		} else return 0.0;
 	}
-	public function getCharSize(charCode:Int, glyphStyle:GlyphStyleT):Float {
+	public function getCharSize(charCode:Int, glyphStyle:peote.text.GlyphStyleTiled):Float {
 		var charData = getCharData(charCode);
 		if (charData == null) return 0.0;
 		{
@@ -227,7 +228,7 @@ class FontProgramT extends peote.view.Program {
 	inline function setSize(glyph:GlyphT, charData:{ var min : Int; var max : Int; var height : Float; var base : Float; }) {
 		{ };
 	}
-	public inline function setStyle(glyph:GlyphT, glyphStyle:GlyphStyleT) {
+	public inline function setStyle(glyph:GlyphT, glyphStyle:peote.text.GlyphStyleTiled) {
 		glyph.setStyle((glyphStyle != null) ? glyphStyle : fontStyle);
 	}
 	inline function setCharcode(glyph:GlyphT, charcode:Int, charData:{ var min : Int; var max : Int; var height : Float; var base : Float; }) {
@@ -238,9 +239,9 @@ class FontProgramT extends peote.view.Program {
 			glyph.tile = tab2space(charcode) - charData.min;
 		};
 	}
-	public inline function createGlyph(charcode:Int, x:Float, y:Float, ?glyphStyle:GlyphStyleT, useMetric = false):GlyphT return _createGlyph(charcode, x, y, glyphStyle, useMetric, false);
-	public inline function createGlyphAtBase(charcode:Int, x:Float, y:Float, ?glyphStyle:GlyphStyleT):GlyphT return _createGlyph(charcode, x, y, glyphStyle, true, true);
-	inline function _createGlyph(charcode:Int, x:Float, y:Float, glyphStyle:GlyphStyleT, useMetric:Bool, atBaseline:Bool):GlyphT {
+	public inline function createGlyph(charcode:Int, x:Float, y:Float, ?glyphStyle:peote.text.GlyphStyleTiled, useMetric = false):GlyphT return _createGlyph(charcode, x, y, glyphStyle, useMetric, false);
+	public inline function createGlyphAtBase(charcode:Int, x:Float, y:Float, ?glyphStyle:peote.text.GlyphStyleTiled):GlyphT return _createGlyph(charcode, x, y, glyphStyle, true, true);
+	inline function _createGlyph(charcode:Int, x:Float, y:Float, glyphStyle:peote.text.GlyphStyleTiled, useMetric:Bool, atBaseline:Bool):GlyphT {
 		var charData = getCharData(charcode);
 		if (charData != null) {
 			var glyph = new GlyphT();
@@ -259,9 +260,9 @@ class FontProgramT extends peote.view.Program {
 	}
 	public inline function glyphAdd(glyph:GlyphT):Void _buffer.addElement(glyph);
 	public inline function glyphRemove(glyph:GlyphT):Void _buffer.removeElement(glyph);
-	public inline function glyphSet(glyph:GlyphT, charcode:Int, x:Float, y:Float, ?glyphStyle:GlyphStyleT, useMetric = false):Bool return _setGlyph(glyph, charcode, x, y, glyphStyle, useMetric, false);
-	public inline function glyphSetAtBase(glyph:GlyphT, charcode:Int, x:Float, y:Float, ?glyphStyle:GlyphStyleT):Bool return _setGlyph(glyph, charcode, x, y, glyphStyle, true, true);
-	inline function _setGlyph(glyph:GlyphT, charcode:Int, x:Float, y:Float, glyphStyle:GlyphStyleT, useMetric:Bool, atBaseline:Bool):Bool {
+	public inline function glyphSet(glyph:GlyphT, charcode:Int, x:Float, y:Float, ?glyphStyle:peote.text.GlyphStyleTiled, useMetric = false):Bool return _setGlyph(glyph, charcode, x, y, glyphStyle, useMetric, false);
+	public inline function glyphSetAtBase(glyph:GlyphT, charcode:Int, x:Float, y:Float, ?glyphStyle:peote.text.GlyphStyleTiled):Bool return _setGlyph(glyph, charcode, x, y, glyphStyle, true, true);
+	inline function _setGlyph(glyph:GlyphT, charcode:Int, x:Float, y:Float, glyphStyle:peote.text.GlyphStyleTiled, useMetric:Bool, atBaseline:Bool):Bool {
 		var charData = getCharData(charcode);
 		if (charData != null) {
 			setStyle(glyph, glyphStyle);
@@ -277,7 +278,7 @@ class FontProgramT extends peote.view.Program {
 			return true;
 		} else return false;
 	}
-	public inline function glyphSetStyle(glyph:GlyphT, glyphStyle:GlyphStyleT, useMetric = false) {
+	public inline function glyphSetStyle(glyph:GlyphT, glyphStyle:peote.text.GlyphStyleTiled, useMetric = false) {
 		if (useMetric) {
 			var charData = getCharData(glyph.char);
 			var old_base:Float = _getBaseline(glyph, charData);
@@ -350,7 +351,7 @@ class FontProgramT extends peote.view.Program {
 	public inline function glyphUpdate(glyph:GlyphT):Void _buffer.updateElement(glyph);
 	public inline function updateAllGlyphes():Void _buffer.update();
 	public inline function numberOfGlyphes():Int return _buffer.length;
-	public inline function createPageLine(chars:String, x:Float = 0.0, y:Float = 0.0, ?size:Null<Float>, ?offset:Null<Float>, ?glyphStyle:Null<GlyphStyleT>, ?defaultFontRange:Null<Int>, addRemoveGlyphes:Bool = true, ?onUnrecognizedChar:(Int, Int) -> Void):PageLineT {
+	public inline function createPageLine(chars:String, x:Float = 0.0, y:Float = 0.0, ?size:Null<Float>, ?offset:Null<Float>, ?glyphStyle:Null<peote.text.GlyphStyleTiled>, ?defaultFontRange:Null<Int>, addRemoveGlyphes:Bool = true, ?onUnrecognizedChar:(Int, Int) -> Void):PageLineT {
 		var pageLine = new PageLineT();
 		pageLineSet(pageLine, chars, x, y, size, offset, glyphStyle, defaultFontRange, addRemoveGlyphes, onUnrecognizedChar);
 		return pageLine;
@@ -361,7 +362,7 @@ class FontProgramT extends peote.view.Program {
 	public inline function pageLineRemove(pageLine:PageLineT) {
 		for (i in pageLine.visibleFrom ... pageLine.visibleTo) glyphRemove(pageLine.getGlyph(i));
 	}
-	public function pageLineSet(pageLine:PageLineT, chars:String, x:Float, ?y:Null<Float>, size:Float, offset:Float, ?glyphStyle:Null<GlyphStyleT>, ?defaultFontRange:Null<Int>, addRemoveGlyphes:Bool = true, ?onUnrecognizedChar:(Int, Int) -> Void) {
+	public function pageLineSet(pageLine:PageLineT, chars:String, x:Float, ?y:Null<Float>, size:Float, offset:Float, ?glyphStyle:Null<peote.text.GlyphStyleTiled>, ?defaultFontRange:Null<Int>, addRemoveGlyphes:Bool = true, ?onUnrecognizedChar:(Int, Int) -> Void) {
 		var line_max = x + size;
 		if (y != null) pageLine.y = y else y = pageLine.y;
 		var x_start = x;
@@ -439,7 +440,7 @@ class FontProgramT extends peote.view.Program {
 		pageLine.visibleTo = visibleTo;
 		pageLine.textSize = x - x_start - offset;
 	}
-	inline function _setDefaultMetric(pageLine:PageLineT, defaultFontRange:Int, glyphStyle:Null<GlyphStyleT>) {
+	inline function _setDefaultMetric(pageLine:PageLineT, defaultFontRange:Int, glyphStyle:Null<peote.text.GlyphStyleTiled>) {
 		var charCode = font.config.ranges[defaultFontRange].range.min;
 		var charData = getCharData(charCode);
 		var glyph = new GlyphT();
@@ -470,7 +471,7 @@ class FontProgramT extends peote.view.Program {
 			};
 		} else return 0;
 	}
-	public function pageLineSetStyle(pageLine:PageLineT, x:Float, size:Float, offset:Float, glyphStyle:GlyphStyleT, from:Int = 0, ?to:Null<Int>, addRemoveGlyphes:Bool = true):Float {
+	public function pageLineSetStyle(pageLine:PageLineT, x:Float, size:Float, offset:Float, glyphStyle:peote.text.GlyphStyleTiled, from:Int = 0, ?to:Null<Int>, addRemoveGlyphes:Bool = true):Float {
 		if (to == null || to > pageLine.length) to = pageLine.length;
 		if (to < from) {
 			var tmp = to;
@@ -619,7 +620,7 @@ class FontProgramT extends peote.view.Program {
 		pageLine.visibleTo = visibleTo;
 		pageLine.textSize += deltaX;
 	}
-	public function pageLineSetChar(pageLine:PageLineT, x:Float, size:Float, offset:Float, charcode:Int, position:Int = 0, ?glyphStyle:GlyphStyleT, addRemoveGlyphes:Bool = true, ?onUnrecognizedChar:(Int, Int) -> Void):Float {
+	public function pageLineSetChar(pageLine:PageLineT, x:Float, size:Float, offset:Float, charcode:Int, position:Int = 0, ?glyphStyle:peote.text.GlyphStyleTiled, addRemoveGlyphes:Bool = true, ?onUnrecognizedChar:(Int, Int) -> Void):Float {
 		if (position >= pageLine.length) position = pageLine.length - 1 else if (position < 0) position = 0;
 		var charData = getCharData(charcode);
 		if (charData != null) {
@@ -660,7 +661,7 @@ class FontProgramT extends peote.view.Program {
 			return 0;
 		};
 	}
-	public function pageLineSetChars(pageLine:PageLineT, x:Float, size:Float, offset:Float, chars:String, position:Int = 0, ?glyphStyle:GlyphStyleT, addRemoveGlyphes:Bool = true, ?onUnrecognizedChar:(Int, Int) -> Void):Float {
+	public function pageLineSetChars(pageLine:PageLineT, x:Float, size:Float, offset:Float, chars:String, position:Int = 0, ?glyphStyle:peote.text.GlyphStyleTiled, addRemoveGlyphes:Bool = true, ?onUnrecognizedChar:(Int, Int) -> Void):Float {
 		var restChars:String = null;
 		if (position >= pageLine.length) {
 			position = pageLine.length;
@@ -722,7 +723,7 @@ class FontProgramT extends peote.view.Program {
 			if (restChars != null) return _offset + pageLineAppendChars(pageLine, line_x, size, offset, restChars, glyphStyle, addRemoveGlyphes, onUnrecognizedChar) else return _offset;
 		};
 	}
-	public function pageLineInsertChar(pageLine:PageLineT, x:Float, size:Float, offset:Float, charcode:Int, position:Int = 0, ?glyphStyle:GlyphStyleT, addRemoveGlyphes:Bool = true, ?onUnrecognizedChar:(Int, Int) -> Void):Float {
+	public function pageLineInsertChar(pageLine:PageLineT, x:Float, size:Float, offset:Float, charcode:Int, position:Int = 0, ?glyphStyle:peote.text.GlyphStyleTiled, addRemoveGlyphes:Bool = true, ?onUnrecognizedChar:(Int, Int) -> Void):Float {
 		var charData = getCharData(charcode);
 		if (charData != null) {
 			var prev_glyph:GlyphT = null;
@@ -768,7 +769,7 @@ class FontProgramT extends peote.view.Program {
 			return 0;
 		};
 	}
-	public function pageLineInsertChars(pageLine:PageLineT, x:Float, size:Float, offset:Float, chars:String, position:Int = 0, ?glyphStyle:GlyphStyleT, addRemoveGlyphes:Bool = true, ?onUnrecognizedChar:(Int, Int) -> Void):Float {
+	public function pageLineInsertChars(pageLine:PageLineT, x:Float, size:Float, offset:Float, chars:String, position:Int = 0, ?glyphStyle:peote.text.GlyphStyleTiled, addRemoveGlyphes:Bool = true, ?onUnrecognizedChar:(Int, Int) -> Void):Float {
 		var prev_glyph:GlyphT = null;
 		var line_x = x;
 		var y = pageLine.y;
@@ -821,14 +822,14 @@ class FontProgramT extends peote.view.Program {
 			return deltaX;
 		} else return _lineAppend(pageLine, line_x, size, offset, chars, x, y, prev_glyph, glyphStyle, addRemoveGlyphes, onUnrecognizedChar);
 	}
-	public function pageLineAppendChars(pageLine:PageLineT, x:Float, size:Float, offset:Float, chars:String, ?glyphStyle:GlyphStyleT, addRemoveGlyphes:Bool = true, ?onUnrecognizedChar:(Int, Int) -> Void):Float {
+	public function pageLineAppendChars(pageLine:PageLineT, x:Float, size:Float, offset:Float, chars:String, ?glyphStyle:peote.text.GlyphStyleTiled, addRemoveGlyphes:Bool = true, ?onUnrecognizedChar:(Int, Int) -> Void):Float {
 		if (pageLine.length > 0) {
 			var prev_glyph = pageLine.getGlyph(pageLine.length - 1);
 			var fromX = rightGlyphPos(prev_glyph, getCharData(prev_glyph.char));
 			return _lineAppend(pageLine, x, size, 0, chars, fromX, pageLine.y, prev_glyph, glyphStyle, addRemoveGlyphes, onUnrecognizedChar);
 		} else return _lineAppend(pageLine, x, size, offset, chars, x, pageLine.y, null, glyphStyle, addRemoveGlyphes, onUnrecognizedChar);
 	}
-	inline function _lineAppend(pageLine:PageLineT, line_x:Float, size:Float, offset:Float, chars:String, x:Float, y:Float, prev_glyph:GlyphT, glyphStyle:GlyphStyleT, addRemoveGlyphes:Bool, ?onUnrecognizedChar:(Int, Int) -> Void):Float {
+	inline function _lineAppend(pageLine:PageLineT, line_x:Float, size:Float, offset:Float, chars:String, x:Float, y:Float, prev_glyph:GlyphT, glyphStyle:peote.text.GlyphStyleTiled, addRemoveGlyphes:Bool, ?onUnrecognizedChar:(Int, Int) -> Void):Float {
 		var first = true;
 		var glyph:GlyphT = null;
 		var charData:{ var min : Int; var max : Int; var height : Float; var base : Float; } = null;
@@ -1010,7 +1011,7 @@ class FontProgramT extends peote.view.Program {
 				@param onUnrecognizedChar (optional) the function that is called whenever the font does not contain a char
 			
 	**/
-	public inline function createLine(chars:String, x:Float, y:Float, ?size:Null<Float>, ?offset:Null<Float>, ?glyphStyle:Null<GlyphStyleT>, ?defaultFontRange:Null<Int>, addRemoveGlyphes:Bool = true, ?onUnrecognizedChar:(Int, Int) -> Void):LineT {
+	public inline function createLine(chars:String, x:Float, y:Float, ?size:Null<Float>, ?offset:Null<Float>, ?glyphStyle:Null<peote.text.GlyphStyleTiled>, ?defaultFontRange:Null<Int>, addRemoveGlyphes:Bool = true, ?onUnrecognizedChar:(Int, Int) -> Void):LineT {
 		var line = new LineT();
 		lineSet(line, chars, x, y, size, offset, glyphStyle, defaultFontRange, addRemoveGlyphes, onUnrecognizedChar);
 		return line;
@@ -1045,7 +1046,7 @@ class FontProgramT extends peote.view.Program {
 				@param onUnrecognizedChar (optional) the function that is called whenever the font does not contain a char
 			
 	**/
-	public inline function lineSet(line:LineT, chars:String, ?x:Null<Float>, ?y:Null<Float>, ?size:Null<Float>, ?offset:Null<Float>, ?glyphStyle:Null<GlyphStyleT>, ?defaultFontRange:Null<Int>, addRemoveGlyphes:Bool = true, ?onUnrecognizedChar:(Int, Int) -> Void) {
+	public inline function lineSet(line:LineT, chars:String, ?x:Null<Float>, ?y:Null<Float>, ?size:Null<Float>, ?offset:Null<Float>, ?glyphStyle:Null<peote.text.GlyphStyleTiled>, ?defaultFontRange:Null<Int>, addRemoveGlyphes:Bool = true, ?onUnrecognizedChar:(Int, Int) -> Void) {
 		if (x != null) line.x = x;
 		if (size != null) line.size = size;
 		if (offset != null) line.offset = offset;
@@ -1062,7 +1063,7 @@ class FontProgramT extends peote.view.Program {
 				@param addRemoveGlyphes (optional) set this to false if the line is not added to prevent also adding/removing of glyphes
 			
 	**/
-	public inline function lineSetStyle(line:LineT, glyphStyle:GlyphStyleT, from:Int = 0, ?to:Null<Int>, addRemoveGlyphes:Bool = true):Float {
+	public inline function lineSetStyle(line:LineT, glyphStyle:peote.text.GlyphStyleTiled, from:Int = 0, ?to:Null<Int>, addRemoveGlyphes:Bool = true):Float {
 		return pageLineSetStyle(line.pageLine, line.x, line.size, line.offset, glyphStyle, from, to, addRemoveGlyphes);
 	}
 	/**
@@ -1161,7 +1162,7 @@ class FontProgramT extends peote.view.Program {
 				@param onUnrecognizedChar (optional) the function that is called whenever the font does not contain a char
 			
 	**/
-	public inline function lineSetChar(line:LineT, charcode:Int, position:Int = 0, ?glyphStyle:GlyphStyleT, addRemoveGlyphes:Bool = true, ?onUnrecognizedChar:(Int, Int) -> Void):Float {
+	public inline function lineSetChar(line:LineT, charcode:Int, position:Int = 0, ?glyphStyle:peote.text.GlyphStyleTiled, addRemoveGlyphes:Bool = true, ?onUnrecognizedChar:(Int, Int) -> Void):Float {
 		return pageLineSetChar(line.pageLine, line.x, line.size, line.offset, charcode, position, glyphStyle, addRemoveGlyphes, onUnrecognizedChar);
 	}
 	/**
@@ -1175,7 +1176,7 @@ class FontProgramT extends peote.view.Program {
 				@param onUnrecognizedChar (optional) the function that is called whenever the font does not contain a char
 			
 	**/
-	public inline function lineSetChars(line:LineT, chars:String, position:Int = 0, ?glyphStyle:GlyphStyleT, addRemoveGlyphes:Bool = true, ?onUnrecognizedChar:(Int, Int) -> Void):Float {
+	public inline function lineSetChars(line:LineT, chars:String, position:Int = 0, ?glyphStyle:peote.text.GlyphStyleTiled, addRemoveGlyphes:Bool = true, ?onUnrecognizedChar:(Int, Int) -> Void):Float {
 		return pageLineSetChars(line.pageLine, line.x, line.size, line.offset, chars, position, glyphStyle, addRemoveGlyphes, onUnrecognizedChar);
 	}
 	/**
@@ -1190,7 +1191,7 @@ class FontProgramT extends peote.view.Program {
 				@param onUnrecognizedChar (optional) the function that is called whenever the font does not contain a char
 			
 	**/
-	public inline function lineInsertChar(line:LineT, charcode:Int, position:Int = 0, ?glyphStyle:GlyphStyleT, addRemoveGlyphes:Bool = true, ?onUnrecognizedChar:(Int, Int) -> Void):Float {
+	public inline function lineInsertChar(line:LineT, charcode:Int, position:Int = 0, ?glyphStyle:peote.text.GlyphStyleTiled, addRemoveGlyphes:Bool = true, ?onUnrecognizedChar:(Int, Int) -> Void):Float {
 		return pageLineInsertChar(line.pageLine, line.x, line.size, line.offset, charcode, position, glyphStyle, addRemoveGlyphes, onUnrecognizedChar);
 	}
 	/**
@@ -1205,7 +1206,7 @@ class FontProgramT extends peote.view.Program {
 				@param onUnrecognizedChar (optional) the function that is called whenever the font does not contain a char
 			
 	**/
-	public inline function lineInsertChars(line:LineT, chars:String, position:Int = 0, ?glyphStyle:GlyphStyleT, addRemoveGlyphes:Bool = true, ?onUnrecognizedChar:(Int, Int) -> Void):Float {
+	public inline function lineInsertChars(line:LineT, chars:String, position:Int = 0, ?glyphStyle:peote.text.GlyphStyleTiled, addRemoveGlyphes:Bool = true, ?onUnrecognizedChar:(Int, Int) -> Void):Float {
 		return pageLineInsertChars(line.pageLine, line.x, line.size, line.offset, chars, position, glyphStyle, addRemoveGlyphes, onUnrecognizedChar);
 	}
 	/**
@@ -1218,7 +1219,7 @@ class FontProgramT extends peote.view.Program {
 				@param onUnrecognizedChar (optional) the function that is called whenever the font does not contain a char
 			
 	**/
-	public inline function lineAppendChars(line:LineT, chars:String, ?glyphStyle:GlyphStyleT, addRemoveGlyphes:Bool = true, ?onUnrecognizedChar:(Int, Int) -> Void):Float {
+	public inline function lineAppendChars(line:LineT, chars:String, ?glyphStyle:peote.text.GlyphStyleTiled, addRemoveGlyphes:Bool = true, ?onUnrecognizedChar:(Int, Int) -> Void):Float {
 		return pageLineAppendChars(line.pageLine, line.x, line.size, line.offset, chars, glyphStyle, addRemoveGlyphes, onUnrecognizedChar);
 	}
 	/**
@@ -1304,7 +1305,7 @@ class FontProgramT extends peote.view.Program {
 	}
 	public inline function lineWordLeft(line:LineT, position:Int):Int return pageLineWordLeft(line.pageLine, position);
 	public inline function lineWordRight(line:LineT, position:Int):Int return pageLineWordRight(line.pageLine, position);
-	public inline function createPage(chars:String, x:Float, y:Float, ?width:Null<Float>, ?height:Null<Float>, ?xOffset:Null<Float>, ?yOffset:Null<Float>, glyphStyle:Null<GlyphStyleT> = null, ?defaultFontRange:Null<Int>, addRemoveGlyphes:Bool = true, ?onUnrecognizedChar:(Int, Int, Int) -> Void):PageT {
+	public inline function createPage(chars:String, x:Float, y:Float, ?width:Null<Float>, ?height:Null<Float>, ?xOffset:Null<Float>, ?yOffset:Null<Float>, glyphStyle:Null<peote.text.GlyphStyleTiled> = null, ?defaultFontRange:Null<Int>, addRemoveGlyphes:Bool = true, ?onUnrecognizedChar:(Int, Int, Int) -> Void):PageT {
 		var page = new PageT();
 		pageSet(page, chars, x, y, width, height, xOffset, yOffset, glyphStyle, defaultFontRange, addRemoveGlyphes, onUnrecognizedChar);
 		return page;
@@ -1319,7 +1320,7 @@ class FontProgramT extends peote.view.Program {
 		return (page.visibleLineFrom <= lineNumber && lineNumber < page.visibleLineTo);
 	}
 	static var regLinesplit = new EReg("^(.*?)(\n|\r\n|\r)", "");
-	public function pageSet(page:PageT, chars:String, ?x:Null<Float>, ?y:Null<Float>, ?width:Null<Float>, ?height:Null<Float>, ?xOffset:Null<Float>, ?yOffset:Null<Float>, ?glyphStyle:GlyphStyleT, ?defaultFontRange:Null<Int>, addRemoveGlyphes:Bool = true, ?onUnrecognizedChar:(Int, Int, Int) -> Void) {
+	public function pageSet(page:PageT, chars:String, ?x:Null<Float>, ?y:Null<Float>, ?width:Null<Float>, ?height:Null<Float>, ?xOffset:Null<Float>, ?yOffset:Null<Float>, ?glyphStyle:peote.text.GlyphStyleTiled, ?defaultFontRange:Null<Int>, addRemoveGlyphes:Bool = true, ?onUnrecognizedChar:(Int, Int, Int) -> Void) {
 		if (x != null) page.x = x;
 		if (y != null) page.y = y else y = page.y;
 		if (width != null) page.width = width;
@@ -1375,7 +1376,7 @@ class FontProgramT extends peote.view.Program {
 		};
 		page.textHeight = y - page.yOffset - page.y;
 	}
-	inline function _pageAppendChars(page:PageT, chars:String, i:Int, y:Float, visibleLineFrom:Int, visibleLineTo:Int, ?glyphStyle:GlyphStyleT, defaultFontRange:Null<Int>, addRemoveGlyphes:Bool, onUnrecognizedChar:(Int, Int, Int) -> Void):Float {
+	inline function _pageAppendChars(page:PageT, chars:String, i:Int, y:Float, visibleLineFrom:Int, visibleLineTo:Int, ?glyphStyle:peote.text.GlyphStyleTiled, defaultFontRange:Null<Int>, addRemoveGlyphes:Bool, onUnrecognizedChar:(Int, Int, Int) -> Void):Float {
 		var textWidth = page.textWidth;
 		var onUnrecognizedLineChar = (onUnrecognizedChar == null) ? null : onUnrecognizedChar.bind(i);
 		var y_start = y;
@@ -1407,7 +1408,7 @@ class FontProgramT extends peote.view.Program {
 		page.textWidth = textWidth;
 		return y - y_start;
 	}
-	public function pageAppendChars(page:PageT, chars:String, ?glyphStyle:GlyphStyleT, ?defaultFontRange:Null<Int>, addRemoveGlyphes:Bool = true, ?onUnrecognizedChar:(Int, Int, Int) -> Void):Float {
+	public function pageAppendChars(page:PageT, chars:String, ?glyphStyle:peote.text.GlyphStyleTiled, ?defaultFontRange:Null<Int>, addRemoveGlyphes:Bool = true, ?onUnrecognizedChar:(Int, Int, Int) -> Void):Float {
 		chars += "\n";
 		var offset:Float = 0;
 		if (page.length > 0) {
@@ -1422,7 +1423,7 @@ class FontProgramT extends peote.view.Program {
 		page.textHeight += offset;
 		return offset;
 	}
-	public function pageSetStyle(page:PageT, glyphStyle:GlyphStyleT, fromLine:Int = 0, fromPosition:Int = 0, ?toLine:Null<Int>, ?toPosition:Null<Int>, addRemoveGlyphes:Bool = true):Float {
+	public function pageSetStyle(page:PageT, glyphStyle:peote.text.GlyphStyleTiled, fromLine:Int = 0, fromPosition:Int = 0, ?toLine:Null<Int>, ?toPosition:Null<Int>, addRemoveGlyphes:Bool = true):Float {
 		if (toLine == null || toLine > page.length) toLine = page.length;
 		if (toLine < fromLine) {
 			var tmp = toLine;
@@ -1500,7 +1501,7 @@ class FontProgramT extends peote.view.Program {
 		page.textHeight += offset;
 		return offset;
 	}
-	public function pageInsertChars(page:PageT, chars:String, lineNumber:Int = 0, position:Int = 0, ?glyphStyle:GlyphStyleT, ?defaultFontRange:Null<Int>, addRemoveGlyphes:Bool = true, ?onUnrecognizedChar:(Int, Int, Int) -> Void):Float {
+	public function pageInsertChars(page:PageT, chars:String, lineNumber:Int = 0, position:Int = 0, ?glyphStyle:peote.text.GlyphStyleTiled, ?defaultFontRange:Null<Int>, addRemoveGlyphes:Bool = true, ?onUnrecognizedChar:(Int, Int, Int) -> Void):Float {
 		chars += "\n";
 		var offset:Float = 0.0;
 		if (page.length > 0 && lineNumber < page.length) {
@@ -1665,13 +1666,13 @@ class FontProgramT extends peote.view.Program {
 		pageDeleteChars(page, fromLine, toLine, fromChar, toChar, addRemoveGlyphes);
 		return chars;
 	}
-	public function pageAddLinefeedAt(page:PageT, ?pageLine:PageLineT, lineNumber:Int, position:Int = 0, ?glyphStyle:GlyphStyleT, ?defaultFontRange:Null<Int>, addRemoveGlyphes:Bool = true) {
+	public function pageAddLinefeedAt(page:PageT, ?pageLine:PageLineT, lineNumber:Int, position:Int = 0, ?glyphStyle:peote.text.GlyphStyleTiled, ?defaultFontRange:Null<Int>, addRemoveGlyphes:Bool = true) {
 		if (pageLine == null) pageLine = page.getPageLine(lineNumber);
 		if (position == 0) pageNewLinefeed(page, lineNumber, false, glyphStyle, defaultFontRange) else if (position == pageLine.length) pageNewLinefeed(page, lineNumber, glyphStyle, defaultFontRange) else {
 			pageInsertChars(page, "\n", lineNumber, position, glyphStyle, defaultFontRange, addRemoveGlyphes);
 		};
 	}
-	public inline function pageNewLinefeed(page:PageT, ?pageLine:PageLineT, lineNumber:Int, afterLine:Bool = true, ?glyphStyle:GlyphStyleT, ?defaultFontRange:Null<Int>, addRemoveGlyphes:Bool = true) {
+	public inline function pageNewLinefeed(page:PageT, ?pageLine:PageLineT, lineNumber:Int, afterLine:Bool = true, ?glyphStyle:peote.text.GlyphStyleTiled, ?defaultFontRange:Null<Int>, addRemoveGlyphes:Bool = true) {
 		if (pageLine == null) pageLine = page.getPageLine(lineNumber);
 		if (afterLine) pageInsertChars(page, "\n", lineNumber, pageLine.length, glyphStyle, defaultFontRange, addRemoveGlyphes) else pageInsertChars(page, "\n", lineNumber, 0, glyphStyle, defaultFontRange, addRemoveGlyphes);
 	}
@@ -1855,7 +1856,7 @@ class FontProgramT extends peote.view.Program {
 			page.textHeight = pageLineY - page.y - page.yOffset;
 		};
 	}
-	public function pageWrapLine(page:PageT, lineNumber:Int, wordwrap:Bool = false, updatePageTextWidth:Bool = true, ?glyphStyle:GlyphStyleT, ?defaultFontRange:Null<Int>, addRemoveGlyphes:Bool = true):Int {
+	public function pageWrapLine(page:PageT, lineNumber:Int, wordwrap:Bool = false, updatePageTextWidth:Bool = true, ?glyphStyle:peote.text.GlyphStyleTiled, ?defaultFontRange:Null<Int>, addRemoveGlyphes:Bool = true):Int {
 		if (lineNumber >= page.length) return 0;
 		trace("pageWrapLine ", lineNumber);
 		var pageLine = page.getPageLine(lineNumber);
