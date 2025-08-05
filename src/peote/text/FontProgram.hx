@@ -235,7 +235,7 @@ class $className extends peote.view.Program
 	public inline function setFont(font:$fontType):Void
 	{
 		this.font = font;
-		autoUpdateTextures = false;
+		autoUpdate = false;
 
 		${switch (glyphStyleHasMeta.multiTexture) {
 			case true: macro setMultiTexture(font.textureCache.textures, "TEX");
@@ -396,7 +396,7 @@ class $className extends peote.view.Program
 			
 		}}
 		
-		updateTextures();
+		update();
 	}
 	
 	// -------------------------------------------------------------------------------------------------
@@ -3116,7 +3116,7 @@ class $className extends peote.view.Program
 	// TODO:
 	public function pageWrapLine(page:$pageType, lineNumber:Int, wordwrap:Bool = false, updatePageTextWidth:Bool = true, ?glyphStyle:$styleType, ?defaultFontRange:Null<Int>, addRemoveGlyphes:Bool = true):Int {
 		if (lineNumber >= page.length) return 0;
-		trace("pageWrapLine ", lineNumber);
+		// trace("pageWrapLine ", lineNumber);
 		var pageLine = page.getPageLine(lineNumber);
 		var position:Int;
 		var glyph:$glyphType;

@@ -17,6 +17,9 @@ import peote.text.Font;
 import peote.text.FontProgram;
 import peote.text.Range;
 
+import peote.text.GlyphStylePacked;
+import peote.text.GlyphStyleTiled;
+
 import peote.text.skin.simple.SimpleSkinProgram;
 import peote.text.skin.simple.SimpleSkinElement;
 

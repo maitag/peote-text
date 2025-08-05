@@ -120,7 +120,7 @@ class FontProgramP extends peote.view.Program {
 	}
 	public inline function setFont(font:FontP):Void {
 		this.font = font;
-		autoUpdateTextures = false;
+		autoUpdate = false;
 		setTexture(font.textureCache, "TEX");
 	}
 	public inline function setFontStyle(fontStyle:peote.text.GlyphStylePacked):Void {
@@ -155,7 +155,7 @@ class FontProgramP extends peote.view.Program {
 		{
 			if (tilt != "0.0") setFormula("x", "x + (1.0-aPosition.y)*w*" + tilt);
 		};
-		updateTextures();
+		update();
 	}
 	inline function makeTabSize(glyph:GlyphP, width:Float):Float {
 		if (glyph.char == 9) return width * 3.0 else return width;
@@ -1867,7 +1867,6 @@ class FontProgramP extends peote.view.Program {
 	}
 	public function pageWrapLine(page:PageP, lineNumber:Int, wordwrap:Bool = false, updatePageTextWidth:Bool = true, ?glyphStyle:peote.text.GlyphStylePacked, ?defaultFontRange:Null<Int>, addRemoveGlyphes:Bool = true):Int {
 		if (lineNumber >= page.length) return 0;
-		trace("pageWrapLine ", lineNumber);
 		var pageLine = page.getPageLine(lineNumber);
 		var position:Int;
 		var glyph:GlyphP;

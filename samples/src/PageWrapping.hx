@@ -17,7 +17,10 @@ import peote.view.Color;
 import peote.view.Element;
 
 import peote.text.Font;
+import peote.text.packed.FontP;
 import peote.text.FontProgram;
+
+import peote.text.GlyphStylePacked;
 
 class HelperElement implements Element
 {
@@ -54,7 +57,8 @@ class PageWrapping extends Application
 		display   = new Display(10,10, window.width-20, window.height-20, Color.GREY1);
 		peoteView.addDisplay(display);
 		
-		new Font<GlyphStylePacked>("assets/fonts/packed/hack/config.json")
+		// new Font<GlyphStylePacked>("assets/fonts/packed/hack/config.json")
+		new FontP("assets/fonts/packed/hack/config.json")
 
 		// glitch: if in config.json the range is start by zero but charcodes starts with 32
 
@@ -70,7 +74,8 @@ class PageWrapping extends Application
 			var fontStyle = font.createFontStyle();
 			
 			// var fontProgram = new FontProgram<GlyphStylePacked>(font, fontStyle); // manage the Programs to render glyphes in different size/colors/fonts
-			var fontProgram = font.createFontProgram(fontStyle);
+			var fontProgram = new peote.text.packed.FontProgramP(font, fontStyle); // manage the Programs to render glyphes in different size/colors/fonts
+			// var fontProgram = font.createFontProgram(fontStyle);
 			display.addProgram(fontProgram);
 			
 			var glyphStyle = font.createFontStyle();
